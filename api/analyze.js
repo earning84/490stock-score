@@ -128,17 +128,17 @@ ${langDirective}
   * 5년 초과: '기존기업' 프레임워크 적용
   * 5년 이하: '신생기업' 프레임워크 적용
 
-// [2단계: 채점 점수 산정 절대 룰 (점수 편차 방지)]
-// 44개 항목 하나하나를 뜯어보고 각 항목의 배점(max)에 대해 다음 4단계 구간 기준을 엄격히 적용해 점수를 산출하십시오:
-// - 탁월 (글로벌 1위, 명확한 정량 수치 입증): 배점의 90% ~ 100%
-// - 우수 (업계 상위권, 뚜렷한 경쟁 우위 및 성장성): 배점의 70% ~ 85%
-// - 보통 (평이한 수준, 경쟁사 대비 차별성 부족): 배점의 45% ~ 60%
-// - 미흡/취약 (근거 부족, 뚜렷한 리스크 또는 적자/역성장): 배점의 10% ~ 30%
+//[2단계: 채점 점수 산정 절대 룰 (점수 편차 방지)]
+//44개 항목 하나하나를 뜯어보고 각 항목의 배점(max)에 대해 다음 4단계 구간 기준을 엄격히 적용해 점수를 산출하십시오:
+//- 탁월 (글로벌 1위, 명확한 정량 수치 입증): 배점의 90% ~ 100%
+//- 우수 (업계 상위권, 뚜렷한 경쟁 우위 및 성장성): 배점의 70% ~ 85%
+//- 보통 (평이한 수준, 경쟁사 대비 차별성 부족): 배점의 45% ~ 60%
+//- 미흡/취약 (근거 부족, 뚜렷한 리스크 또는 적자/역성장): 배점의 10% ~ 30%
 
 [2단계: 전수 검사 및 팩트체크 원칙]
 - 각 항목의 점수는 지정된 배점(max)을 절대 초과할 수 없으며 정수여야 합니다.
 - 근거가 모호하거나 과대포장된 경우 보수적으로 감점하십시오.
-- 응답을 출력하기 전, 기업 정보의 정확성을 팩트체크하고, 44개 항목 점수 부여의 논리적 정합성을 내부적으로 전수 재검증하십시오.
+- 응답을 출력하기 전, 기업 정보의 정확성과 44개 항목 점수 부여의 논리적 정합성을 내부적으로 전수 재검증하십시오.
 
 [3단계: 투자 핵심 포인트(keyPoint) 작성]
 - 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 근거가 되는 기회와 리스크를 반드시 3줄 이내(줄바꿈 문장 3개 이하)로 명확히 서술하십시오.
@@ -167,8 +167,8 @@ ${langDirective}
       tools: [{ "google_search": {} }],
       systemInstruction: { parts: [{ text: systemPrompt }] },
       generationConfig: {
-        temperature: 0.1, // 무작위성을 제거해 실행 시마다 점수 편차가 발생하는 현상 억제
-        seed: 42          // 동일 기업에 대해 일관된 추론 결과 유지
+        temperature: 0.1,
+        seed: 42
       }
     };
 
@@ -234,7 +234,9 @@ ${langDirective}
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
 
-    // 투자적격 판정 로직
+    // ------------------------------------------------------------------
+    // [투자적격 세부 판정 및 검증 로직]
+    // ------------------------------------------------------------------
     const score7 = (scoreMap[7] && scoreMap[7].score) || 0;
     const score17 = (scoreMap[17] && scoreMap[17].score) || 0;
     const sum7_17 = score7 + score17;
@@ -258,19 +260,33 @@ ${langDirective}
       if (c && c.max > 0 && (s / c.max) >= 0.65) countGe65Core++;
     });
 
+    const requiredCoreScore = isNewborn ? 94 : 100;
+
     let isEligible = false;
+    let ruleMatched = "";
+
     if (totalScore < 245) {
       isEligible = false;
-    } else if (totalScore >= 300 && countGe65All >= 25 && sum7_17 >= 37) {
+      ruleMatched = isEnglish ? "Ineligible: Total fundamental score is below minimum cutoff of 245 pts." : "총점이 최소 기준(245점) 미만으로 탈락되었습니다.";
+    } else if (sum7_17 < 37) {
+      isEligible = false;
+      ruleMatched = isEnglish ? `Ineligible: Key timing/megatrend score (Items #7 + #17) is ${sum7_17}/50 pts, below the 37 pts threshold.` : `핵심 타이밍 및 한방 지표(7번+17번) 합계가 ${sum7_17}점으로 필수 기준(37점)에 미달했습니다.`;
+    } else if (totalScore >= 300 && countGe65All >= 25) {
       isEligible = true;
-    } else if (!isNewborn && totalScore >= 245 && totalScore <= 300 && coreScore >= 100 && countGe65Core >= 5 && sum7_17 >= 37) {
+      ruleMatched = isEnglish ? "Qualified: Met Track 1 (300+ pts, 25+ criteria scored >= 65%, Items #7+#17 >= 37 pts)." : "조건 1 충족: 300점 이상 고득점 트랙 (65% 이상 문항 25개 이상 및 7+17번 충족)";
+    } else if (totalScore >= 245 && totalScore <= 300 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-    } else if (isNewborn && totalScore >= 245 && totalScore <= 300 && coreScore >= 94 && countGe65Core >= 5 && sum7_17 >= 37) {
+      ruleMatched = isEnglish ? `Qualified: Met Track 2 (Core items score ${coreScore} >= ${requiredCoreScore}, 5+ core items >= 65%).` : `조건 2/3 충족: 핵심역량 트랙 (핵심문항 점수 ${coreScore}점/${requiredCoreScore}점 이상 및 5개 이상 충족)`;
+    } else if (totalScore >= 300 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-    } else if (totalScore >= 300 && ((!isNewborn && coreScore >= 100) || (isNewborn && coreScore >= 94)) && countGe65Core >= 5 && sum7_17 >= 37) {
-      isEligible = true;
+      ruleMatched = isEnglish ? "Qualified: Met core items criteria with 300+ total score." : "조건 충족: 핵심역량 기준을 충족한 300점 이상 기업";
     } else {
       isEligible = false;
+      if (totalScore >= 300) {
+        ruleMatched = isEnglish ? `Ineligible: 300+ total score, but 65%+ items count (${countGe65All}/25) is insufficient.` : `총점은 300점 이상이나, 65% 이상 득점 문항 수(${countGe65All}개/25개)가 부족합니다.`;
+      } else {
+        ruleMatched = isEnglish ? `Ineligible: Core items score (${coreScore}/${requiredCoreScore} pts) or count (${countGe65Core}/5) is insufficient.` : `핵심문항 점수(${coreScore}점/${requiredCoreScore}점) 또는 65% 이상 핵심문항 수(${countGe65Core}개/5개)가 부족합니다.`;
+      }
     }
 
     let qualification;
@@ -280,6 +296,17 @@ ${langDirective}
       qualification = isEligible ? "투자적격" : "투자 부적격";
     }
 
+    // 조건별 통과/미달 상세 검증 데이터
+    const checklist = {
+      isNewborn,
+      totalScore: { value: totalScore, pass: totalScore >= 245, threshold: ">= 245" },
+      sum7_17: { value: sum7_17, pass: sum7_17 >= 37, threshold: ">= 37 (만점 50)" },
+      countGe65All: { value: countGe65All, pass: countGe65All >= 25, threshold: ">= 25개" },
+      coreScore: { value: coreScore, pass: coreScore >= requiredCoreScore, threshold: `>= ${requiredCoreScore}점` },
+      countGe65Core: { value: countGe65Core, pass: countGe65Core >= 5, threshold: ">= 5개" },
+      ruleMatched: ruleMatched
+    };
+
     return res.status(200).json({
       companyName: result.companyName || company,
       companyCode: result.companyCode || "-",
@@ -288,6 +315,7 @@ ${langDirective}
       keyPoint: result.keyPoint || (isEnglish ? "Fundamental analysis completed." : "투자 핵심 포인트 분석이 완료되었습니다."),
       totalScore: totalScore,
       qualification: qualification,
+      checklist: checklist, // ★ 임시 표시용 세부 조건 데이터
       categoryScores: { cat1, cat2, cat3, cat4 },
       isAdmin: isAdmin,
       items: isAdmin ? tableData : null
