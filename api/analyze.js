@@ -105,7 +105,6 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.' });
 
-  // 환경 변수에 설정된 관리자 비밀번호 대조 (설정 안 했을 시 기본값 7777)
   const masterPassword = process.env.ADMIN_PASSWORD || "7777";
   const isAdmin = (adminPassword === masterPassword);
 
@@ -114,36 +113,36 @@ export default async function handler(req, res) {
 
     const systemPrompt = `
 당신은 매우 엄격하고 보수적인 최고 수준의 펀드매니저이자 공인회계사입니다.
-구글 실시간 검색을 통해 대상 기업("${company}")의 최신 상장일, 실적, 사업보고서를 검증하고 44개 항목을 평가하십시오.
+구글 실시간 검색을 통해 대상 기업("${company}")의 상장일, 실적, 재무제표를 확인하고 44개 항목을 평가하십시오.
 
-[평가 절차]
-1. 기업의 정확한 상장일(IPO)을 찾아 오늘(${todayStr}) 기준 상장 5년 초과 여부를 판별합니다.
+[평가 지침]
+1. 기업의 상장일을 검색하여 오늘(${todayStr}) 기준 5년 초과 여부를 판별합니다.
    - 5년 초과: '기존기업' 프레임워크
    - 5년 이하: '신생기업' 프레임워크
-2. 선택된 프레임워크의 44개 항목에 대해 0점에서 만점(max) 범위 내 정수 점수를 엄격히 매깁니다.
-3. 반드시 아래 JSON 규격으로만 응답하십시오.
+2. 해당 프레임워크 44개 항목 각각에 대해 0점에서 만점(max) 사이의 정수 점수와 평가 근거(1문장)를 작성하십시오.
+3. 중요: 반드시 다른 설명 글이나 마크다운 코드블록(\`\`\`json) 없이 순수한 JSON 텍스트 하나만 출력하십시오.
 
-반환 JSON 형식:
+출력 JSON 형식:
 {
-  "companyName": "정확한 기업명",
-  "companyCode": "종목코드(티커)",
+  "companyName": "기업명",
+  "companyCode": "종목코드",
   "ipoDate": "YYYY-MM-DD",
-  "framework": "기존기업" 또는 "신생기업",
+  "framework": "기존기업 또는 신생기업",
   "frameworkReason": "상장일 기준 프레임워크 결정 이유",
-  "keyPoint": "보수적 펀드매니저 관점의 최종 투자 핵심 코멘트 1~2문장",
+  "keyPoint": "핵심 종합 평가 1문장",
   "scores": [
-    {"no": 1, "score": 14, "reason": "평가 근거 요약"},
-    ... (44번까지 빠짐없이)
+    {"no": 1, "score": 15, "reason": "근거 설명"},
+    ... 44번까지 빠짐없이
   ]
 }
 `;
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
     const payload = {
-      contents: [{ parts: [{ text: `기업명: ${company}` }] }],
+      contents: [{ parts: [{ text: `기업명 또는 종목코드: ${company}` }] }],
       tools: [{ "google_search": {} }],
-      systemInstruction: { parts: [{ text: systemPrompt }] },
-      generationConfig: { responseMimeType: "application/json" }
+      systemInstruction: { parts: [{ text: systemPrompt }] }
     };
 
     const apiRes = await fetch(apiUrl, {
@@ -153,12 +152,44 @@ export default async function handler(req, res) {
     });
 
     if (!apiRes.ok) {
-      const err = await apiRes.text();
-      return res.status(apiRes.status).json({ error: `AI 분석 에러: ${err}` });
+      const errText = await apiRes.text();
+      return res.status(apiRes.status).json({ error: `API 호출 실패 (${apiRes.status}): ${errText}` });
     }
 
     const data = await apiRes.json();
-    const result = JSON.parse(data.candidates[0].content.parts[0].text);
+
+    // 안전 검증: candidates 객체가 비어 있는지 체크
+    if (!data.candidates || data.candidates.length === 0) {
+      const blockReason = data.promptFeedback?.blockReason || "알 수 없음";
+      return res.status(500).json({ error: `AI 응답 생성 차단됨 (원인: ${blockReason})` });
+    }
+
+    const candidate = data.candidates[0];
+    const parts = candidate.content?.parts;
+    if (!parts || parts.length === 0) {
+      return res.status(500).json({ error: `AI 답변 내용이 비어 있습니다 (종료 상태: ${candidate.finishReason || '미상'})` });
+    }
+
+    // 텍스트 파트 안전 추출
+    const rawText = parts.map(p => p.text || '').join('').trim();
+    if (!rawText) {
+      return res.status(500).json({ error: 'AI 응답 텍스트를 추출하지 못했습니다.' });
+    }
+
+    // JSON 문자열 정제 (마크다운 백틱 및 앞뒤 여백 제거)
+    let cleanJson = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const firstBrace = cleanJson.indexOf('{');
+    const lastBrace = cleanJson.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+    }
+
+    let result;
+    try {
+      result = JSON.parse(cleanJson);
+    } catch (parseErr) {
+      return res.status(500).json({ error: `JSON 파싱 실패: AI 응답이 온전하지 않습니다.` });
+    }
 
     const isNewborn = result.framework === "신생기업";
     const activeCriteria = isNewborn ? NEWBORN_CRITERIA : EXISTING_CRITERIA;
@@ -171,7 +202,6 @@ export default async function handler(req, res) {
       };
     });
 
-    // 4대 대분류 점수 및 총점 수학적 합산 (AI 암산 오차 배제)
     let cat1 = 0, cat2 = 0, cat3 = 0, cat4 = 0;
     const tableData = [];
 
@@ -184,7 +214,6 @@ export default async function handler(req, res) {
       else if (c.no <= 37) cat3 += awarded;
       else cat4 += awarded;
 
-      // 관리자인 경우에만 테이블 데이터에 축적
       if (isAdmin) {
         tableData.push({
           no: c.no,
@@ -198,8 +227,6 @@ export default async function handler(req, res) {
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
 
-    // ★ 핵심 보안 로직:
-    // 관리자(isAdmin)가 아니면 items(44개 질문 및 채점 데이터)는 응답 객체에서 완전히 제외(null)됨
     return res.status(200).json({
       companyName: result.companyName || company,
       companyCode: result.companyCode || "-",
@@ -208,17 +235,12 @@ export default async function handler(req, res) {
       frameworkReason: result.frameworkReason || "-",
       keyPoint: result.keyPoint || "펀더멘탈 분석이 완료되었습니다.",
       totalScore: totalScore,
-      categoryScores: {
-        cat1, // 메가트렌드 (122점)
-        cat2, // 해자/경쟁력 (183점)
-        cat3, // 재무건전성 (93점)
-        cat4  // 가치평가 (69점)
-      },
+      categoryScores: { cat1, cat2, cat3, cat4 },
       isAdmin: isAdmin,
-      items: isAdmin ? tableData : null // 일반 방문자에게는 44개 데이터 0바이트 전송
+      items: isAdmin ? tableData : null
     });
 
   } catch (error) {
-    return res.status(500).json({ error: error.message || '분석 중 내부 오류가 발생했습니다.' });
+    return res.status(500).json({ error: error.message || '분석 중 서버 내부 오류가 발생했습니다.' });
   }
 }
