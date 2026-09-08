@@ -3,131 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>상장기업 펀더멘탈 투자 점수</title>
+    <title>상장기업 펀더멘탈 44개 지표 정밀 투자 분석</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Pretendard', sans-serif;
-            background-color: #0f172a;
-        }
+        body { font-family: 'Pretendard', sans-serif; background-color: #0b1120; }
         .loader {
             border: 4px solid rgba(255, 255, 255, 0.1);
             border-top: 4px solid #38bdf8;
             border-radius: 50%;
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 text-slate-100">
+<body class="min-h-screen py-10 px-4 text-slate-100 flex flex-col items-center relative">
 
-    <div class="bg-slate-800/90 backdrop-blur-md rounded-3xl shadow-2xl p-8 max-w-xl w-full border border-slate-700">
+    <!-- Top Right Admin Key Modal Trigger -->
+    <div class="w-full max-w-4xl flex justify-end mb-3">
+        <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/80 transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            <span id="adminStatusText">일반 모드</span>
+        </button>
+    </div>
+
+    <!-- Admin Password Input Modal -->
+    <div id="adminModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-xs w-full shadow-2xl">
+            <h3 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                <span>관리자 인증</span>
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.</p>
+            <input type="password" id="adminPwdInput" placeholder="비밀번호 입력..." class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500 mb-3">
+            <div class="flex justify-end gap-2">
+                <button onclick="toggleAdminModal()" class="px-3 py-1.5 text-xs text-slate-400 hover:text-white">취소</button>
+                <button onclick="saveAdminPwd()" class="px-3 py-1.5 bg-sky-500 text-slate-950 font-bold rounded-lg text-xs hover:bg-sky-400">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl w-full bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl">
         
         <!-- Header -->
         <div class="text-center mb-8">
-            <span class="px-3 py-1 bg-sky-500/10 text-sky-400 text-xs font-semibold rounded-full border border-sky-500/20">
-                보수적 가치투자 44개 펀더멘탈 프레임워크
-            </span>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-3 mb-2">기업 투자 가치 평가</h1>
-            <p class="text-xs sm:text-sm text-slate-400">상장기업을 입력하면 AI가 실시간 데이터를 기반으로 44개 항목을 정밀 평가합니다.</p>
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold mb-3">
+                <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                상장 5년 기준 프레임워크 자동 전환 (467점 만점)
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">상장기업 펀더멘탈 투자 가치 평가</h1>
+            <p class="text-xs sm:text-sm text-slate-400 mt-2">단기 소음을 배제하고 실시간 공시와 펀더멘탈 데이터를 바탕으로 44개 핵심 지표를 평가합니다.</p>
         </div>
 
-        <!-- Search Form -->
-        <div class="mb-6">
-            <label for="companyInput" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">기업명 또는 종목코드</label>
+        <!-- Search Bar -->
+        <div class="mb-8 max-w-xl mx-auto">
             <div class="flex gap-2">
-                <input type="text" id="companyInput" placeholder="예: 삼성전자, 현대차, AAPL" 
-                       class="flex-1 px-4 py-3 bg-slate-900/80 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all placeholder-slate-500 text-sm"
-                       onkeypress="handleKeyPress(event)">
+                <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)" 
+                       class="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm placeholder-slate-500"
+                       onkeypress="if(event.key==='Enter') analyzeCompany()">
                 <button onclick="analyzeCompany()" id="analyzeBtn"
-                        class="px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-sky-500/20 focus:outline-none text-sm whitespace-nowrap">
-                    정밀 분석
+                        class="px-6 py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold rounded-xl transition-all text-sm whitespace-nowrap shadow-lg shadow-sky-500/20">
+                    정밀 분석 시작
                 </button>
             </div>
         </div>
 
         <!-- Loading State -->
-        <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12">
-            <div class="loader mb-5"></div>
-            <p class="text-slate-200 font-semibold text-center text-sm" id="loadingTitle">기업 데이터를 수집하고 있습니다...</p>
+        <div id="loadingState" class="hidden flex flex-col items-center justify-center py-16">
+            <div class="loader mb-6"></div>
+            <p class="text-slate-200 font-semibold text-base">상장일 판별 및 실시간 기업 리서치 중...</p>
             <p class="text-xs text-slate-400 mt-2 text-center leading-relaxed">
-                재무제표, 해자, 시장규모 등 44개 항목을 엄격하게 팩트체크 중입니다.<br>
-                <span class="text-sky-400 font-medium">(약 20초~35초 소요)</span>
+                상장 5년 초과/이하 여부를 검증하고 44개 세부 항목을 엄격하게 팩트체크합니다.<br>
+                <span class="text-sky-400 font-medium">(정밀 검증으로 인해 약 25초~40초 소요됩니다)</span>
             </p>
         </div>
 
         <!-- Error State -->
-        <div id="errorState" class="hidden py-4 px-4 bg-red-500/10 border border-red-500/30 rounded-xl text-center mb-6">
-            <p class="text-red-400 text-sm font-medium" id="errorMessage">오류가 발생했습니다.</p>
+        <div id="errorState" class="hidden py-4 px-5 bg-red-500/10 border border-red-500/30 rounded-2xl text-center mb-6">
+            <p class="text-red-400 text-sm font-medium" id="errorMessage"></p>
         </div>
 
-        <!-- Result Display -->
-        <div id="resultState" class="hidden mt-6 border-t border-slate-700/80 pt-6">
-            <div class="text-center">
-                <div class="inline-flex items-center gap-2 mb-1">
-                    <h2 id="resultCompanyName" class="text-2xl font-black text-white">기업명</h2>
-                    <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-700 text-slate-300">005930</span>
-                </div>
-                
-                <!-- Score Display -->
-                <div class="my-6 p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-900/40 border border-slate-700/70 shadow-inner">
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">투자 최종 점수</p>
-                    <div class="flex items-baseline justify-center gap-1">
-                        <span id="resultScore" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">0</span>
-                        <span class="text-lg font-bold text-slate-500">/ 467</span>
+        <!-- Result State -->
+        <div id="resultState" class="hidden space-y-8">
+            
+            <!-- Result Summary Card -->
+            <div class="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-6 sm:p-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-700/80 pb-6">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <h2 id="resultCompanyName" class="text-2xl sm:text-3xl font-black text-white">기업명</h2>
+                            <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-1 rounded bg-slate-700 text-slate-300">종목코드</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2 flex items-center gap-2">
+                            <span>상장일: <b id="resultIpoDate" class="text-slate-200">-</b></span>
+                            <span>•</span>
+                            <span id="frameworkBadge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">기존기업 프레임워크</span>
+                        </p>
+                        <p id="resultFrameworkReason" class="text-[11px] text-slate-400 mt-1 italic"></p>
+                    </div>
+
+                    <!-- Total Score Display -->
+                    <div class="text-right sm:border-l sm:border-slate-700 sm:pl-8">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">투자 최종 펀더멘탈 점수</p>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="resultScore" class="text-5xl font-black text-sky-400">0</span>
+                            <span class="text-xl font-bold text-slate-500">/ 467</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 4 Category Breakdown (44개 세부 질문은 감추고 대분류별 성적만 공개) -->
-                <div class="grid grid-cols-2 gap-3 mb-6 text-left">
+                <!-- 4 Category Breakdown (공개용 대분류 점수) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6 text-left">
                     <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
-                        <p class="text-[11px] text-slate-400">메가트렌드 및 거시환경</p>
-                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat1Score">0</span> <span class="text-xs text-slate-500 font-normal">/ 122점</span></p>
+                        <p class="text-[11px] text-slate-400">메가트렌드</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat1Score">0</span> <span class="text-[10px] text-slate-500">/ 122점</span></p>
                     </div>
                     <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
-                        <p class="text-[11px] text-slate-400">해자 및 사업경쟁력</p>
-                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat2Score">0</span> <span class="text-xs text-slate-500 font-normal">/ 183점</span></p>
+                        <p class="text-[11px] text-slate-400">해자 및 경쟁력</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat2Score">0</span> <span class="text-[10px] text-slate-500">/ 183점</span></p>
                     </div>
                     <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
-                        <p class="text-[11px] text-slate-400">재무건전성 및 수익성</p>
-                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat3Score">0</span> <span class="text-xs text-slate-500 font-normal">/ 93점</span></p>
+                        <p class="text-[11px] text-slate-400">재무 및 수익성</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat3Score">0</span> <span class="text-[10px] text-slate-500">/ 93점</span></p>
                     </div>
                     <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
-                        <p class="text-[11px] text-slate-400">가치평가 (Valuation)</p>
-                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat4Score">0</span> <span class="text-xs text-slate-500 font-normal">/ 69점</span></p>
+                        <p class="text-[11px] text-slate-400">가치평가</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat4Score">0</span> <span class="text-[10px] text-slate-500">/ 69점</span></p>
                     </div>
                 </div>
 
                 <!-- Key Point -->
-                <div class="text-left bg-sky-950/30 p-4 rounded-xl border border-sky-800/40">
-                    <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        보수적 펀드매니저 핵심 코멘트
-                    </h3>
-                    <p id="resultKeyPoint" class="text-slate-200 text-sm leading-relaxed">
-                        핵심 평가 요약이 출력됩니다.
+                <div class="bg-slate-900/80 p-4 sm:p-5 rounded-xl border border-sky-900/40">
+                    <p class="text-xs font-bold text-sky-400 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        보수적 펀드매니저 핵심 종합 평가
                     </p>
+                    <p id="resultKeyPoint" class="text-slate-200 text-sm leading-relaxed"></p>
                 </div>
             </div>
+
+            <!-- 44 Detailed Items Table (오직 관리자 인증 시에만 노출) -->
+            <div id="adminTableSection" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded border border-amber-500/30">관리자 전용</span>
+                        <span>44개 평가 항목별 정밀 채점표</span>
+                    </h3>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/70">
+                    <table class="w-full text-left text-xs sm:text-sm text-slate-300">
+                        <thead class="bg-slate-800/80 text-slate-400 uppercase text-[11px] border-b border-slate-700">
+                            <tr>
+                                <th class="py-3 px-3 w-12 text-center">번호</th>
+                                <th class="py-3 px-4 w-2/5">평가 기준 항목</th>
+                                <th class="py-3 px-3 w-16 text-center">배점</th>
+                                <th class="py-3 px-3 w-16 text-center">획득</th>
+                                <th class="py-3 px-4">AI 평가 및 팩트체크 사유</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody" class="divide-y divide-slate-800"></tbody>
+                        <tfoot class="bg-slate-800/90 font-bold text-white border-t-2 border-slate-600">
+                            <tr>
+                                <td colspan="2" class="py-3.5 px-4 text-right">합계 총점</td>
+                                <td class="py-3.5 px-3 text-center text-slate-400">467</td>
+                                <td id="tableTotalScore" class="py-3.5 px-3 text-center text-sky-400 text-base">0</td>
+                                <td class="py-3.5 px-4 text-slate-400 text-xs font-normal">정밀 검증 완료</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Disclaimer -->
-        <div class="mt-8 text-center border-t border-slate-800 pt-4">
-            <p class="text-[11px] text-slate-500 leading-relaxed">
-                본 평가는 AI가 자체 프레임워크로 수집·추정한 분석 결과이며, 실제 투자에 대한 법적 책임을 지지 않습니다.
-            </p>
-        </div>
     </div>
 
     <script>
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') analyzeCompany();
+        let adminPassword = localStorage.getItem('company_admin_pwd') || "";
+
+        window.onload = () => {
+            updateAdminBtnUI();
+        };
+
+        function toggleAdminModal() {
+            const modal = document.getElementById('adminModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                document.getElementById('adminPwdInput').value = adminPassword;
+            }
+        }
+
+        function saveAdminPwd() {
+            adminPassword = document.getElementById('adminPwdInput').value.trim();
+            localStorage.setItem('company_admin_pwd', adminPassword);
+            toggleAdminModal();
+            updateAdminBtnUI();
+        }
+
+        function updateAdminBtnUI() {
+            const btnText = document.getElementById('adminStatusText');
+            if (adminPassword) {
+                btnText.textContent = "관리자 모드 활성";
+                btnText.className = "text-sky-400 font-semibold";
+            } else {
+                btnText.textContent = "일반 모드";
+                btnText.className = "text-slate-400";
+            }
         }
 
         async function analyzeCompany() {
@@ -140,18 +223,17 @@
             showLoading();
 
             try {
-                // 내 서버리스 API 호출 (44개 질문과 API 키가 이 뒤에 완벽히 숨겨져 있음)
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ company: query })
+                    body: JSON.stringify({ 
+                        company: query,
+                        adminPassword: adminPassword // 관리자 암호 전송
+                    })
                 });
 
                 const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "분석 요청에 실패했습니다.");
-                }
+                if (!response.ok) throw new Error(data.error || "분석 요청에 실패했습니다.");
 
                 displayResult(data);
             } catch (err) {
@@ -181,38 +263,51 @@
 
         function displayResult(data) {
             hideLoading();
+
             document.getElementById('resultCompanyName').textContent = data.companyName;
             document.getElementById('resultCompanyCode').textContent = data.companyCode;
+            document.getElementById('resultIpoDate').textContent = data.ipoDate;
+            document.getElementById('frameworkBadge').textContent = `${data.framework} 프레임워크 적용`;
+            document.getElementById('resultFrameworkReason').textContent = data.frameworkReason;
             document.getElementById('resultKeyPoint').textContent = data.keyPoint;
+            document.getElementById('resultScore').textContent = data.totalScore;
 
-            // 대분류 점수 표시
+            // 대분류 점수
             document.getElementById('cat1Score').textContent = data.categoryScores.cat1;
             document.getElementById('cat2Score').textContent = data.categoryScores.cat2;
             document.getElementById('cat3Score').textContent = data.categoryScores.cat3;
             document.getElementById('cat4Score').textContent = data.categoryScores.cat4;
 
-            // 총점 카운팅 애니메이션
-            animateValue("resultScore", 0, data.totalScore, 1000);
+            // 관리자 인증 여부에 따른 44개 표 노출 제어
+            const adminSection = document.getElementById('adminTableSection');
+            if (data.isAdmin && data.items && data.items.length > 0) {
+                adminSection.classList.remove('hidden');
+                document.getElementById('tableTotalScore').textContent = data.totalScore;
+
+                const tbody = document.getElementById('itemsTableBody');
+                tbody.innerHTML = '';
+
+                data.items.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800/40 transition-colors";
+                    const ratio = item.score / item.max;
+                    const scoreColor = ratio >= 0.8 ? "text-emerald-400" : (ratio >= 0.5 ? "text-amber-400" : "text-rose-400");
+
+                    tr.innerHTML = `
+                        <td class="py-3 px-3 text-center text-slate-400 font-mono">${item.no}</td>
+                        <td class="py-3 px-4 font-medium text-slate-200">${item.name}</td>
+                        <td class="py-3 px-3 text-center text-slate-400">${item.max}</td>
+                        <td class="py-3 px-3 text-center font-bold ${scoreColor}">${item.score}</td>
+                        <td class="py-3 px-4 text-xs text-slate-300 leading-relaxed">${item.reason}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                // 일반 사용자는 테이블 영역 자체를 숨김
+                adminSection.classList.add('hidden');
+            }
 
             document.getElementById('resultState').classList.remove('hidden');
-        }
-
-        function animateValue(id, start, end, duration) {
-            if (start === end) return;
-            const range = end - start;
-            let current = start;
-            const stepTime = 15;
-            const increment = Math.max(1, Math.ceil(range / (duration / stepTime)));
-            const obj = document.getElementById(id);
-
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= end) {
-                    current = end;
-                    clearInterval(timer);
-                }
-                obj.textContent = current;
-            }, stepTime);
         }
     </script>
 </body>
