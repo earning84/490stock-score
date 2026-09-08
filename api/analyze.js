@@ -120,7 +120,9 @@ export default async function handler(req, res) {
    - 5년 초과: '기존기업' 프레임워크
    - 5년 이하: '신생기업' 프레임워크
 2. 해당 프레임워크 44개 항목 각각에 대해 0점에서 만점(max) 사이의 정수 점수와 평가 근거(1문장)를 작성하십시오.
-3. 중요: 마크다운 코드블록(\`\`\`json) 없이 순수한 JSON 텍스트만 출력하십시오.
+3. [투자 핵심 포인트(keyPoint) 작성 원칙 - 매우 중요]
+   - 수식어나 추상적인 설명은 배제하고, 실적/해자/밸류에이션 관점에서의 실질적인 투자 판단 근거를 반드시 '3줄 이내'(줄바꿈 문장 3개 이하)로 명확히 서술하십시오.
+4. 중요: 마크다운 코드블록(\`\`\`json) 없이 순수한 JSON 텍스트만 출력하십시오.
 
 출력 JSON 형식:
 {
@@ -128,8 +130,7 @@ export default async function handler(req, res) {
   "companyCode": "종목코드",
   "ipoDate": "YYYY-MM-DD",
   "framework": "기존기업 또는 신생기업",
-  "frameworkReason": "상장일 기준 프레임워크 결정 이유",
-  "keyPoint": "핵심 종합 평가 1문장",
+  "keyPoint": "1. 핵심 성장 동력 및 시장 해자 요약\\n2. 주요 재무적 건전성 및 리스크 요인\\n3. 현재 밸류에이션 관점의 투자 결론",
   "scores": [
     {"no": 1, "score": 15, "reason": "근거 설명"},
     ... 44번까지 빠짐없이
@@ -207,23 +208,17 @@ export default async function handler(req, res) {
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
 
-    // ------------------------------------------------------------------
-    // [투자적격 판정 알고리즘]
-    // ------------------------------------------------------------------
+    // 투자적격 판정 로직
     const score7 = (scoreMap[7] && scoreMap[7].score) || 0;
     const score17 = (scoreMap[17] && scoreMap[17].score) || 0;
     const sum7_17 = score7 + score17;
 
-    // 1) 65% 이상 득점 문항 수 카운트
     let countGe65All = 0;
     activeCriteria.forEach(c => {
       const s = (scoreMap[c.no] && scoreMap[c.no].score) || 0;
-      if (c.max > 0 && (s / c.max) >= 0.65) {
-        countGe65All++;
-      }
+      if (c.max > 0 && (s / c.max) >= 0.65) countGe65All++;
     });
 
-    // 2) 핵심문항 8개
     const coreNos = isNewborn 
       ? [2, 5, 11, 14, 17, 18, 22, 23] 
       : [2, 5, 11, 14, 17, 18, 30, 44];
@@ -234,14 +229,10 @@ export default async function handler(req, res) {
       const c = activeCriteria.find(item => item.no === no);
       const s = (scoreMap[no] && scoreMap[no].score) || 0;
       coreScore += s;
-      if (c && c.max > 0 && (s / c.max) >= 0.65) {
-        countGe65Core++;
-      }
+      if (c && c.max > 0 && (s / c.max) >= 0.65) countGe65Core++;
     });
 
-    // 3) 조건 판정 (만족 시 투자적격, 미달 시 투자 부적격)
     let isEligible = false;
-
     if (totalScore < 245) {
       isEligible = false;
     } else if (totalScore >= 300 && countGe65All >= 25 && sum7_17 >= 37) {
@@ -263,10 +254,9 @@ export default async function handler(req, res) {
       companyCode: result.companyCode || "-",
       ipoDate: result.ipoDate || "-",
       framework: result.framework || (isNewborn ? "신생기업" : "기존기업"),
-      frameworkReason: result.frameworkReason || "-",
-      keyPoint: result.keyPoint || "펀더멘탈 분석이 완료되었습니다.",
+      keyPoint: result.keyPoint || "투자 핵심 포인트 분석이 완료되었습니다.",
       totalScore: totalScore,
-      qualification: qualification, // '투자적격' 또는 '투자 부적격'
+      qualification: qualification,
       categoryScores: { cat1, cat2, cat3, cat4 },
       isAdmin: isAdmin,
       items: isAdmin ? tableData : null
