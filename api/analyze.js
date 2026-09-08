@@ -147,10 +147,15 @@ ${langDirective}
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
+    // api/analyze.js 내부
     const payload = {
       contents: [{ parts: [{ text: `Target Company: ${company}` }] }],
       tools: [{ "google_search": {} }],
-      systemInstruction: { parts: [{ text: systemPrompt }] }
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+      generationConfig: {
+        temperature: 0.1, // 무작위성을 최소화하여 채점 일관성 확보
+        seed: 42          // 동일 입력에 대해 일정한 추론 경로 유지 유도
+      }
     };
 
     const apiRes = await fetch(apiUrl, {
