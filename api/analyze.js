@@ -99,7 +99,7 @@ const NEWBORN_CRITERIA = [
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { company, adminPassword } = req.body || {};
+  const { company, adminPassword, lang = 'ko' } = req.body || {};
   if (!company) return res.status(400).json({ error: '기업명을 입력해주세요.' });
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -110,10 +110,17 @@ export default async function handler(req, res) {
 
   try {
     const todayStr = new Date().toISOString().slice(0, 10);
+    const isEnglish = (lang === 'en');
+
+    const langDirective = isEnglish 
+      ? "CRITICAL: You MUST write companyName, keyPoint, and all reasons exclusively in English." 
+      : "중요: 모든 회사명, keyPoint, 평가 사유는 한국어로 작성하십시오.";
 
     const systemPrompt = `
 당신은 매우 엄격하고 보수적인 최고 수준의 펀드매니저이자 공인회계사입니다.
 구글 실시간 검색을 통해 대상 기업("${company}")의 상장일, 실적, 재무제표를 확인하고 44개 항목을 평가하십시오.
+
+${langDirective}
 
 [평가 지침]
 1. 기업의 상장일을 검색하여 오늘(${todayStr}) 기준 5년 초과 여부를 판별합니다.
@@ -141,7 +148,7 @@ export default async function handler(req, res) {
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const payload = {
-      contents: [{ parts: [{ text: `기업명 또는 종목코드: ${company}` }] }],
+      contents: [{ parts: [{ text: `Target Company: ${company}` }] }],
       tools: [{ "google_search": {} }],
       systemInstruction: { parts: [{ text: systemPrompt }] }
     };
@@ -172,7 +179,7 @@ export default async function handler(req, res) {
     }
 
     const result = JSON.parse(cleanJson);
-    const isNewborn = result.framework === "신생기업";
+    const isNewborn = (result.framework === "신생기업" || result.framework === "Newborn");
     const activeCriteria = isNewborn ? NEWBORN_CRITERIA : EXISTING_CRITERIA;
 
     const scoreMap = {};
@@ -247,14 +254,19 @@ export default async function handler(req, res) {
       isEligible = false;
     }
 
-    const qualification = isEligible ? "투자적격" : "투자 부적격";
+    let qualification;
+    if (isEnglish) {
+      qualification = isEligible ? "Investment Grade" : "Ineligible";
+    } else {
+      qualification = isEligible ? "투자적격" : "투자 부적격";
+    }
 
     return res.status(200).json({
       companyName: result.companyName || company,
       companyCode: result.companyCode || "-",
       ipoDate: result.ipoDate || "-",
       framework: result.framework || (isNewborn ? "신생기업" : "기존기업"),
-      keyPoint: result.keyPoint || "투자 핵심 포인트 분석이 완료되었습니다.",
+      keyPoint: result.keyPoint || (isEnglish ? "Fundamental analysis completed." : "투자 핵심 포인트 분석이 완료되었습니다."),
       totalScore: totalScore,
       qualification: qualification,
       categoryScores: { cat1, cat2, cat3, cat4 },
