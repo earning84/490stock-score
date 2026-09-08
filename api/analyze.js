@@ -1,6 +1,6 @@
 export const maxDuration = 60;
 
-// [기존기업] 44개 항목 (467점)
+// [기존기업] 44개 항목 (467점 만점)
 const EXISTING_CRITERIA = [
   { no: 1, max: 20, text: "기인문기정금 메가트렌드 부합 여부 (1000억달러 시장, CAGR 8%, 20년 지속 등)" },
   { no: 2, max: 20, text: "해당 산업이 글로벌 필수 산업인가? TAM/SAM 1조달러 이상 성장 가능성" },
@@ -48,7 +48,7 @@ const EXISTING_CRITERIA = [
   { no: 44, max: 20, text: "컨센서스 및 현금흐름 기반 DCF/RIM 밸류에이션 상 주가 상승 여력" }
 ];
 
-// [신생기업] 44개 항목 (467점)
+// [신생기업] 44개 항목 (467점 만점)
 const NEWBORN_CRITERIA = [
   { no: 1, max: 20, text: "기인문기정금 메가트렌드 부합 여부 (1000억달러 시장, CAGR 8%, 20년 지속 등)" },
   { no: 2, max: 20, text: "해당 산업이 글로벌 필수 산업인가? TAM/SAM 1조달러 이상 성장 가능성" },
@@ -120,7 +120,7 @@ export default async function handler(req, res) {
    - 5년 초과: '기존기업' 프레임워크
    - 5년 이하: '신생기업' 프레임워크
 2. 해당 프레임워크 44개 항목 각각에 대해 0점에서 만점(max) 사이의 정수 점수와 평가 근거(1문장)를 작성하십시오.
-3. 중요: 반드시 다른 설명 글이나 마크다운 코드블록(\`\`\`json) 없이 순수한 JSON 텍스트 하나만 출력하십시오.
+3. 중요: 마크다운 코드블록(\`\`\`json) 없이 순수한 JSON 텍스트만 출력하십시오.
 
 출력 JSON 형식:
 {
@@ -157,26 +157,12 @@ export default async function handler(req, res) {
     }
 
     const data = await apiRes.json();
-
-    // 안전 검증: candidates 객체가 비어 있는지 체크
     if (!data.candidates || data.candidates.length === 0) {
-      const blockReason = data.promptFeedback?.blockReason || "알 수 없음";
-      return res.status(500).json({ error: `AI 응답 생성 차단됨 (원인: ${blockReason})` });
+      return res.status(500).json({ error: `AI 응답 생성 차단됨` });
     }
 
-    const candidate = data.candidates[0];
-    const parts = candidate.content?.parts;
-    if (!parts || parts.length === 0) {
-      return res.status(500).json({ error: `AI 답변 내용이 비어 있습니다 (종료 상태: ${candidate.finishReason || '미상'})` });
-    }
-
-    // 텍스트 파트 안전 추출
-    const rawText = parts.map(p => p.text || '').join('').trim();
-    if (!rawText) {
-      return res.status(500).json({ error: 'AI 응답 텍스트를 추출하지 못했습니다.' });
-    }
-
-    // JSON 문자열 정제 (마크다운 백틱 및 앞뒤 여백 제거)
+    const parts = data.candidates[0].content?.parts;
+    const rawText = (parts || []).map(p => p.text || '').join('').trim();
     let cleanJson = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
     const firstBrace = cleanJson.indexOf('{');
     const lastBrace = cleanJson.lastIndexOf('}');
@@ -184,13 +170,7 @@ export default async function handler(req, res) {
       cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
     }
 
-    let result;
-    try {
-      result = JSON.parse(cleanJson);
-    } catch (parseErr) {
-      return res.status(500).json({ error: `JSON 파싱 실패: AI 응답이 온전하지 않습니다.` });
-    }
-
+    const result = JSON.parse(cleanJson);
     const isNewborn = result.framework === "신생기업";
     const activeCriteria = isNewborn ? NEWBORN_CRITERIA : EXISTING_CRITERIA;
 
@@ -227,6 +207,57 @@ export default async function handler(req, res) {
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
 
+    // ------------------------------------------------------------------
+    // [투자적격 판정 알고리즘]
+    // ------------------------------------------------------------------
+    const score7 = (scoreMap[7] && scoreMap[7].score) || 0;
+    const score17 = (scoreMap[17] && scoreMap[17].score) || 0;
+    const sum7_17 = score7 + score17;
+
+    // 1) 65% 이상 득점 문항 수 카운트
+    let countGe65All = 0;
+    activeCriteria.forEach(c => {
+      const s = (scoreMap[c.no] && scoreMap[c.no].score) || 0;
+      if (c.max > 0 && (s / c.max) >= 0.65) {
+        countGe65All++;
+      }
+    });
+
+    // 2) 핵심문항 8개
+    const coreNos = isNewborn 
+      ? [2, 5, 11, 14, 17, 18, 22, 23] 
+      : [2, 5, 11, 14, 17, 18, 30, 44];
+
+    let coreScore = 0;
+    let countGe65Core = 0;
+    coreNos.forEach(no => {
+      const c = activeCriteria.find(item => item.no === no);
+      const s = (scoreMap[no] && scoreMap[no].score) || 0;
+      coreScore += s;
+      if (c && c.max > 0 && (s / c.max) >= 0.65) {
+        countGe65Core++;
+      }
+    });
+
+    // 3) 조건 판정 (만족 시 투자적격, 미달 시 투자 부적격)
+    let isEligible = false;
+
+    if (totalScore < 245) {
+      isEligible = false;
+    } else if (totalScore >= 300 && countGe65All >= 25 && sum7_17 >= 37) {
+      isEligible = true;
+    } else if (!isNewborn && totalScore >= 245 && totalScore <= 300 && coreScore >= 100 && countGe65Core >= 5 && sum7_17 >= 37) {
+      isEligible = true;
+    } else if (isNewborn && totalScore >= 245 && totalScore <= 300 && coreScore >= 94 && countGe65Core >= 5 && sum7_17 >= 37) {
+      isEligible = true;
+    } else if (totalScore >= 300 && ((!isNewborn && coreScore >= 100) || (isNewborn && coreScore >= 94)) && countGe65Core >= 5 && sum7_17 >= 37) {
+      isEligible = true;
+    } else {
+      isEligible = false;
+    }
+
+    const qualification = isEligible ? "투자적격" : "투자 부적격";
+
     return res.status(200).json({
       companyName: result.companyName || company,
       companyCode: result.companyCode || "-",
@@ -235,12 +266,13 @@ export default async function handler(req, res) {
       frameworkReason: result.frameworkReason || "-",
       keyPoint: result.keyPoint || "펀더멘탈 분석이 완료되었습니다.",
       totalScore: totalScore,
+      qualification: qualification, // '투자적격' 또는 '투자 부적격'
       categoryScores: { cat1, cat2, cat3, cat4 },
       isAdmin: isAdmin,
       items: isAdmin ? tableData : null
     });
 
   } catch (error) {
-    return res.status(500).json({ error: error.message || '분석 중 서버 내부 오류가 발생했습니다.' });
+    return res.status(500).json({ error: error.message || '분석 중 내부 오류가 발생했습니다.' });
   }
 }
