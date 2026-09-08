@@ -21,10 +21,17 @@
 </head>
 <body class="min-h-screen py-10 px-4 text-slate-800 flex flex-col items-center relative">
 
-    <!-- Top Right Admin Modal Trigger -->
-    <div class="w-full max-w-4xl flex justify-end mb-3">
-        <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+    <!-- Top Right Controls (Language Toggle & Admin Key Modal) -->
+    <div class="w-full max-w-4xl flex justify-end items-center gap-2 mb-3">
+        <!-- Language Toggle Button -->
+        <button onclick="toggleLanguage()" id="langToggleBtn" class="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all font-medium">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+            <span id="langToggleText">English</span>
+        </button>
+
+        <!-- Admin Mode Button -->
+        <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all font-medium">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
             <span id="adminStatusText">일반 모드</span>
         </button>
     </div>
@@ -32,12 +39,12 @@
     <!-- Admin Password Input Modal -->
     <div id="adminModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-2xl p-6 max-w-xs w-full shadow-xl">
-            <h3 class="text-sm font-bold text-slate-900 mb-2">관리자 인증</h3>
-            <p class="text-xs text-slate-500 mb-4">비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.</p>
+            <h3 id="modalTitle" class="text-sm font-bold text-slate-900 mb-2">관리자 인증</h3>
+            <p id="modalDesc" class="text-xs text-slate-500 mb-4">비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.</p>
             <input type="password" id="adminPwdInput" placeholder="비밀번호 입력..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3">
             <div class="flex justify-end gap-2">
-                <button onclick="toggleAdminModal()" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">취소</button>
-                <button onclick="saveAdminPwd()" class="px-3 py-1.5 bg-blue-600 text-white font-semibold rounded-lg text-xs hover:bg-blue-700 shadow-sm">저장</button>
+                <button onclick="toggleAdminModal()" id="modalCancelBtn" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">취소</button>
+                <button onclick="saveAdminPwd()" id="modalSaveBtn" class="px-3 py-1.5 bg-blue-600 text-white font-semibold rounded-lg text-xs hover:bg-blue-700 shadow-sm">저장</button>
             </div>
         </div>
     </div>
@@ -48,10 +55,10 @@
         <div class="text-center mb-8">
             <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-semibold mb-3">
                 <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                투자기준 자동 전환
+                <span id="headerBadge">투자기준 자동 전환</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">상장기업 투자 종합 점수</h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-2">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
+            <h1 id="mainTitle" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">상장기업 투자 종합 점수</h1>
+            <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-2">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
         </div>
 
         <!-- Search Bar -->
@@ -70,10 +77,10 @@
         <!-- Loading State -->
         <div id="loadingState" class="hidden flex flex-col items-center justify-center py-16">
             <div class="loader mb-5"></div>
-            <p class="text-slate-800 font-semibold text-base">기업 종합 분석 및 평가 중...</p>
-            <p class="text-xs text-slate-500 mt-2 text-center leading-relaxed">
-                기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요<br>
-                <span class="text-blue-600 font-medium">(약 25초~40초 소요)</span>
+            <p id="loadingTitle" class="text-slate-800 font-semibold text-base">기업 종합 분석 및 평가 중...</p>
+            <p id="loadingDesc" class="text-xs text-slate-500 mt-2 text-center leading-relaxed">
+                기업의 펀더멘탈과 여러 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요<br>
+                <span id="loadingTime" class="text-blue-600 font-medium">(약 25초~40초 소요)</span>
             </p>
         </div>
 
@@ -93,18 +100,17 @@
                         <div class="flex items-center gap-2.5 flex-wrap">
                             <h2 id="resultCompanyName" class="text-2xl sm:text-3xl font-black text-slate-900">기업명</h2>
                             <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">종목코드</span>
-                            <!-- '투자적격' 또는 '투자 부적격' 뱃지 -->
                             <span id="resultQualificationBadge" class="text-xs font-black px-3 py-1 rounded-full tracking-wider flex items-center gap-1">투자적격</span>
                         </div>
                         <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
-                            <span>상장일:</span>
+                            <span id="ipoDateLabel">상장일:</span>
                             <b id="resultIpoDate" class="text-slate-700 font-semibold">-</b>
                         </p>
                     </div>
 
                     <!-- Total Score Display -->
                     <div class="text-right sm:border-l sm:border-slate-200 sm:pl-8">
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">투자 최종 펀더멘탈 점수</p>
+                        <p id="totalScoreLabel" class="text-[11px] font-bold uppercase tracking-wider text-slate-500">투자 최종 펀더멘탈 점수</p>
                         <div class="flex items-baseline gap-1 mt-1">
                             <span id="resultScore" class="text-5xl font-black text-blue-600">0</span>
                             <span class="text-xl font-bold text-slate-400">/ 467</span>
@@ -115,26 +121,26 @@
                 <!-- 4 Category Breakdown -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6 text-left">
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-[11px] font-medium text-slate-500">메가트렌드</p>
-                        <p class="text-sm font-bold text-slate-800 mt-0.5"><span id="cat1Score">0</span> <span class="text-[10px] text-slate-400 font-normal">/ 122점</span></p>
+                        <p id="cat1Label" class="text-[11px] font-medium text-slate-500">메가트렌드</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5"><span id="cat1Score">0</span> <span id="cat1Max" class="text-[10px] text-slate-400 font-normal">/ 122점</span></p>
                     </div>
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-[11px] font-medium text-slate-500">해자 및 경쟁력</p>
-                        <p class="text-sm font-bold text-slate-800 mt-0.5"><span id="cat2Score">0</span> <span class="text-[10px] text-slate-400 font-normal">/ 183점</span></p>
+                        <p id="cat2Label" class="text-[11px] font-medium text-slate-500">해자 및 경쟁력</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5"><span id="cat2Score">0</span> <span id="cat2Max" class="text-[10px] text-slate-400 font-normal">/ 183점</span></p>
                     </div>
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-[11px] font-medium text-slate-500">재무 및 수익성</p>
-                        <p class="text-sm font-bold text-slate-800 mt-0.5"><span id="cat3Score">0</span> <span class="text-[10px] text-slate-400 font-normal">/ 93점</span></p>
+                        <p id="cat3Label" class="text-[11px] font-medium text-slate-500">재무 및 수익성</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5"><span id="cat3Score">0</span> <span id="cat3Max" class="text-[10px] text-slate-400 font-normal">/ 93점</span></p>
                     </div>
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-[11px] font-medium text-slate-500">밸류에이션</p>
-                        <p class="text-sm font-bold text-slate-800 mt-0.5"><span id="cat4Score">0</span> <span class="text-[10px] text-slate-400 font-normal">/ 69점</span></p>
+                        <p id="cat4Label" class="text-[11px] font-medium text-slate-500">밸류에이션</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5"><span id="cat4Score">0</span> <span id="cat4Max" class="text-[10px] text-slate-400 font-normal">/ 69점</span></p>
                     </div>
                 </div>
 
                 <!-- Key Point -->
                 <div class="bg-blue-50/70 p-4 sm:p-5 rounded-xl border border-blue-100">
-                    <p class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                    <p id="keyPointLabel" class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         투자 핵심 포인트
                     </p>
@@ -146,8 +152,8 @@
             <div id="adminTableSection" class="hidden">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                        <span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded border border-amber-200 font-semibold">관리자 전용</span>
-                        <span>44개 평가 항목별 정밀 채점표</span>
+                        <span id="tableAdminBadge" class="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded border border-amber-200 font-semibold">관리자 전용</span>
+                        <span id="tableTitle">44개 평가 항목별 정밀 채점표</span>
                     </h3>
                 </div>
 
@@ -155,20 +161,20 @@
                     <table class="w-full text-left text-xs sm:text-sm text-slate-700">
                         <thead class="bg-slate-100/80 text-slate-600 uppercase text-[11px] border-b border-slate-200">
                             <tr>
-                                <th class="py-3 px-3 w-12 text-center">번호</th>
-                                <th class="py-3 px-4 w-2/5">평가 기준 항목</th>
-                                <th class="py-3 px-3 w-16 text-center">배점</th>
-                                <th class="py-3 px-3 w-16 text-center">획득</th>
-                                <th class="py-3 px-4">AI 평가 및 팩트체크 사유</th>
+                                <th id="thNo" class="py-3 px-3 w-12 text-center">번호</th>
+                                <th id="thCriteria" class="py-3 px-4 w-2/5">평가 기준 항목</th>
+                                <th id="thMax" class="py-3 px-3 w-16 text-center">배점</th>
+                                <th id="thScore" class="py-3 px-3 w-16 text-center">획득</th>
+                                <th id="thReason" class="py-3 px-4">AI 평가 및 팩트체크 사유</th>
                             </tr>
                         </thead>
                         <tbody id="itemsTableBody" class="divide-y divide-slate-200"></tbody>
                         <tfoot class="bg-slate-50 font-bold text-slate-900 border-t-2 border-slate-300">
                             <tr>
-                                <td colspan="2" class="py-3.5 px-4 text-right">합계 총점</td>
+                                <td colspan="2" id="tdTotalLabel" class="py-3.5 px-4 text-right">합계 총점</td>
                                 <td class="py-3.5 px-3 text-center text-slate-500">467</td>
                                 <td id="tableTotalScore" class="py-3.5 px-3 text-center text-blue-600 text-base">0</td>
-                                <td class="py-3.5 px-4 text-slate-500 text-xs font-normal">정밀 검증 완료</td>
+                                <td id="tdVerifiedLabel" class="py-3.5 px-4 text-slate-500 text-xs font-normal">정밀 검증 완료</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -180,11 +186,157 @@
     </div>
 
     <script>
+        let currentLang = localStorage.getItem('company_lang') || 'ko';
         let adminPassword = localStorage.getItem('company_admin_pwd') || "";
+        let currentResultData = null;
+
+        const i18n = {
+            ko: {
+                langToggle: "English",
+                pageTitle: "상장기업 투자 종합 점수",
+                headerBadge: "투자기준 자동 전환",
+                mainTitle: "상장기업 투자 종합 점수",
+                mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
+                companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)",
+                analyzeBtn: "투자 분석 시작",
+                adminNormal: "일반 모드",
+                adminActive: "관리자 모드 활성",
+                modalTitle: "관리자 인증",
+                modalDesc: "비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.",
+                modalPlaceholder: "비밀번호 입력...",
+                modalCancel: "취소",
+                modalSave: "저장",
+                loadingTitle: "기업 종합 분석 및 평가 중...",
+                loadingDesc: "기업의 펀더멘탈과 여러 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요<br><span class='text-blue-600 font-medium'>(약 25초~40초 소요)</span>",
+                ipoDateLabel: "상장일:",
+                totalScoreLabel: "투자 최종 펀더멘탈 점수",
+                cat1Label: "메가트렌드",
+                cat2Label: "해자 및 경쟁력",
+                cat3Label: "재무 및 수익성",
+                cat4Label: "밸류에이션",
+                cat1Max: "/ 122점",
+                cat2Max: "/ 183점",
+                cat3Max: "/ 93점",
+                cat4Max: "/ 69점",
+                keyPointLabel: "투자 핵심 포인트",
+                tableAdminBadge: "관리자 전용",
+                tableTitle: "44개 평가 항목별 정밀 채점표",
+                thNo: "번호",
+                thCriteria: "평가 기준 항목",
+                thMax: "배점",
+                thScore: "획득",
+                thReason: "AI 평가 및 팩트체크 사유",
+                tdTotalLabel: "합계 총점",
+                tdVerifiedLabel: "정밀 검증 완료",
+                errEmpty: "기업 이름 또는 종목코드를 입력해주세요.",
+                errFailed: "분석 요청에 실패했습니다.",
+                errServer: "서버 통신 중 오류가 발생했습니다."
+            },
+            en: {
+                langToggle: "한국어",
+                pageTitle: "Comprehensive Investment Fundamental Score",
+                headerBadge: "Automatic Criteria Selection",
+                mainTitle: "Investment Fundamental Score",
+                mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
+                companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)",
+                analyzeBtn: "Start Analysis",
+                adminNormal: "General Mode",
+                adminActive: "Admin Active",
+                modalTitle: "Admin Authentication",
+                modalDesc: "Enter the master password to unlock the detailed 44-criterion scorecard.",
+                modalPlaceholder: "Enter password...",
+                modalCancel: "Cancel",
+                modalSave: "Save",
+                loadingTitle: "Analyzing Fundamentals & Scoring...",
+                loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-medium'>(Takes approx. 25-40s)</span>",
+                ipoDateLabel: "IPO Date:",
+                totalScoreLabel: "Final Fundamental Score",
+                cat1Label: "Mega Trend",
+                cat2Label: "Moat & Edge",
+                cat3Label: "Financial Health",
+                cat4Label: "Valuation",
+                cat1Max: "/ 122 pts",
+                cat2Max: "/ 183 pts",
+                cat3Max: "/ 93 pts",
+                cat4Max: "/ 69 pts",
+                keyPointLabel: "Key Investment Points",
+                tableAdminBadge: "Admin Only",
+                tableTitle: "Detailed 44-Criterion Evaluation Table",
+                thNo: "No.",
+                thCriteria: "Evaluation Criteria",
+                thMax: "Max",
+                thScore: "Score",
+                thReason: "AI Fact-check & Rationale",
+                tdTotalLabel: "Total Score",
+                tdVerifiedLabel: "Verified & Audited",
+                errEmpty: "Please enter a company name or ticker symbol.",
+                errFailed: "Failed to process investment analysis.",
+                errServer: "A server communication error occurred."
+            }
+        };
 
         window.onload = () => {
+            applyLanguage();
             updateAdminBtnUI();
         };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ko' ? 'en' : 'ko';
+            localStorage.setItem('company_lang', currentLang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const t = i18n[currentLang];
+            document.title = t.pageTitle;
+            document.getElementById('langToggleText').textContent = t.langToggle;
+            document.getElementById('headerBadge').textContent = t.headerBadge;
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('mainSubtitle').textContent = t.mainSubtitle;
+            document.getElementById('companyInput').placeholder = t.companyPlaceholder;
+            document.getElementById('analyzeBtn').textContent = t.analyzeBtn;
+
+            document.getElementById('modalTitle').textContent = t.modalTitle;
+            document.getElementById('modalDesc').textContent = t.modalDesc;
+            document.getElementById('adminPwdInput').placeholder = t.modalPlaceholder;
+            document.getElementById('modalCancelBtn').textContent = t.modalCancel;
+            document.getElementById('modalSaveBtn').textContent = t.modalSave;
+
+            document.getElementById('loadingTitle').textContent = t.loadingTitle;
+            document.getElementById('loadingDesc').innerHTML = t.loadingDesc;
+
+            document.getElementById('ipoDateLabel').textContent = t.ipoDateLabel;
+            document.getElementById('totalScoreLabel').textContent = t.totalScoreLabel;
+            document.getElementById('cat1Label').textContent = t.cat1Label;
+            document.getElementById('cat2Label').textContent = t.cat2Label;
+            document.getElementById('cat3Label').textContent = t.cat3Label;
+            document.getElementById('cat4Label').textContent = t.cat4Label;
+            document.getElementById('cat1Max').textContent = t.cat1Max;
+            document.getElementById('cat2Max').textContent = t.cat2Max;
+            document.getElementById('cat3Max').textContent = t.cat3Max;
+            document.getElementById('cat4Max').textContent = t.cat4Max;
+
+            document.getElementById('keyPointLabel').innerHTML = `
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                ${t.keyPointLabel}
+            `;
+
+            document.getElementById('tableAdminBadge').textContent = t.tableAdminBadge;
+            document.getElementById('tableTitle').textContent = t.tableTitle;
+            document.getElementById('thNo').textContent = t.thNo;
+            document.getElementById('thCriteria').textContent = t.thCriteria;
+            document.getElementById('thMax').textContent = t.thMax;
+            document.getElementById('thScore').textContent = t.thScore;
+            document.getElementById('thReason').textContent = t.thReason;
+            document.getElementById('tdTotalLabel').textContent = t.tdTotalLabel;
+            document.getElementById('tdVerifiedLabel').textContent = t.tdVerifiedLabel;
+
+            updateAdminBtnUI();
+
+            if (currentResultData) {
+                renderQualificationBadge(currentResultData.qualification);
+            }
+        }
 
         function toggleAdminModal() {
             const modal = document.getElementById('adminModal');
@@ -203,19 +355,21 @@
 
         function updateAdminBtnUI() {
             const btnText = document.getElementById('adminStatusText');
+            const t = i18n[currentLang];
             if (adminPassword) {
-                btnText.textContent = "관리자 모드 활성";
+                btnText.textContent = t.adminActive;
                 btnText.className = "text-blue-600 font-semibold";
             } else {
-                btnText.textContent = "일반 모드";
-                btnText.className = "text-slate-500";
+                btnText.textContent = t.adminNormal;
+                btnText.className = "text-slate-600";
             }
         }
 
         async function analyzeCompany() {
             const query = document.getElementById('companyInput').value.trim();
+            const t = i18n[currentLang];
             if (!query) {
-                showError("기업 이름 또는 종목코드를 입력해주세요.");
+                showError(t.errEmpty);
                 return;
             }
 
@@ -227,16 +381,18 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         company: query,
-                        adminPassword: adminPassword
+                        adminPassword: adminPassword,
+                        lang: currentLang
                     })
                 });
 
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error || "분석 요청에 실패했습니다.");
+                if (!response.ok) throw new Error(data.error || t.errFailed);
 
+                currentResultData = data;
                 displayResult(data);
             } catch (err) {
-                showError(err.message || "서버 통신 중 오류가 발생했습니다.");
+                showError(err.message || t.errServer);
             }
         }
 
@@ -260,6 +416,21 @@
             document.getElementById('errorState').classList.remove('hidden');
         }
 
+        function renderQualificationBadge(status) {
+            const qBadge = document.getElementById('resultQualificationBadge');
+            const isEligible = (status === "투자적격" || status === "Investment Grade");
+
+            if (isEligible) {
+                const text = currentLang === 'en' ? "Investment Grade" : "투자적격";
+                qBadge.className = "text-xs font-black px-3 py-1 rounded-full tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-sm flex items-center gap-1";
+                qBadge.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> ${text}`;
+            } else {
+                const text = currentLang === 'en' ? "Ineligible" : "투자 부적격";
+                qBadge.className = "text-xs font-black px-3 py-1 rounded-full tracking-wider bg-rose-50 text-rose-700 border border-rose-300 shadow-sm flex items-center gap-1";
+                qBadge.innerHTML = `<svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> ${text}`;
+            }
+        }
+
         function displayResult(data) {
             hideLoading();
 
@@ -269,23 +440,13 @@
             document.getElementById('resultKeyPoint').textContent = data.keyPoint;
             document.getElementById('resultScore').textContent = data.totalScore;
 
-            // '투자적격' 또는 '투자 부적격' 뱃지 표시
-            const qBadge = document.getElementById('resultQualificationBadge');
-            if (data.qualification === "투자적격") {
-                qBadge.className = "text-xs font-black px-3 py-1 rounded-full tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-sm flex items-center gap-1";
-                qBadge.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> 투자적격`;
-            } else {
-                qBadge.className = "text-xs font-black px-3 py-1 rounded-full tracking-wider bg-rose-50 text-rose-700 border border-rose-300 shadow-sm flex items-center gap-1";
-                qBadge.innerHTML = `<svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> 투자 부적격`;
-            }
+            renderQualificationBadge(data.qualification);
 
-            // 대분류 점수
             document.getElementById('cat1Score').textContent = data.categoryScores.cat1;
             document.getElementById('cat2Score').textContent = data.categoryScores.cat2;
             document.getElementById('cat3Score').textContent = data.categoryScores.cat3;
             document.getElementById('cat4Score').textContent = data.categoryScores.cat4;
 
-            // 관리자 전용 테이블 처리
             const adminSection = document.getElementById('adminTableSection');
             if (data.isAdmin && data.items && data.items.length > 0) {
                 adminSection.classList.remove('hidden');
