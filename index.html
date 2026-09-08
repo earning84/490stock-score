@@ -91,11 +91,14 @@
             <div class="bg-slate-800/60 border border-slate-700/70 rounded-2xl p-6 sm:p-8">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-700/80 pb-6">
                     <div>
-                        <div class="flex items-center gap-2.5">
+                        <!-- Company Name & Qualification Badge -->
+                        <div class="flex items-center gap-2.5 flex-wrap">
                             <h2 id="resultCompanyName" class="text-2xl sm:text-3xl font-black text-white">기업명</h2>
                             <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-1 rounded bg-slate-700 text-slate-300">종목코드</span>
+                            <!-- '투자적격' 또는 '투자 부적격' 뱃지 -->
+                            <span id="resultQualificationBadge" class="text-xs font-black px-3 py-1 rounded-full tracking-wider flex items-center gap-1">투자적격</span>
                         </div>
-                        <p class="text-xs text-slate-400 mt-2 flex items-center gap-2">
+                        <p class="text-xs text-slate-400 mt-2.5 flex items-center gap-2">
                             <span>상장일: <b id="resultIpoDate" class="text-slate-200">-</b></span>
                             <span>•</span>
                             <span id="frameworkBadge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">기존기업 프레임워크</span>
@@ -228,7 +231,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         company: query,
-                        adminPassword: adminPassword // 관리자 암호 전송
+                        adminPassword: adminPassword
                     })
                 });
 
@@ -272,13 +275,23 @@
             document.getElementById('resultKeyPoint').textContent = data.keyPoint;
             document.getElementById('resultScore').textContent = data.totalScore;
 
+            // '투자적격' 또는 '투자 부적격' 뱃지 표시
+            const qBadge = document.getElementById('resultQualificationBadge');
+            if (data.qualification === "투자적격") {
+                qBadge.className = "text-xs font-black px-3.5 py-1 rounded-full tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm shadow-emerald-500/20 flex items-center gap-1";
+                qBadge.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> 투자적격`;
+            } else {
+                qBadge.className = "text-xs font-black px-3.5 py-1 rounded-full tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-sm shadow-rose-500/20 flex items-center gap-1";
+                qBadge.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> 투자 부적격`;
+            }
+
             // 대분류 점수
             document.getElementById('cat1Score').textContent = data.categoryScores.cat1;
             document.getElementById('cat2Score').textContent = data.categoryScores.cat2;
             document.getElementById('cat3Score').textContent = data.categoryScores.cat3;
             document.getElementById('cat4Score').textContent = data.categoryScores.cat4;
 
-            // 관리자 인증 여부에 따른 44개 표 노출 제어
+            // 관리자 전용 테이블 처리
             const adminSection = document.getElementById('adminTableSection');
             if (data.isAdmin && data.items && data.items.length > 0) {
                 adminSection.classList.remove('hidden');
@@ -303,7 +316,6 @@
                     tbody.appendChild(tr);
                 });
             } else {
-                // 일반 사용자는 테이블 영역 자체를 숨김
                 adminSection.classList.add('hidden');
             }
 
