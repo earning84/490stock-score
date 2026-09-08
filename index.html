@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상장기업 펀더멘탈 투자 점수</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #0f172a;
+        }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #38bdf8;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-slate-100">
+
+    <div class="bg-slate-800/90 backdrop-blur-md rounded-3xl shadow-2xl p-8 max-w-xl w-full border border-slate-700">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <span class="px-3 py-1 bg-sky-500/10 text-sky-400 text-xs font-semibold rounded-full border border-sky-500/20">
+                보수적 가치투자 44개 펀더멘탈 프레임워크
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-3 mb-2">기업 투자 가치 평가</h1>
+            <p class="text-xs sm:text-sm text-slate-400">상장기업을 입력하면 AI가 실시간 데이터를 기반으로 44개 항목을 정밀 평가합니다.</p>
+        </div>
+
+        <!-- Search Form -->
+        <div class="mb-6">
+            <label for="companyInput" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">기업명 또는 종목코드</label>
+            <div class="flex gap-2">
+                <input type="text" id="companyInput" placeholder="예: 삼성전자, 현대차, AAPL" 
+                       class="flex-1 px-4 py-3 bg-slate-900/80 border border-slate-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all placeholder-slate-500 text-sm"
+                       onkeypress="handleKeyPress(event)">
+                <button onclick="analyzeCompany()" id="analyzeBtn"
+                        class="px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-sky-500/20 focus:outline-none text-sm whitespace-nowrap">
+                    정밀 분석
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12">
+            <div class="loader mb-5"></div>
+            <p class="text-slate-200 font-semibold text-center text-sm" id="loadingTitle">기업 데이터를 수집하고 있습니다...</p>
+            <p class="text-xs text-slate-400 mt-2 text-center leading-relaxed">
+                재무제표, 해자, 시장규모 등 44개 항목을 엄격하게 팩트체크 중입니다.<br>
+                <span class="text-sky-400 font-medium">(약 20초~35초 소요)</span>
+            </p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden py-4 px-4 bg-red-500/10 border border-red-500/30 rounded-xl text-center mb-6">
+            <p class="text-red-400 text-sm font-medium" id="errorMessage">오류가 발생했습니다.</p>
+        </div>
+
+        <!-- Result Display -->
+        <div id="resultState" class="hidden mt-6 border-t border-slate-700/80 pt-6">
+            <div class="text-center">
+                <div class="inline-flex items-center gap-2 mb-1">
+                    <h2 id="resultCompanyName" class="text-2xl font-black text-white">기업명</h2>
+                    <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-700 text-slate-300">005930</span>
+                </div>
+                
+                <!-- Score Display -->
+                <div class="my-6 p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-900/40 border border-slate-700/70 shadow-inner">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">투자 최종 점수</p>
+                    <div class="flex items-baseline justify-center gap-1">
+                        <span id="resultScore" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">0</span>
+                        <span class="text-lg font-bold text-slate-500">/ 467</span>
+                    </div>
+                </div>
+
+                <!-- 4 Category Breakdown (44개 세부 질문은 감추고 대분류별 성적만 공개) -->
+                <div class="grid grid-cols-2 gap-3 mb-6 text-left">
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                        <p class="text-[11px] text-slate-400">메가트렌드 및 거시환경</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat1Score">0</span> <span class="text-xs text-slate-500 font-normal">/ 122점</span></p>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                        <p class="text-[11px] text-slate-400">해자 및 사업경쟁력</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat2Score">0</span> <span class="text-xs text-slate-500 font-normal">/ 183점</span></p>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                        <p class="text-[11px] text-slate-400">재무건전성 및 수익성</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat3Score">0</span> <span class="text-xs text-slate-500 font-normal">/ 93점</span></p>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                        <p class="text-[11px] text-slate-400">가치평가 (Valuation)</p>
+                        <p class="text-sm font-bold text-slate-200 mt-0.5"><span id="cat4Score">0</span> <span class="text-xs text-slate-500 font-normal">/ 69점</span></p>
+                    </div>
+                </div>
+
+                <!-- Key Point -->
+                <div class="text-left bg-sky-950/30 p-4 rounded-xl border border-sky-800/40">
+                    <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        보수적 펀드매니저 핵심 코멘트
+                    </h3>
+                    <p id="resultKeyPoint" class="text-slate-200 text-sm leading-relaxed">
+                        핵심 평가 요약이 출력됩니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="mt-8 text-center border-t border-slate-800 pt-4">
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+                본 평가는 AI가 자체 프레임워크로 수집·추정한 분석 결과이며, 실제 투자에 대한 법적 책임을 지지 않습니다.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') analyzeCompany();
+        }
+
+        async function analyzeCompany() {
+            const query = document.getElementById('companyInput').value.trim();
+            if (!query) {
+                showError("기업 이름 또는 종목코드를 입력해주세요.");
+                return;
+            }
+
+            showLoading();
+
+            try {
+                // 내 서버리스 API 호출 (44개 질문과 API 키가 이 뒤에 완벽히 숨겨져 있음)
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ company: query })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "분석 요청에 실패했습니다.");
+                }
+
+                displayResult(data);
+            } catch (err) {
+                showError(err.message || "서버 통신 중 오류가 발생했습니다.");
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('resultState').classList.add('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('companyInput').disabled = true;
+            document.getElementById('analyzeBtn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('companyInput').disabled = false;
+            document.getElementById('analyzeBtn').disabled = false;
+        }
+
+        function showError(msg) {
+            hideLoading();
+            document.getElementById('errorMessage').textContent = msg;
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+
+        function displayResult(data) {
+            hideLoading();
+            document.getElementById('resultCompanyName').textContent = data.companyName;
+            document.getElementById('resultCompanyCode').textContent = data.companyCode;
+            document.getElementById('resultKeyPoint').textContent = data.keyPoint;
+
+            // 대분류 점수 표시
+            document.getElementById('cat1Score').textContent = data.categoryScores.cat1;
+            document.getElementById('cat2Score').textContent = data.categoryScores.cat2;
+            document.getElementById('cat3Score').textContent = data.categoryScores.cat3;
+            document.getElementById('cat4Score').textContent = data.categoryScores.cat4;
+
+            // 총점 카운팅 애니메이션
+            animateValue("resultScore", 0, data.totalScore, 1000);
+
+            document.getElementById('resultState').classList.remove('hidden');
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) return;
+            const range = end - start;
+            let current = start;
+            const stepTime = 15;
+            const increment = Math.max(1, Math.ceil(range / (duration / stepTime)));
+            const obj = document.getElementById(id);
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                obj.textContent = current;
+            }, stepTime);
+        }
+    </script>
+</body>
+</html>
