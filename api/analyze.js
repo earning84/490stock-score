@@ -367,6 +367,7 @@ ${langDirective}
       companyName: result.companyName || company,
       companyCode: result.companyCode || "-",
       ipoDate: result.ipoDate || "-",
+      analysisDate: todayStr, // ★ 분석 일자 (YYYY-MM-DD) 추가
       framework: result.framework || (isNewborn ? "신생기업" : "기존기업"),
       keyPoint: result.keyPoint || (isEnglish ? "Fundamental analysis completed." : "투자 핵심 포인트 분석이 완료되었습니다."),
       totalScore: totalScore,
