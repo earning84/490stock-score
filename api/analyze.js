@@ -22,7 +22,7 @@ const EXISTING_CRITERIA = [
   { no: 18, max: 10, text: "산업 Capex 밸류체인 내 병목현상 해결 핵심 길목 위치" },
   { no: 19, max: 5, text: "글로벌 대기업 고객사 다수 확보 및 풍부한 고객 기반" },
   { no: 20, max: 8, text: "초반 성장세를 본격 성장기 진입 후에도 지속 유지할 역량" },
-  { no: 21, max: 10, text: "매출액의 5% 이상 연구개발비 지속 지출 여부" },
+  { no: 21, max: 10, text: "매출액의 5~10% 이상 연구개발비 지속 지출 여부" },
   { no: 22, max: 10, text: "과거 호황기 대비 현재 매출/이익 60% 이상 및 재호황 시 실적 탄력성" },
   { no: 23, max: 8, text: "3년 이상 지속적으로 ROE 15% 이상 또는 ROIC 10% 이상 유지" },
   { no: 24, max: 1, text: "매출/수주의 시클리컬 사이클 및 계절성 파악과 대응 전략" },
@@ -70,9 +70,9 @@ const NEWBORN_CRITERIA = [
   { no: 18, max: 10, text: "산업 밸류체인 내 병목현상 해결 핵심 길목 위치" },
   { no: 19, max: 5, text: "글로벌 빅테크/대기업 고객사 다수 확보 여부" },
   { no: 20, max: 8, text: "초반 성장세를 본궤도 진입 후에도 지속 유지할 역량" },
-  { no: 21, max: 10, text: "매출액의 5% 이상 R&D 투자 지속성" },
-  { no: 22, max: 10, text: "Rule of 40: 최근 연간 매출성장률 + 영업이익률 합 40% 이상 여부" },
-  { no: 23, max: 8, text: "PSG: PSR / 매출성장률 지표가 1 미만으로 현저한 저평가 여부" },
+  { no: 21, max: 10, text: "매출액의 5~10% 이상 R&D 투자 지속성" },
+  { no: 22, max: 10, text: "Rule of 40: 최근 연간 매출성장률 + 영업이익률(또는 EBITDA률) 합 40% 이상 여부" },
+  { no: 23, max: 8, text: "PSG: PSR / 매출성장률(%) 지표가 1 미만으로 현저한 저평가 여부" },
   { no: 24, max: 1, text: "매출/수주의 시클리컬 사이클 및 계절성 파악 여부" },
   { no: 25, max: 10, text: "매출 성장이 견인하는 건전한 영업이익 증가세" },
   { no: 26, max: 5, text: "영업이익 외 기타수익/금융수익 등 전반적 이익 흐름" },
@@ -85,77 +85,79 @@ const NEWBORN_CRITERIA = [
   { no: 33, max: 2, text: "재고자산 중 즉시 판매 가능 제품의 비중 건전성" },
   { no: 34, max: 2, text: "순차입금비율 20% 이하의 안정적 부채 구조" },
   { no: 35, max: 1, text: "이연법인세 자산/부채 상태의 양호성" },
-  { no: 36, max: 8, text: "현금 소진율 감안 시 향후 주주가치 희석 위험 부재" },
+  { no: 36, max: 8, text: "현금 소진율(Runway) 감안 시 향후 주주가치 희석(증자/CB) 위험 부재" },
   { no: 37, max: 5, text: "Capex 부담에도 유동비율/당좌비율의 안전성" },
   { no: 38, max: 8, text: "현재 시가총액 대비 체급 및 폭발적 성장 잠재력" },
   { no: 39, max: 8, text: "실적 및 최근 컨센서스 대비 시가총액의 적정성" },
   { no: 40, max: 8, text: "자회사 및 관계사 지분가치 고려 시 저평가 여부" },
-  { no: 41, max: 10, text: "글로벌 동종업체 대비 PER, PSR 기준 저평가 여부" },
+  { no: 41, max: 10, text: "글로벌 동종업체(Peer) 대비 PER, PSR 기준 저평가 여부" },
   { no: 42, max: 10, text: "글로벌 Peer 비교 시 현재 주가/시가총액의 밸류에이션 매력도" },
   { no: 43, max: 5, text: "지분 구조 및 승계 구도가 주가 부양에 우호적인가" },
   { no: 44, max: 20, text: "컨센서스 및 자체 현금흐름 기반 DCF/RIM 밸류에이션 결과 상승 여력" }
 ];
 
+// 프롬프트에 주입할 문항 목록 텍스트 생성기
 function formatCriteriaPrompt(criteria) {
-  return criteria.map(c => `${c.no}번 (만점 ${c.max}점): ${c.text}`).join('\n');
+  return criteria.map(c => `${c.no}번 (배점 ${c.max}점 만점): ${c.text}`).join('\n');
 }
 
-// 안전 복원 파서 (줄바꿈/따옴표/오류 원천 차단)
+// 어떤 텍스트가 섞여도 핵심 JSON을 안전하게 추출하는 파서
 function extractMainJson(rawText) {
   if (!rawText) return null;
 
-  let cleaned = rawText.trim();
-
-  const match = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  if (match) cleaned = match[1].trim();
-
-  const firstBrace = cleaned.indexOf('{');
-  const lastBrace = cleaned.lastIndexOf('}');
-  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
-  }
-
-  cleaned = cleaned.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (match, group1) => {
-    return '"' + group1.replace(/\r?\n/g, '\\n') + '"';
-  });
-
-  cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
-
+  // 1. 직접 파싱 시도
   try {
-    const parsed = JSON.parse(cleaned);
-    if (parsed && (parsed.scores || parsed.companyName)) return parsed;
+    return JSON.parse(rawText.trim());
   } catch (e) {}
 
-  try {
-    const companyName = (cleaned.match(/"companyName"\s*:\s*"([^"]+)"/) || [])[1] || "";
-    const companyCode = (cleaned.match(/"companyCode"\s*:\s*"([^"]+)"/) || [])[1] || "-";
-    const ipoDate = (cleaned.match(/"ipoDate"\s*:\s*"([^"]+)"/) || [])[1] || "-";
-    const framework = (cleaned.match(/"framework"\s*:\s*"([^"]+)"/) || [])[1] || "기존기업";
-    const keyPointMatch = cleaned.match(/"keyPoint"\s*:\s*"([^"]*)"/);
-    const keyPoint = keyPointMatch ? keyPointMatch[1].replace(/\\n/g, '\n') : "";
+  // 2. 마크다운 코드블록 안쪽 파싱 시도
+  const codeBlockMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (codeBlockMatch) {
+    try {
+      return JSON.parse(codeBlockMatch[1].trim());
+    } catch (e) {}
+  }
 
-    const scores = [];
-    const itemRegex = /"no"\s*:\s*(\d+)\s*,\s*"score"\s*:\s*(\d+)\s*,\s*"reason"\s*:\s*"([^"]*)"/g;
-    let itemMatch;
-    while ((itemMatch = itemRegex.exec(cleaned)) !== null) {
-      scores.push({
-        no: parseInt(itemMatch[1], 10),
-        score: parseInt(itemMatch[2], 10),
-        reason: itemMatch[3].replace(/\\n/g, ' ') || "평가 완료"
-      });
-    }
+  // 3. 중괄호 깊이 추적으로 가장 온전한 JSON 객체 탐색
+  let startIndex = rawText.indexOf('{');
+  while (startIndex !== -1) {
+    let depth = 0;
+    let inString = false;
+    let escape = false;
 
-    if (scores.length >= 10) {
-      return {
-        companyName,
-        companyCode,
-        ipoDate,
-        framework,
-        keyPoint,
-        scores
-      };
+    for (let i = startIndex; i < rawText.length; i++) {
+      const char = rawText[i];
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (char === '\\') {
+        escape = true;
+        continue;
+      }
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
+      if (!inString) {
+        if (char === '{') depth++;
+        else if (char === '}') {
+          depth--;
+          if (depth === 0) {
+            const candidate = rawText.substring(startIndex, i + 1);
+            try {
+              const parsed = JSON.parse(candidate);
+              if (parsed && (parsed.scores || parsed.companyName)) {
+                return parsed;
+              }
+            } catch (err) {}
+            break;
+          }
+        }
+      }
     }
-  } catch (err) {}
+    startIndex = rawText.indexOf('{', startIndex + 1);
+  }
 
   return null;
 }
@@ -181,70 +183,62 @@ export default async function handler(req, res) {
       : "중요: 모든 회사명, keyPoint, 평가 사유는 한국어로 작성하십시오.";
 
     const systemPrompt = `
-당신은 세계 최고 수준의 가치투자 펀드매니저이자 공인회계사입니다.
-오늘 날짜(${todayStr})를 기준으로 대상 기업의 최신 공시, 재무제표, 실적 데이터를 검색하고 분석하십시오.
-단기 테마 소음은 배제하고 기업의 본질적 펀더멘탈(재무, 비즈니스 모델, 해자, 밸류에이션)에 입각해 객관적으로 채점하십시오.
+오늘 날짜를 기준으로 최신 데이터로 분석해 주세요.
+보수적이고 깐깐한 펀드매니저와 회계사의 관점으로 점수를 부여해 주십시오.
+이 평가 결과에 따라 대규모 자금의 실제 투자가 결정되므로, 단기 주가 흐름이나 풍문, 테마성 뉴스 소음은 철저히 배제하고 기업의 본질적인 펀더멘탈(재무제표, 비즈니스 모델, 해자, 밸류에이션)에 집중하십시오.
+구글 실시간 검색을 통한 딥 리서치(Deep Research)와 공시 자료, 글로벌 인더스트리 리서치 보고서를 전방위로 수집하여 단계적 상세한 분석과 근거에 기반한 추론에 입각해 정밀 채점을 진행하십시오.
 
 ${langDirective}
 
-[1단계: 상장일 확인 및 프레임워크 선택]
-- 기업의 정확한 상장일(IPO Date)을 확인하고, 오늘(${todayStr}) 기준 상장 5년 초과 여부를 판정하십시오.
-  * 상장 5년 초과 -> framework: "기존기업"
-  * 상장 5년 이하 -> framework: "신생기업"
+[1단계: 상장일 팩트체크 및 프레임워크 선택]
+- 기업의 정확한 상장일(IPO date)을 검색하여 오늘(${todayStr}) 기준 상장 5년 초과 여부를 판별하십시오.
+  * 5년 초과: '기존기업' 프레임워크 적용
+  * 5년 이하: '신생기업' 프레임워크 적용
 
-[2단계: 44개 항목 채점 기준 (반드시 해당 프레임워크 문항으로 채점)]
-아래 목록의 배점(만점)을 절대 초과할 수 없으며, 모든 문항(1~44번)에 대해 정수 점수와 1문장의 정량적 근거(reason)를 작성하십시오.
-절대 주의: 응답 텍스트 내에서 줄바꿈 엔터(\\n)를 절대 누르지 말고 한 줄로 이어 쓰거나 공백 처리하십시오. 큰따옴표(")는 사용하지 마십시오.
-- 7번 항목: 미국의 퀀트 모델 관점에서 뉴스/수급 팩트체크 후 6개월~1년 내 가시적 성과 창출 가능성 평가.
-- 17번 항목: 미래 메가트렌드와 연계되어 향후 매출이 대폭 퀀텀점프할 핵심 파이프라인/사업 준비 여부 평가.
-- 탁월 (글로벌 1위, 수치 입증): 배점의 90% ~ 100%
-- 우수 (업계 상위권, 경쟁 우위): 배점의 70% ~ 85%
-- 보통 (평이한 수준, 범용): 배점의 45% ~ 60%
-- 미흡/취약 (근거 부족, 역성장/적자): 배점의 10% ~ 30%
+[2단계: 채점 점수 산정 룰 (절대 엄수, 점수 편차 방지)]
+반드시 아래 문항 번호, 배점(max), 주제에 1:1로 일치시켜 채점하십시오.
+토큰 초과를 방지하기 위해 각 문항의 'reason'은 핵심만 담아 한두 문장으로 간결하게 작성하십시오.
 
---- 기존기업 44개 문항 기준표 ---
+--- [기존기업용 44개 문항 및 만점 배점] ---
 ${formatCriteriaPrompt(EXISTING_CRITERIA)}
 
---- 신생기업 44개 문항 기준표 ---
+--- [신생기업용 44개 문항 및 만점 배점] ---
 ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
-[3단계: keyPoint 작성 규칙]
-- 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 핵심 기회와 리스크를 3줄 이내로 요약하되 줄바꿈은 반드시 \\n 문자로만 표현하십시오.
+[3단계: 전수 검사 및 팩트체크 원칙]
+- 각 항목의 점수는 지정된 배점(max)을 절대 초과할 수 없으며 정수여야 합니다.
+- 응답을 출력하기 전, 기업 정보의 정확성과 44개 항목 점수 부여의 논리적 정합성을 내부적으로 전수 재검증하십시오.
 
-[4단계: 출력 규격]
-반드시 다른 설명 없이 아래 JSON 규격으로만 응답하십시오:
-\`\`\`json
+[4단계: 투자 핵심 포인트(keyPoint) 작성]
+- 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 근거가 되는 기회와 리스크를 반드시 3줄 이내(줄바꿈 문장 3개 이하)로 명확히 서술하십시오.
+
+[5단계: 출력 형식]
+어떠한 서론이나 인사말, 마크다운 없이 순수한 단일 JSON 텍스트만 출력하십시오.
+
+반환 JSON 규격:
 {
   "companyName": "정확한 기업명",
-  "companyCode": "종목코드",
+  "companyCode": "종목코드(티커)",
   "ipoDate": "YYYY-MM-DD",
   "framework": "기존기업 또는 신생기업",
-  "keyPoint": "1. 해자 요약\\n2. 재무 요약\\n3. 밸류에이션 요약",
+  "keyPoint": "1. 핵심 성장 동력 및 시장 해자 요약\\n2. 주요 재무적 건전성 및 리스크 요인\\n3. 현재 밸류에이션 관점의 투자 결론",
   "scores": [
-    {"no": 1, "score": 16, "reason": "정량적 평가 사유 1문장"},
+    {"no": 1, "score": 15, "reason": "글로벌 시장점유율 및 정량 수치에 근거한 구체적 평가 사유"},
     ... 44번까지 빠짐없이
   ]
 }
-\`\`\`
 `;
 
-    // ★ URL 변수 보간 문법 오류 원천 수정 (${apiKey})
+    // ★ 올바른 모델 및 URL 변수 보간 수정 적용 완료
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [{ parts: [{ text: `Target Company: ${company}` }] }],
       tools: [{ "google_search": {} }],
       systemInstruction: { parts: [{ text: systemPrompt }] },
-      safetySettings: [
-        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-      ],
       generationConfig: {
         temperature: 0.1,
-        seed: 42,
-        maxOutputTokens: 8192
+        seed: 42
       }
     };
 
@@ -256,20 +250,20 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
     if (!apiRes.ok) {
       const errText = await apiRes.text();
-      return res.status(apiRes.status).json({ error: `AI API 호출 실패 (${apiRes.status}): ${errText}` });
+      return res.status(apiRes.status).json({ error: `API 호출 실패 (${apiRes.status}): ${errText}` });
     }
 
     const data = await apiRes.json();
     if (!data.candidates || data.candidates.length === 0) {
-      return res.status(500).json({ error: `AI 응답 생성이 차단되었습니다.` });
+      return res.status(500).json({ error: `AI 응답 생성 차단됨` });
     }
 
-    const parts = data.candidates[0].content?.parts || [];
-    const rawText = parts.filter(p => p.text).map(p => p.text).join('').trim();
+    const parts = data.candidates[0].content?.parts;
+    const rawText = (parts || []).map(p => p.text || '').join('').trim();
 
     const result = extractMainJson(rawText);
     if (!result) {
-      return res.status(500).json({ error: `AI 응답 데이터 변환 실패. 응답 시작부분: ${rawText.slice(0, 150)}` });
+      return res.status(500).json({ error: `AI 응답에서 유효한 JSON을 해석하지 못했습니다.` });
     }
 
     const isNewborn = (result.framework === "신생기업" || result.framework === "Newborn");
@@ -338,19 +332,19 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
     if (totalScore < 245) {
       isEligible = false;
-      ruleMatched = isEnglish ? "Ineligible: Total score is below minimum cutoff (245 pts)." : "총점이 최소 기준(245점) 미만으로 탈락되었습니다.";
+      ruleMatched = isEnglish ? "Ineligible: Total fundamental score is below minimum cutoff of 245 pts." : "총점이 최소 기준(245점) 미만으로 탈락되었습니다.";
     } else if (sum7_17 < 37) {
       isEligible = false;
-      ruleMatched = isEnglish ? `Ineligible: Key timing/megatrend score (#7+#17) is ${sum7_17}/50 pts, below 37 pts.` : `핵심 타이밍 및 한방 지표(7번+17번) 합계가 ${sum7_17}점으로 필수 기준(37점)에 미달했습니다.`;
+      ruleMatched = isEnglish ? `Ineligible: Key timing/megatrend score (Items #7 + #17) is ${sum7_17}/50 pts, below the 37 pts threshold.` : `핵심 타이밍 및 한방 지표(7번+17번) 합계가 ${sum7_17}점으로 필수 기준(37점)에 미달했습니다.`;
     } else if (totalScore >= 300 && countGe65All >= 25) {
       isEligible = true;
-      ruleMatched = isEnglish ? "Qualified: High-score Track (300+ pts, 25+ criteria scored >= 65%, #7+#17 >= 37 pts)." : "조건 1 충족: 300점 이상 고득점 트랙 (65% 이상 문항 25개 이상 및 7+17번 충족)";
-    } else if (totalScore >= 245 && totalScore <= 300 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
+      ruleMatched = isEnglish ? "Qualified: Met Track 1 (300+ pts, 25+ criteria scored >= 65%, Items #7+#17 >= 37 pts)." : "조건 1 충족: 300점 이상 고득점 트랙 (65% 이상 문항 25개 이상 및 7+17번 충족)";
+    } else if (totalSize >= 245 && totalScore <= 300 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-      ruleMatched = isEnglish ? `Qualified: Core Competency Track (Core items ${coreScore} >= ${requiredCoreScore}, 5+ core items >= 65%).` : `조건 2/3 충족: 핵심역량 트랙 (핵심문항 점수 ${coreScore}점/${requiredCoreScore}점 이상 및 5개 이상 충족)`;
+      ruleMatched = isEnglish ? `Qualified: Met Track 2 (Core items score ${coreScore} >= ${requiredCoreScore}, 5+ core items >= 65%).` : `조건 2/3 충족: 핵심역량 트랙 (핵심문항 점수 ${coreScore}점/${requiredCoreScore}점 이상 및 5개 이상 충족)`;
     } else if (totalScore >= 300 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-      ruleMatched = isEnglish ? "Qualified: Core competency criteria satisfied with 300+ total score." : "조건 충족: 핵심역량 기준을 충족한 300점 이상 기업";
+      ruleMatched = isEnglish ? "Qualified: Met core items criteria with 300+ total score." : "조건 충족: 핵심역량 기준을 충족한 300점 이상 기업";
     } else {
       isEligible = false;
       if (totalScore >= 300) {
