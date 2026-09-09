@@ -147,7 +147,7 @@ function extractMainJson(rawText) {
             const candidate = rawText.substring(startIndex, i + 1);
             try {
               const parsed = JSON.parse(candidate);
-              if (parsed && (parsed.scores || parsed.companyName)) {
+              if (parsed && (parsed.isPublicCompany === false || parsed.scores || parsed.companyName)) {
                 return parsed;
               }
             } catch (err) {}
@@ -190,6 +190,14 @@ export default async function handler(req, res) {
 
 ${langDirective}
 
+[0단계: 상장 기업 여부 팩트체크 (가장 중요)]
+- 입력된 검색어("${company}")가 국내(KOSPI/KOSDAQ) 또는 글로벌 주요 증권거래소에 실제로 상장된 법인(상장기업)인지 Google 검색을 통해 엄격히 확인하십시오.
+- 만약 비상장 기업, 개인 사업자, 존재하지 않는 회사, 또는 의미 없는 오타/단어일 경우, 분석을 즉시 중단하고 반드시 아래 JSON 규격으로만 응답하십시오:
+{
+  "isPublicCompany": false,
+  "errorMsg": "입력하신 검색어는 상장된 기업이 아니거나 존재하지 않는 기업입니다. 정확한 상장 기업명이나 종목코드를 입력해주세요."
+}
+
 [1단계: 상장일 팩트체크 및 프레임워크 선택]
 - 기업의 정확한 상장일(IPO date)을 검색하여 오늘(${todayStr}) 기준 상장 5년 초과 여부를 판별하십시오.
   * 5년 초과: '기존기업' 프레임워크 적용
@@ -221,8 +229,9 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 [5단계: 출력 형식]
 어떠한 서론이나 인사말, 마크다운 없이 순수한 단일 JSON 텍스트만 출력하십시오.
 
-반환 JSON 규격:
+반환 JSON 규격 (상장 기업인 경우):
 {
+  "isPublicCompany": true,
   "companyName": "정확한 기업명",
   "companyCode": "종목코드(티커)",
   "ipoDate": "YYYY-MM-DD",
@@ -267,9 +276,14 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     const parts = data.candidates[0].content?.parts;
     const rawText = (parts || []).map(p => p.text || '').join('').trim();
 
+    // 견고한 JSON 파서 호출 (위치 68 에러 원천 차단)
     const result = extractMainJson(rawText);
     if (!result) {
       return res.status(500).json({ error: `AI 응답에서 유효한 JSON을 해석하지 못했습니다.` });
+    }
+
+    if (result.isPublicCompany === false) {
+      return res.status(400).json({ error: result.errorMsg || "상장된 기업이 아니거나 존재하지 않는 기업입니다." });
     }
 
     const isNewborn = (result.framework === "신생기업" || result.framework === "Newborn");
@@ -308,6 +322,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
 
+    // 투자적격 세부 판정 및 검증 로직
     const score7 = (scoreMap[7] && scoreMap[7].score) || 0;
     const score17 = (scoreMap[17] && scoreMap[17].score) || 0;
     const sum7_17 = score7 + score17;
@@ -345,7 +360,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     } else if (totalScore >= 300 && countGe65All >= 25) {
       isEligible = true;
       ruleMatched = isEnglish ? "Qualified: Met Track 1 (300+ pts, 25+ criteria scored >= 65%, Items #7+#17 >= 37 pts)." : "조건 1 충족: 300점 이상 고득점 트랙 (65% 이상 문항 25개 이상 및 7+17번 충족)";
-    } else if (totalSize >= 245 && totalScore <= 300 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
+    } else if (totalScore >= 245 && totalScore <= 300 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
       ruleMatched = isEnglish ? `Qualified: Met Track 2 (Core items score ${coreScore} >= ${requiredCoreScore}, 5+ core items >= 65%).` : `조건 2/3 충족: 핵심역량 트랙 (핵심문항 점수 ${coreScore}점/${requiredCoreScore}점 이상 및 5개 이상 충족)`;
     } else if (totalScore >= 300 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
@@ -381,7 +396,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       companyName: result.companyName || company,
       companyCode: result.companyCode || "-",
       ipoDate: result.ipoDate || "-",
-      analysisDate: todayStr,
+      analysisDate: todayStr, // ★ 분석 일자 (YYYY-MM-DD) 추가
       framework: result.framework || (isNewborn ? "신생기업" : "기존기업"),
       keyPoint: result.keyPoint || (isEnglish ? "Fundamental analysis completed." : "투자 핵심 포인트 분석이 완료되었습니다."),
       totalScore: totalScore,
