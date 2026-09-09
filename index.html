@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        html, body {
+            overflow-x: hidden; /* 모바일 좌우 삐져나옴 원천 차단 */
+            width: 100%;
+        }
         body { 
             font-family: 'Pretendard', sans-serif; 
             background-color: #f8fafc;
@@ -21,16 +25,15 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* 모바일 터치 스크롤 부드럽게 */
         .touch-scroll {
             -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
-<body class="min-h-screen py-4 sm:py-10 px-3 sm:px-6 text-slate-800 flex flex-col items-center relative">
+<body class="min-h-screen py-5 px-3 sm:py-10 sm:px-6 text-slate-800 flex flex-col items-center box-border">
 
-    <!-- Top Controls (Language Toggle & Admin Modal) -->
-    <div class="w-full max-w-4xl flex justify-end items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+    <!-- Top Controls -->
+    <div class="w-full max-w-4xl flex justify-end items-center gap-1.5 sm:gap-2 mb-3">
         <!-- Language Toggle Button -->
         <button onclick="toggleLanguage()" id="langToggleBtn" class="flex items-center gap-1 text-[11px] sm:text-xs text-slate-600 hover:text-slate-900 bg-white px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all font-medium active:scale-95">
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
@@ -57,7 +60,8 @@
         </div>
     </div>
 
-    <div class="max-w-4xl w-full bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 shadow-lg sm:shadow-xl shadow-slate-200/50">
+    <!-- Main Card (모바일 p-5, PC p-8~10으로 쾌적화) -->
+    <div class="w-full max-w-4xl bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 shadow-lg sm:shadow-xl shadow-slate-200/50 box-border">
         
         <!-- Header -->
         <div class="text-center mb-6 sm:mb-8">
@@ -66,47 +70,47 @@
                 <span id="headerBadge">투자기준 자동 전환</span>
             </div>
             <h1 id="mainTitle" class="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">상장기업 투자 종합 점수</h1>
-            <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
+            <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
         </div>
 
-        <!-- Search Bar (모바일에서는 세로배치 또는 유연하게 감싸기) -->
-        <div class="mb-6 sm:mb-8 max-w-xl mx-auto">
-            <div class="flex flex-col sm:flex-row gap-2">
+        <!-- Search Bar (모바일 flex-col, PC sm:flex-row) -->
+        <div class="mb-6 sm:mb-8 max-w-xl mx-auto w-full">
+            <div class="flex flex-col sm:flex-row gap-2 w-full">
                 <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)" 
-                       class="flex-1 px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm placeholder-slate-400 transition-all"
+                       class="w-full min-w-0 px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm placeholder-slate-400 transition-all box-border"
                        onkeypress="if(event.key==='Enter') analyzeCompany()">
                 <button onclick="analyzeCompany()" id="analyzeBtn"
-                        class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all text-sm shadow-md shadow-blue-500/20 active:scale-98">
+                        class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl transition-all text-sm whitespace-nowrap shadow-md shadow-blue-500/20 active:scale-[0.98]">
                     투자 분석 시작
                 </button>
             </div>
         </div>
 
         <!-- Loading State -->
-        <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12 sm:py-16">
+        <div id="loadingState" class="hidden flex flex-col items-center justify-center py-10 sm:py-16">
             <div class="loader mb-4"></div>
             <p id="loadingTitle" class="text-slate-800 font-semibold text-sm sm:text-base">기업 종합 분석 및 평가 중...</p>
-            <p id="loadingDesc" class="text-xs text-slate-500 mt-2 text-center leading-relaxed px-4">
+            <p id="loadingDesc" class="text-xs text-slate-500 mt-2 text-center leading-relaxed px-2">
                 기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요<br>
                 <span id="loadingTime" class="text-blue-600 font-medium">(약 25초~40초 소요)</span>
             </p>
-            <div class="mt-4 flex items-center gap-1.5 text-[11px] text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
-                <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div class="mt-4 flex items-center gap-1.5 text-[11px] text-slate-500 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
+                <svg class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 <span>분석 중에는 스마트폰 화면이 꺼지지 않도록 보호됩니다</span>
             </div>
         </div>
 
         <!-- Error State -->
-        <div id="errorState" class="hidden py-3.5 px-4 bg-rose-50 border border-rose-200 rounded-xl text-center mb-6">
+        <div id="errorState" class="hidden py-3 px-4 bg-rose-50 border border-rose-200 rounded-xl text-center mb-6">
             <p class="text-rose-600 text-xs sm:text-sm font-medium" id="errorMessage"></p>
         </div>
 
         <!-- Result State -->
-        <div id="resultState" class="hidden space-y-6 sm:space-y-8">
+        <div id="resultState" class="hidden space-y-6 sm:space-y-8 w-full">
             
             <!-- Result Summary Card -->
             <div class="bg-slate-50/70 border border-slate-200 rounded-2xl p-4 sm:p-6 md:p-8">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5 sm:pb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
                     <div>
                         <!-- Company Name & Qualification Badge -->
                         <div class="flex items-center gap-2 flex-wrap">
@@ -120,8 +124,8 @@
                         </p>
                     </div>
 
-                    <!-- Total Score Display (모바일 대응) -->
-                    <div class="w-full sm:w-auto text-left sm:text-right sm:border-l sm:border-slate-200 sm:pl-8 bg-white sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200/60">
+                    <!-- Total Score Display -->
+                    <div class="w-full sm:w-auto text-left sm:text-right sm:border-l sm:border-slate-200 sm:pl-8 bg-white sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200/70">
                         <p id="totalScoreLabel" class="text-[11px] font-bold uppercase tracking-wider text-slate-500">투자 최종 펀더멘탈 점수</p>
                         <div class="flex items-baseline gap-1 mt-0.5">
                             <span id="resultScore" class="text-4xl sm:text-5xl font-black text-blue-600">0</span>
@@ -130,7 +134,7 @@
                     </div>
                 </div>
 
-                <!-- 4 Category Breakdown (모바일 2열 / PC 4열) -->
+                <!-- 4 Category Breakdown -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 my-4 sm:my-6 text-left">
                     <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
                         <p id="cat1Label" class="text-[11px] font-medium text-slate-500">메가트렌드</p>
@@ -144,7 +148,7 @@
                         <p id="cat3Label" class="text-[11px] font-medium text-slate-500">재무 및 수익성</p>
                         <p class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5"><span id="cat3Score">0</span> <span id="cat3Max" class="text-[10px] text-slate-400 font-normal">/ 93점</span></p>
                     </div>
-                    <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                         <p id="cat4Label" class="text-[11px] font-medium text-slate-500">밸류에이션</p>
                         <p class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5"><span id="cat4Score">0</span> <span id="cat4Max" class="text-[10px] text-slate-400 font-normal">/ 69점</span></p>
                     </div>
@@ -153,14 +157,14 @@
                 <!-- Key Point -->
                 <div class="bg-blue-50/70 p-3.5 sm:p-5 rounded-xl border border-blue-100">
                     <p id="keyPointLabel" class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         투자 핵심 포인트
                     </p>
                     <p id="resultKeyPoint" class="text-slate-800 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-medium"></p>
                 </div>
             </div>
 
-            <!-- 투자 적격성 판정 세부 조건 검증표 -->
+            <!-- 투자 적격성 세부 조건 검증표 -->
             <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
                     <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
@@ -170,13 +174,11 @@
                     <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium" id="checkFrameworkType">기준: 기존기업</span>
                 </div>
 
-                <!-- 판정 결과 요약 사유 -->
                 <div id="checkReasonBox" class="mb-3 p-2.5 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-medium text-slate-700 leading-relaxed flex items-start gap-2">
-                    <span id="checkReasonIcon" class="mt-0.5">ℹ️</span>
+                    <span id="checkReasonIcon" class="mt-0.5 flex-shrink-0">ℹ️</span>
                     <span id="checkReasonText">-</span>
                 </div>
 
-                <!-- 조건별 O/X 매트릭스 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <div id="chkRowTotal" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
                         <div>
@@ -224,7 +226,7 @@
                 </div>
             </div>
 
-            <!-- 44 Detailed Items Table (모바일 가로스크롤 최적화) -->
+            <!-- 44 Detailed Items Table -->
             <div id="adminTableSection" class="hidden">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
@@ -234,14 +236,14 @@
                 </div>
 
                 <div class="overflow-x-auto touch-scroll rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <table class="w-full min-w-[620px] text-left text-xs sm:text-sm text-slate-700">
+                    <table class="w-full min-w-[580px] text-left text-xs sm:text-sm text-slate-700">
                         <thead class="bg-slate-100/80 text-slate-600 uppercase text-[11px] border-b border-slate-200">
                             <tr>
-                                <th id="thNo" class="py-3 px-2 w-12 text-center">번호</th>
-                                <th id="thCriteria" class="py-3 px-3 w-2/5">평가 기준 항목</th>
-                                <th id="thMax" class="py-3 px-2 w-16 text-center">배점</th>
-                                <th id="thScore" class="py-3 px-2 w-16 text-center">획득</th>
-                                <th id="thReason" class="py-3 px-3">AI 평가 및 팩트체크 사유</th>
+                                <th id="thNo" class="py-2.5 px-2 w-10 text-center">번호</th>
+                                <th id="thCriteria" class="py-2.5 px-3 w-2/5">평가 기준 항목</th>
+                                <th id="thMax" class="py-2.5 px-2 w-14 text-center">배점</th>
+                                <th id="thScore" class="py-2.5 px-2 w-14 text-center">획득</th>
+                                <th id="thReason" class="py-2.5 px-3">AI 평가 및 팩트체크 사유</th>
                             </tr>
                         </thead>
                         <tbody id="itemsTableBody" class="divide-y divide-slate-200"></tbody>
@@ -265,8 +267,6 @@
         let currentLang = localStorage.getItem('company_lang') || 'ko';
         let adminPassword = localStorage.getItem('company_admin_pwd') || "";
         let currentResultData = null;
-
-        // ★ 화면 꺼짐 방지(Screen Wake Lock) 제어 변수
         let wakeLock = null;
 
         async function acquireWakeLock() {
@@ -277,9 +277,7 @@
                         wakeLock = null;
                     });
                 }
-            } catch (err) {
-                console.warn('Wake Lock request failed:', err);
-            }
+            } catch (err) {}
         }
 
         function releaseWakeLock() {
@@ -289,7 +287,6 @@
             }
         }
 
-        // 사용자가 홈화면 갔다 돌아왔을 때 WakeLock 재설정
         document.addEventListener('visibilitychange', async () => {
             const isLoading = !document.getElementById('loadingState').classList.contains('hidden');
             if (isLoading && document.visibilityState === 'visible') {
@@ -426,7 +423,7 @@
             document.getElementById('cat4Max').textContent = t.cat4Max;
 
             document.getElementById('keyPointLabel').innerHTML = `
-                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 ${t.keyPointLabel}
             `;
 
@@ -485,7 +482,7 @@
             }
 
             showLoading();
-            await acquireWakeLock(); // 화면 꺼짐 방지 락 활성화
+            await acquireWakeLock();
 
             try {
                 const response = await fetch('/api/analyze', {
@@ -506,7 +503,7 @@
             } catch (err) {
                 showError(err.message || t.errServer);
             } finally {
-                releaseWakeLock(); // 분석 종료 후 락 해제
+                releaseWakeLock();
             }
         }
 
