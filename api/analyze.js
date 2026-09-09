@@ -32,7 +32,7 @@ const EXISTING_CRITERIA = [
   { no: 28, max: 5, text: "원가 및 판관비 등 주요 비용 구조의 개선/감소 추이" },
   { no: 29, max: 2, text: "감가상각비 부담 유지 또는 점진적 감소 여부" },
   { no: 30, max: 10, text: "듀퐁 ROE 분석: 순이익률과 총자산회전율의 우수성" },
-  { no: 31, max: 2, text: "재고자산 과다 여부 및 회전율의 적정성" },
+  { no: 31, max: 2, text: "재고자산 과다 여부 및 회전율(4~6회)의 적정성" },
   { no: 32, max: 2, text: "매출 정체 상황에서 재고자산회전율 급락 등 악성 징후 배제" },
   { no: 33, max: 2, text: "재고자산 구성(제품, 반제품, 재공품)의 건전성 및 현금화 속도" },
   { no: 34, max: 2, text: "순차입금비율 20% 이하의 안정적 부채 구조" },
@@ -100,13 +100,12 @@ function formatCriteriaPrompt(criteria) {
   return criteria.map(c => `${c.no}번 (만점 ${c.max}점): ${c.text}`).join('\n');
 }
 
-// 줄바꿈 및 따옴표 오류를 완벽히 치유하는 특급 파서
+// 안전 복원 파서 (줄바꿈/따옴표/오류 원천 차단)
 function extractMainJson(rawText) {
   if (!rawText) return null;
 
   let cleaned = rawText.trim();
 
-  // 마크다운 코드블록 제거
   const match = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
   if (match) cleaned = match[1].trim();
 
@@ -116,12 +115,10 @@ function extractMainJson(rawText) {
     cleaned = cleaned.substring(firstBrace, lastBrace + 1);
   }
 
-  // 문자열 값 내부의 리터럴 줄바꿈을 \n으로 변환하여 JSON.parse 에러 방지
   cleaned = cleaned.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (match, group1) => {
     return '"' + group1.replace(/\r?\n/g, '\\n') + '"';
   });
 
-  // 후행 콤마 제거
   cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
 
   try {
@@ -129,7 +126,6 @@ function extractMainJson(rawText) {
     if (parsed && (parsed.scores || parsed.companyName)) return parsed;
   } catch (e) {}
 
-  // 비상 정규표현식 파서 (JSON 구조가 일그러져도 1~44번 점수와 사유를 100% 추출)
   try {
     const companyName = (cleaned.match(/"companyName"\s*:\s*"([^"]+)"/) || [])[1] || "";
     const companyCode = (cleaned.match(/"companyCode"\s*:\s*"([^"]+)"/) || [])[1] || "-";
@@ -198,7 +194,7 @@ ${langDirective}
 
 [2단계: 44개 항목 채점 기준 (반드시 해당 프레임워크 문항으로 채점)]
 아래 목록의 배점(만점)을 절대 초과할 수 없으며, 모든 문항(1~44번)에 대해 정수 점수와 1문장의 정량적 근거(reason)를 작성하십시오.
-절대 주의: 응답 텍스트 내에서 줄바꿈 엔터(\n)를 절대 누르지 말고 한 줄로 이어 쓰거나 공백 처리하십시오. 큰따옴표(")는 사용하지 마십시오.
+절대 주의: 응답 텍스트 내에서 줄바꿈 엔터(\\n)를 절대 누르지 말고 한 줄로 이어 쓰거나 공백 처리하십시오. 큰따옴표(")는 사용하지 마십시오.
 - 7번 항목: 미국의 퀀트 모델 관점에서 뉴스/수급 팩트체크 후 6개월~1년 내 가시적 성과 창출 가능성 평가.
 - 17번 항목: 미래 메가트렌드와 연계되어 향후 매출이 대폭 퀀텀점프할 핵심 파이프라인/사업 준비 여부 평가.
 - 탁월 (글로벌 1위, 수치 입증): 배점의 90% ~ 100%
@@ -232,7 +228,8 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 \`\`\`
 `;
 
-    const apiUrl = `[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=$){apiKey}`;
+    // ★ URL 변수 보간 문법 오류 원천 수정 (${apiKey})
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [{ parts: [{ text: `Target Company: ${company}` }] }],
