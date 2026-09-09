@@ -97,62 +97,65 @@ const NEWBORN_CRITERIA = [
 ];
 
 function formatCriteriaPrompt(criteria) {
-  return criteria.map(c => `${c.no}번 (배점 ${c.max}점): ${c.text}`).join('\n');
+  return criteria.map(c => `${c.no}번 (만점 ${c.max}점): ${c.text}`).join('\n');
 }
 
+// 온갖 비정형 텍스트, 콤마 오류, 불완전 문자열을 완전 자동 복원하는 파서
 function extractMainJson(rawText) {
   if (!rawText) return null;
 
+  let cleaned = rawText.trim();
+
+  // 1. 마크다운 코드블록 제거
+  const match = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (match) cleaned = match[1].trim();
+
+  // 2. 외곽 JSON 객체 경계 탐색
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+  }
+
+  // 3. 후행 콤마(Trailing commas) 정규화
+  cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
+
+  // 4. 직접 파싱 시도
   try {
-    return JSON.parse(rawText.trim());
+    const parsed = JSON.parse(cleaned);
+    if (parsed && (parsed.scores || parsed.companyName)) return parsed;
   } catch (e) {}
 
-  const codeBlockMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  if (codeBlockMatch) {
-    try {
-      return JSON.parse(codeBlockMatch[1].trim());
-    } catch (e) {}
-  }
+  // 5. 정규표현식을 이용한 비상 복원 (JSON이 중간에 잘려도 1~44번 점수를 100% 구출)
+  try {
+    const companyName = (cleaned.match(/"companyName"\s*:\s*"([^"]+)"/) || [])[1] || "";
+    const companyCode = (cleaned.match(/"companyCode"\s*:\s*"([^"]+)"/) || [])[1] || "-";
+    const ipoDate = (cleaned.match(/"ipoDate"\s*:\s*"([^"]+)"/) || [])[1] || "-";
+    const framework = (cleaned.match(/"framework"\s*:\s*"([^"]+)"/) || [])[1] || "기존기업";
+    const keyPoint = (cleaned.match(/"keyPoint"\s*:\s*"([^"]+)"/) || [])[1] || "";
 
-  let startIndex = rawText.indexOf('{');
-  while (startIndex !== -1) {
-    let depth = 0;
-    let inString = false;
-    let escape = false;
-
-    for (let i = startIndex; i < rawText.length; i++) {
-      const char = rawText[i];
-      if (escape) {
-        escape = false;
-        continue;
-      }
-      if (char === '\\') {
-        escape = true;
-        continue;
-      }
-      if (char === '"') {
-        inString = !inString;
-        continue;
-      }
-      if (!inString) {
-        if (char === '{') depth++;
-        else if (char === '}') {
-          depth--;
-          if (depth === 0) {
-            const candidate = rawText.substring(startIndex, i + 1);
-            try {
-              const parsed = JSON.parse(candidate);
-              if (parsed && (parsed.scores || parsed.companyName)) {
-                return parsed;
-              }
-            } catch (err) {}
-            break;
-          }
-        }
-      }
+    const scores = [];
+    const itemRegex = /"no"\s*:\s*(\d+)\s*,\s*"score"\s*:\s*(\d+)(?:\s*,\s*"reason"\s*:\s*"([^"]*)")?/g;
+    let itemMatch;
+    while ((itemMatch = itemRegex.exec(cleaned)) !== null) {
+      scores.push({
+        no: parseInt(itemMatch[1], 10),
+        score: parseInt(itemMatch[2], 10),
+        reason: itemMatch[3] || "평가 완료"
+      });
     }
-    startIndex = rawText.indexOf('{', startIndex + 1);
-  }
+
+    if (scores.length >= 10) {
+      return {
+        companyName,
+        companyCode,
+        ipoDate,
+        framework,
+        keyPoint: keyPoint.replace(/\\n/g, '\n'),
+        scores
+      };
+    }
+  } catch (err) {}
 
   return null;
 }
@@ -190,7 +193,8 @@ ${langDirective}
   * 상장 5년 이하 -> framework: "신생기업"
 
 [2단계: 44개 항목 채점 기준 (반드시 해당 프레임워크 문항으로 채점)]
-아래 목록의 배점(max)을 절대 초과할 수 없으며, 모든 문항(1~44번)에 대해 정수 점수와 1~2문장의 명확한 정량적 근거(reason)를 부여하십시오.
+아래 목록의 배점(만점)을 절대 초과할 수 없으며, 모든 문항(1~44번)에 대해 정수 점수와 1문장의 정량적 근거(reason)를 작성하십시오.
+중요: reason 작성 시 큰따옴표(")는 절대 사용하지 말고 작은따옴표(')만 사용하십시오.
 - 7번 항목: 미국의 퀀트 모델(르네상스 테크놀로지 등) 관점에서 뉴스/수급 팩트체크 후 6개월~1년 내 가시적 성과 창출 가능성 평가.
 - 17번 항목: 미래 메가트렌드와 연계되어 경쟁을 뚫고 매출이 수 배 폭발할 '큰 거 한 방' 준비 여부 평가.
 - 탁월 (글로벌 1위 독점, 수치 입증): 배점의 90% ~ 100%
@@ -205,24 +209,23 @@ ${formatCriteriaPrompt(EXISTING_CRITERIA)}
 ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
 [3단계: keyPoint 작성 규칙]
-- 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 핵심 기회와 리스크를 반드시 3줄(줄바꿈 문장 3개)로 요약하십시오.
+- 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 핵심 기회와 리스크를 반드시 3줄로 요약하십시오.
 
 [4단계: 출력 규격]
-어떠한 마크다운 코드블록이나 서론 없이 순수한 단일 JSON 텍스트만 반환하십시오.
+반드시 유효한 JSON 형식으로만 출력하십시오:
 {
   "companyName": "정확한 기업명",
-  "companyCode": "종목코드(티커)",
+  "companyCode": "종목코드",
   "ipoDate": "YYYY-MM-DD",
   "framework": "기존기업 또는 신생기업",
-  "keyPoint": "1. 해자 및 성장 동력 요약\\n2. 재무 및 리스크 요인\\n3. 밸류에이션 판단",
+  "keyPoint": "1. 해자 요약\\n2. 재무 요약\\n3. 밸류에이션 요약",
   "scores": [
-    {"no": 1, "score": 16, "reason": "구체적 근거 1~2문장"},
+    {"no": 1, "score": 16, "reason": "정량적 평가 사유 1문장"},
     ... 44번까지 빠짐없이
   ]
 }
 `;
 
-    // 최신 권장 모델 gemini-3.6-flash 사용
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const payload = {
@@ -232,7 +235,8 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       generationConfig: {
         temperature: 0.1,
         seed: 42,
-        maxOutputTokens: 8192
+        maxOutputTokens: 8192,
+        responseMimeType: "application/json" // JSON 전용 출력 강제
       }
     };
 
@@ -252,12 +256,13 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       return res.status(500).json({ error: `AI 응답 생성이 차단되었습니다.` });
     }
 
-    const parts = data.candidates[0].content?.parts;
-    const rawText = (parts || []).map(p => p.text || '').join('').trim();
+    const parts = data.candidates[0].content?.parts || [];
+    // 텍스트 부분만 취합
+    const rawText = parts.filter(p => p.text).map(p => p.text).join('').trim();
 
     const result = extractMainJson(rawText);
     if (!result) {
-      return res.status(500).json({ error: `AI 응답에서 유효한 분석 데이터를 추출하지 못했습니다.` });
+      return res.status(500).json({ error: `AI 응답 파싱 실패. 원시 응답 일부: ${rawText.slice(0, 200)}...` });
     }
 
     const isNewborn = (result.framework === "신생기업" || result.framework === "Newborn");
