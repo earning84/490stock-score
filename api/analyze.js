@@ -100,33 +100,31 @@ function formatCriteriaPrompt(criteria) {
   return criteria.map(c => `${c.no}번 (만점 ${c.max}점): ${c.text}`).join('\n');
 }
 
-// 온갖 비정형 텍스트, 콤마 오류, 불완전 문자열을 완전 자동 복원하는 파서
+// 안전 복원 파서 (마크다운, 잘린 텍스트, 비정형 데이터 대응)
 function extractMainJson(rawText) {
   if (!rawText) return null;
 
   let cleaned = rawText.trim();
 
-  // 1. 마크다운 코드블록 제거
+  // 코드블록 추출
   const match = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
   if (match) cleaned = match[1].trim();
 
-  // 2. 외곽 JSON 객체 경계 탐색
   const firstBrace = cleaned.indexOf('{');
   const lastBrace = cleaned.lastIndexOf('}');
   if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
     cleaned = cleaned.substring(firstBrace, lastBrace + 1);
   }
 
-  // 3. 후행 콤마(Trailing commas) 정규화
+  // 후행 쉼표 제거
   cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
 
-  // 4. 직접 파싱 시도
   try {
     const parsed = JSON.parse(cleaned);
     if (parsed && (parsed.scores || parsed.companyName)) return parsed;
   } catch (e) {}
 
-  // 5. 정규표현식을 이용한 비상 복원 (JSON이 중간에 잘려도 1~44번 점수를 100% 구출)
+  // 비상 정규표현식 파서
   try {
     const companyName = (cleaned.match(/"companyName"\s*:\s*"([^"]+)"/) || [])[1] || "";
     const companyCode = (cleaned.match(/"companyCode"\s*:\s*"([^"]+)"/) || [])[1] || "-";
@@ -182,8 +180,8 @@ export default async function handler(req, res) {
 
     const systemPrompt = `
 당신은 세계 최고 수준의 가치투자 펀드매니저이자 공인회계사입니다.
-오늘 날짜(${todayStr})를 기준으로 대상 기업의 최신 공시, 재무제표, 실적 컨센서스를 정밀 분석하십시오.
-단기 테마나 뉴스 소음은 철저히 배제하고 기업의 본질적 펀더멘탈(재무 건전성, 비즈니스 모델, 해자, 밸류에이션)에 입각해 매우 엄격하게 채점하십시오.
+오늘 날짜(${todayStr})를 기준으로 대상 기업의 최신 공시, 재무제표, 실적 데이터를 검색하고 분석하십시오.
+단기 테마 소음은 배제하고 기업의 본질적 펀더멘탈(재무, 비즈니스 모델, 해자, 밸류에이션)에 입각해 객관적으로 채점하십시오.
 
 ${langDirective}
 
@@ -194,13 +192,13 @@ ${langDirective}
 
 [2단계: 44개 항목 채점 기준 (반드시 해당 프레임워크 문항으로 채점)]
 아래 목록의 배점(만점)을 절대 초과할 수 없으며, 모든 문항(1~44번)에 대해 정수 점수와 1문장의 정량적 근거(reason)를 작성하십시오.
-중요: reason 작성 시 큰따옴표(")는 절대 사용하지 말고 작은따옴표(')만 사용하십시오.
-- 7번 항목: 미국의 퀀트 모델(르네상스 테크놀로지 등) 관점에서 뉴스/수급 팩트체크 후 6개월~1년 내 가시적 성과 창출 가능성 평가.
-- 17번 항목: 미래 메가트렌드와 연계되어 경쟁을 뚫고 매출이 수 배 폭발할 '큰 거 한 방' 준비 여부 평가.
-- 탁월 (글로벌 1위 독점, 수치 입증): 배점의 90% ~ 100%
-- 우수 (업계 상위권, 뚜렷한 경쟁 우위): 배점의 70% ~ 85%
-- 보통 (평이한 수준, 범용 제품): 배점의 45% ~ 60%
-- 미흡/취약 (근거 부족, 역성장 또는 적자): 배점의 10% ~ 30%
+중요: reason 작성 시 큰따옴표(")는 사용하지 마십시오.
+- 7번 항목: 미국의 퀀트 모델 관점에서 뉴스/수급 팩트체크 후 6개월~1년 내 가시적 성과 창출 가능성 평가.
+- 17번 항목: 미래 메가트렌드와 연계되어 향후 매출이 대폭 퀀텀점프할 핵심 파이프라인/사업 준비 여부 평가.
+- 탁월 (글로벌 1위, 수치 입증): 배점의 90% ~ 100%
+- 우수 (업계 상위권, 경쟁 우위): 배점의 70% ~ 85%
+- 보통 (평이한 수준, 범용): 배점의 45% ~ 60%
+- 미흡/취약 (근거 부족, 역성장/적자): 배점의 10% ~ 30%
 
 --- 기존기업 44개 문항 기준표 ---
 ${formatCriteriaPrompt(EXISTING_CRITERIA)}
@@ -209,10 +207,11 @@ ${formatCriteriaPrompt(EXISTING_CRITERIA)}
 ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
 [3단계: keyPoint 작성 규칙]
-- 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 핵심 기회와 리스크를 반드시 3줄로 요약하십시오.
+- 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 핵심 기회와 리스크를 반드시 3줄(줄바꿈 문장 3개)로 요약하십시오.
 
 [4단계: 출력 규격]
-반드시 유효한 JSON 형식으로만 출력하십시오:
+반드시 다른 설명 없이 아래 JSON 규격으로만 응답하십시오:
+\`\`\`json
 {
   "companyName": "정확한 기업명",
   "companyCode": "종목코드",
@@ -224,19 +223,27 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     ... 44번까지 빠짐없이
   ]
 }
+\`\`\`
 `;
 
+    // 최신 표준 모델 사용
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
+    // Google Search 도구와 충돌하는 responseMimeType 제거 및 안전 필터 전면 해제
     const payload = {
       contents: [{ parts: [{ text: `Target Company: ${company}` }] }],
       tools: [{ "google_search": {} }],
       systemInstruction: { parts: [{ text: systemPrompt }] },
+      safetySettings: [
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+      ],
       generationConfig: {
         temperature: 0.1,
         seed: 42,
-        maxOutputTokens: 8192,
-        responseMimeType: "application/json" // JSON 전용 출력 강제
+        maxOutputTokens: 8192
       }
     };
 
@@ -252,17 +259,24 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     }
 
     const data = await apiRes.json();
+    
+    // 차단 세부 사유 검증
     if (!data.candidates || data.candidates.length === 0) {
-      return res.status(500).json({ error: `AI 응답 생성이 차단되었습니다.` });
+      const blockReason = data.promptFeedback?.blockReason || "필터 차단";
+      return res.status(500).json({ error: `AI 응답 생성이 차단되었습니다. (사유: ${blockReason})` });
     }
 
-    const parts = data.candidates[0].content?.parts || [];
-    // 텍스트 부분만 취합
+    const candidate = data.candidates[0];
+    if (candidate.finishReason === "SAFETY") {
+      return res.status(500).json({ error: `AI 응답이 안전 정책(Safety)에 의해 필터링되었습니다.` });
+    }
+
+    const parts = candidate.content?.parts || [];
     const rawText = parts.filter(p => p.text).map(p => p.text).join('').trim();
 
     const result = extractMainJson(rawText);
     if (!result) {
-      return res.status(500).json({ error: `AI 응답 파싱 실패. 원시 응답 일부: ${rawText.slice(0, 200)}...` });
+      return res.status(500).json({ error: `AI 응답 데이터 변환 실패. 응답 시작부분: ${rawText.slice(0, 150)}` });
     }
 
     const isNewborn = (result.framework === "신생기업" || result.framework === "Newborn");
