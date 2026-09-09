@@ -96,6 +96,67 @@ const NEWBORN_CRITERIA = [
   { no: 44, max: 20, text: "컨센서스 및 자체 현금흐름 기반 DCF/RIM 밸류에이션 결과 상승 여력" }
 ];
 
+// 어떤 텍스트가 섞여도 핵심 JSON을 안전하게 추출하는 파서
+function extractMainJson(rawText) {
+  if (!rawText) return null;
+
+  // 1. 직접 파싱 시도
+  try {
+    return JSON.parse(rawText.trim());
+  } catch (e) {}
+
+  // 2. 마크다운 코드블록 안쪽 파싱 시도
+  const codeBlockMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (codeBlockMatch) {
+    try {
+      return JSON.parse(codeBlockMatch[1].trim());
+    } catch (e) {}
+  }
+
+  // 3. 중괄호 깊이 추적으로 가장 온전한 JSON 객체 탐색
+  let startIndex = rawText.indexOf('{');
+  while (startIndex !== -1) {
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+
+    for (let i = startIndex; i < rawText.length; i++) {
+      const char = rawText[i];
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (char === '\\') {
+        escape = true;
+        continue;
+      }
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
+      if (!inString) {
+        if (char === '{') depth++;
+        else if (char === '}') {
+          depth--;
+          if (depth === 0) {
+            const candidate = rawText.substring(startIndex, i + 1);
+            try {
+              const parsed = JSON.parse(candidate);
+              if (parsed && (parsed.scores || parsed.companyName)) {
+                return parsed;
+              }
+            } catch (err) {}
+            break;
+          }
+        }
+      }
+    }
+    startIndex = rawText.indexOf('{', startIndex + 1);
+  }
+
+  return null;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
@@ -128,23 +189,23 @@ ${langDirective}
   * 5년 초과: '기존기업' 프레임워크 적용
   * 5년 이하: '신생기업' 프레임워크 적용
 
-//[2단계: 채점 점수 산정 절대 룰 (점수 편차 방지)]
-//44개 항목 하나하나를 뜯어보고 각 항목의 배점(max)에 대해 다음 4단계 구간 기준을 엄격히 적용해 점수를 산출하십시오:
-//- 탁월 (글로벌 1위, 명확한 정량 수치 입증): 배점의 90% ~ 100%
-//- 우수 (업계 상위권, 뚜렷한 경쟁 우위 및 성장성): 배점의 70% ~ 85%
-//- 보통 (평이한 수준, 경쟁사 대비 차별성 부족): 배점의 45% ~ 60%
-//- 미흡/취약 (근거 부족, 뚜렷한 리스크 또는 적자/역성장): 배점의 10% ~ 30%
+[2단계: 채점 점수 산정 절대 룰 (점수 편차 방지)]
+44개 항목 하나하나를 뜯어보고 각 항목의 배점(max)에 대해 다음 4단계 구간 기준을 엄격히 적용해 점수를 산출하십시오:
+- 탁월 (글로벌 1위, 명확한 정량 수치 입증): 배점의 90% ~ 100%
+- 우수 (업계 상위권, 뚜렷한 경쟁 우위 및 성장성): 배점의 70% ~ 85%
+- 보통 (평이한 수준, 경쟁사 대비 차별성 부족): 배점의 45% ~ 60%
+- 미흡/취약 (근거 부족, 뚜렷한 리스크 또는 적자/역성장): 배점의 10% ~ 30%
 
-[2단계: 전수 검사 및 팩트체크 원칙]
+[3단계: 전수 검사 및 팩트체크 원칙]
 - 각 항목의 점수는 지정된 배점(max)을 절대 초과할 수 없으며 정수여야 합니다.
 - 근거가 모호하거나 과대포장된 경우 보수적으로 감점하십시오.
 - 응답을 출력하기 전, 기업 정보의 정확성과 44개 항목 점수 부여의 논리적 정합성을 내부적으로 전수 재검증하십시오.
 
-[3단계: 투자 핵심 포인트(keyPoint) 작성]
+[4단계: 투자 핵심 포인트(keyPoint) 작성]
 - 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 근거가 되는 기회와 리스크를 반드시 3줄 이내(줄바꿈 문장 3개 이하)로 명확히 서술하십시오.
 
-[4단계: 출력 형식]
-마크다운(\`\`\`json) 없이 순수한 JSON 텍스트만 출력하십시오.
+[5단계: 출력 형식]
+어떠한 서론이나 인사말, 마크다운 없이 순수한 단일 JSON 텍스트만 출력하십시오.
 
 반환 JSON 규격:
 {
@@ -190,14 +251,13 @@ ${langDirective}
 
     const parts = data.candidates[0].content?.parts;
     const rawText = (parts || []).map(p => p.text || '').join('').trim();
-    let cleanJson = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
-    const firstBrace = cleanJson.indexOf('{');
-    const lastBrace = cleanJson.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1) {
-      cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+
+    // 견고한 JSON 파서 호출 (위치 68 에러 원천 차단)
+    const result = extractMainJson(rawText);
+    if (!result) {
+      return res.status(500).json({ error: `AI 응답에서 유효한 JSON을 해석하지 못했습니다.` });
     }
 
-    const result = JSON.parse(cleanJson);
     const isNewborn = (result.framework === "신생기업" || result.framework === "Newborn");
     const activeCriteria = isNewborn ? NEWBORN_CRITERIA : EXISTING_CRITERIA;
 
@@ -234,9 +294,7 @@ ${langDirective}
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
 
-    // ------------------------------------------------------------------
-    // [투자적격 세부 판정 및 검증 로직]
-    // ------------------------------------------------------------------
+    // 투자적격 세부 판정 및 검증 로직
     const score7 = (scoreMap[7] && scoreMap[7].score) || 0;
     const score17 = (scoreMap[17] && scoreMap[17].score) || 0;
     const sum7_17 = score7 + score17;
@@ -296,7 +354,6 @@ ${langDirective}
       qualification = isEligible ? "투자적격" : "투자 부적격";
     }
 
-    // 조건별 통과/미달 상세 검증 데이터
     const checklist = {
       isNewborn,
       totalScore: { value: totalScore, pass: totalScore >= 245, threshold: ">= 245" },
@@ -315,7 +372,7 @@ ${langDirective}
       keyPoint: result.keyPoint || (isEnglish ? "Fundamental analysis completed." : "투자 핵심 포인트 분석이 완료되었습니다."),
       totalScore: totalScore,
       qualification: qualification,
-      checklist: checklist, // ★ 임시 표시용 세부 조건 데이터
+      checklist: checklist,
       categoryScores: { cat1, cat2, cat3, cat4 },
       isAdmin: isAdmin,
       items: isAdmin ? tableData : null
