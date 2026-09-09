@@ -3,7 +3,7 @@ export const maxDuration = 60;
 // [기존기업] 44개 항목 (467점 만점)
 const EXISTING_CRITERIA = [
   { no: 1, max: 20, text: "기인문기정금 메가트렌드 부합 여부 (1000억달러 시장, CAGR 8%, 20년 지속 등)" },
-  { no: 2, max: 20, text: "해당 산업이 글로벌 필수 산업인가? TAM/SAM 1조달러 이상 성장 가능성" },
+  { no: 2, max: 20, text: "해당 산업이 글로벌 필수 산업인가? TAM/SAM 1조 달러 이상 성장 가능성" },
   { no: 3, max: 8, text: "원래 산업 외 거대 TAM(3000억달러 이상) 산업으로 확장 가능 여부" },
   { no: 4, max: 8, text: "사업의 영속적 지속 가능성" },
   { no: 5, max: 20, text: "산업 발전의 핵심 키포인트(기술/특성) 확보 여부" },
