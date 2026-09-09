@@ -32,6 +32,15 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* PDF 인쇄 전용 스타일 최적화 */
+        @media print {
+            body { background-color: #ffffff !important; }
+            .no-print { display: none !important; }
+            .card-box { border: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+            .app-container { padding: 0 !important; max-width: 100% !important; }
+            #adminTableSection { break-inside: avoid; }
+        }
+
         @media screen and (max-width: 640px) {
             .app-container { padding: 12px 10px !important; }
             .card-box { padding: 20px 14px !important; border-radius: 20px !important; width: 100% !important; }
@@ -57,7 +66,7 @@
     <div class="app-container w-full max-w-4xl px-3 sm:px-6 py-4 sm:py-10 flex flex-col items-center">
 
         <!-- 상단 컨트롤 버튼 (다국어 및 관리자 모드) -->
-        <div class="w-full flex justify-end items-center gap-2 mb-3">
+        <div class="no-print w-full flex justify-end items-center gap-2 mb-3">
             <button onclick="toggleLanguage()" id="langToggleBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
                 <span id="langToggleText">English</span>
@@ -94,8 +103,8 @@
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
-            <!-- 검색 영역 -->
-            <div class="mb-6 sm:mb-8 max-w-xl mx-auto w-full">
+            <!-- 검색 영역 (인쇄 시 자동 숨김) -->
+            <div class="no-print mb-6 sm:mb-8 max-w-xl mx-auto w-full">
                 <div class="flex items-center w-full bg-slate-50 border border-slate-300 rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)" 
                            class="flex-1 min-w-0 bg-transparent px-3 sm:px-4 py-2 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
@@ -128,6 +137,15 @@
 
             <!-- 결과 영역 -->
             <div id="resultState" class="hidden space-y-5 sm:space-y-7 w-full">
+                
+                <!-- PDF 다운로드 버튼 바 -->
+                <div class="no-print flex justify-end mb-2">
+                    <button onclick="downloadPDF()" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span id="pdfBtnText">PDF 리포트 저장</span>
+                    </button>
+                </div>
+
                 <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-6 md:p-8">
                     <div class="summary-flex flex justify-between items-start sm:items-center border-b border-slate-200 pb-4 sm:pb-5">
                         <div>
@@ -310,7 +328,8 @@
                 thCriteria: "평가 기준 항목", thMax: "배점", thScore: "획득", thReason: "AI 평가 및 팩트체크 사유",
                 tdTotalLabel: "합계 총점", tdVerifiedLabel: "정밀 검증 완료", errEmpty: "기업 이름 또는 종목코드를 입력해주세요.",
                 errFailed: "분석 요청에 실패했습니다.", errServer: "서버 통신 중 오류가 발생했습니다.",
-                checkTitle: "투자 적격성 세부 판정 조건 (임시 검증표)"
+                checkTitle: "투자 적격성 세부 판정 조건 (임시 검증표)",
+                pdfBtnText: "PDF 리포트 저장"
             },
             en: {
                 langToggle: "한국어", pageTitle: "Investment Fundamental Score", headerBadge: "Automatic Criteria Selection",
@@ -329,7 +348,8 @@
                 thCriteria: "Evaluation Criteria", thMax: "Max", thScore: "Score", thReason: "AI Fact-check & Rationale",
                 tdTotalLabel: "Total Score", tdVerifiedLabel: "Verified & Audited", errEmpty: "Please enter a company name or ticker symbol.",
                 errFailed: "Failed to process investment analysis.", errServer: "A server communication error occurred.",
-                checkTitle: "Investment Qualification Validation (Temporary)"
+                checkTitle: "Investment Qualification Validation (Temporary)",
+                pdfBtnText: "Save PDF Report"
             }
         };
 
@@ -403,6 +423,7 @@
             document.getElementById('tdTotalLabel').textContent = t.tdTotalLabel;
             document.getElementById('tdVerifiedLabel').textContent = t.tdVerifiedLabel;
             document.getElementById('checkSectionTitle').textContent = t.checkTitle;
+            document.getElementById('pdfBtnText').textContent = t.pdfBtnText;
 
             updateAdminBtnUI();
 
@@ -438,6 +459,11 @@
                 btnText.textContent = t.adminNormal;
                 btnText.className = "text-slate-600";
             }
+        }
+
+        // PDF 다운로드 함수 (브라우저 인쇄 엔진 호출)
+        function downloadPDF() {
+            window.print();
         }
 
         async function analyzeCompany() {
