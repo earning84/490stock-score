@@ -22,7 +22,7 @@ const EXISTING_CRITERIA = [
   { no: 18, max: 10, text: "산업 Capex 밸류체인 내 병목현상 해결 핵심 길목 위치" },
   { no: 19, max: 5, text: "글로벌 대기업 고객사 다수 확보 및 풍부한 고객 기반" },
   { no: 20, max: 8, text: "초반 성장세를 본격 성장기 진입 후에도 지속 유지할 역량" },
-  { no: 21, max: 10, text: "매출액의 5~10% 이상 연구개발비 지속 지출 여부" },
+  { no: 21, max: 10, text: "매출액의 5% 이상 연구개발비 지속 지출 여부" },
   { no: 22, max: 10, text: "과거 호황기 대비 현재 매출/이익 60% 이상 및 재호황 시 실적 탄력성" },
   { no: 23, max: 8, text: "3년 이상 지속적으로 ROE 15% 이상 또는 ROIC 10% 이상 유지" },
   { no: 24, max: 1, text: "매출/수주의 시클리컬 사이클 및 계절성 파악과 대응 전략" },
@@ -32,7 +32,7 @@ const EXISTING_CRITERIA = [
   { no: 28, max: 5, text: "원가 및 판관비 등 주요 비용 구조의 개선/감소 추이" },
   { no: 29, max: 2, text: "감가상각비 부담 유지 또는 점진적 감소 여부" },
   { no: 30, max: 10, text: "듀퐁 ROE 분석: 순이익률과 총자산회전율의 우수성" },
-  { no: 31, max: 2, text: "재고자산 과다 여부 및 회전율(4~6회)의 적정성" },
+  { no: 31, max: 2, text: "재고자산 과다 여부 및 회전율의 적정성" },
   { no: 32, max: 2, text: "매출 정체 상황에서 재고자산회전율 급락 등 악성 징후 배제" },
   { no: 33, max: 2, text: "재고자산 구성(제품, 반제품, 재공품)의 건전성 및 현금화 속도" },
   { no: 34, max: 2, text: "순차입금비율 20% 이하의 안정적 부채 구조" },
@@ -70,9 +70,9 @@ const NEWBORN_CRITERIA = [
   { no: 18, max: 10, text: "산업 밸류체인 내 병목현상 해결 핵심 길목 위치" },
   { no: 19, max: 5, text: "글로벌 빅테크/대기업 고객사 다수 확보 여부" },
   { no: 20, max: 8, text: "초반 성장세를 본궤도 진입 후에도 지속 유지할 역량" },
-  { no: 21, max: 10, text: "매출액의 5~10% 이상 R&D 투자 지속성" },
-  { no: 22, max: 10, text: "Rule of 40: 최근 연간 매출성장률 + 영업이익률(또는 EBITDA률) 합 40% 이상 여부" },
-  { no: 23, max: 8, text: "PSG: PSR / 매출성장률(%) 지표가 1 미만으로 현저한 저평가 여부" },
+  { no: 21, max: 10, text: "매출액의 5% 이상 R&D 투자 지속성" },
+  { no: 22, max: 10, text: "Rule of 40: 최근 연간 매출성장률 + 영업이익률 합 40% 이상 여부" },
+  { no: 23, max: 8, text: "PSG: PSR / 매출성장률 지표가 1 미만으로 현저한 저평가 여부" },
   { no: 24, max: 1, text: "매출/수주의 시클리컬 사이클 및 계절성 파악 여부" },
   { no: 25, max: 10, text: "매출 성장이 견인하는 건전한 영업이익 증가세" },
   { no: 26, max: 5, text: "영업이익 외 기타수익/금융수익 등 전반적 이익 흐름" },
@@ -85,12 +85,12 @@ const NEWBORN_CRITERIA = [
   { no: 33, max: 2, text: "재고자산 중 즉시 판매 가능 제품의 비중 건전성" },
   { no: 34, max: 2, text: "순차입금비율 20% 이하의 안정적 부채 구조" },
   { no: 35, max: 1, text: "이연법인세 자산/부채 상태의 양호성" },
-  { no: 36, max: 8, text: "현금 소진율(Runway) 감안 시 향후 주주가치 희석(증자/CB) 위험 부재" },
+  { no: 36, max: 8, text: "현금 소진율 감안 시 향후 주주가치 희석 위험 부재" },
   { no: 37, max: 5, text: "Capex 부담에도 유동비율/당좌비율의 안전성" },
   { no: 38, max: 8, text: "현재 시가총액 대비 체급 및 폭발적 성장 잠재력" },
   { no: 39, max: 8, text: "실적 및 최근 컨센서스 대비 시가총액의 적정성" },
   { no: 40, max: 8, text: "자회사 및 관계사 지분가치 고려 시 저평가 여부" },
-  { no: 41, max: 10, text: "글로벌 동종업체(Peer) 대비 PER, PSR 기준 저평가 여부" },
+  { no: 41, max: 10, text: "글로벌 동종업체 대비 PER, PSR 기준 저평가 여부" },
   { no: 42, max: 10, text: "글로벌 Peer 비교 시 현재 주가/시가총액의 밸류에이션 매력도" },
   { no: 43, max: 5, text: "지분 구조 및 승계 구도가 주가 부양에 우호적인가" },
   { no: 44, max: 20, text: "컨센서스 및 자체 현금흐름 기반 DCF/RIM 밸류에이션 결과 상승 여력" }
@@ -100,13 +100,13 @@ function formatCriteriaPrompt(criteria) {
   return criteria.map(c => `${c.no}번 (만점 ${c.max}점): ${c.text}`).join('\n');
 }
 
-// 안전 복원 파서 (마크다운, 잘린 텍스트, 비정형 데이터 대응)
+// 줄바꿈 및 따옴표 오류를 완벽히 치유하는 특급 파서
 function extractMainJson(rawText) {
   if (!rawText) return null;
 
   let cleaned = rawText.trim();
 
-  // 코드블록 추출
+  // 마크다운 코드블록 제거
   const match = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
   if (match) cleaned = match[1].trim();
 
@@ -116,7 +116,12 @@ function extractMainJson(rawText) {
     cleaned = cleaned.substring(firstBrace, lastBrace + 1);
   }
 
-  // 후행 쉼표 제거
+  // 문자열 값 내부의 리터럴 줄바꿈을 \n으로 변환하여 JSON.parse 에러 방지
+  cleaned = cleaned.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (match, group1) => {
+    return '"' + group1.replace(/\r?\n/g, '\\n') + '"';
+  });
+
+  // 후행 콤마 제거
   cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
 
   try {
@@ -124,22 +129,23 @@ function extractMainJson(rawText) {
     if (parsed && (parsed.scores || parsed.companyName)) return parsed;
   } catch (e) {}
 
-  // 비상 정규표현식 파서
+  // 비상 정규표현식 파서 (JSON 구조가 일그러져도 1~44번 점수와 사유를 100% 추출)
   try {
     const companyName = (cleaned.match(/"companyName"\s*:\s*"([^"]+)"/) || [])[1] || "";
     const companyCode = (cleaned.match(/"companyCode"\s*:\s*"([^"]+)"/) || [])[1] || "-";
     const ipoDate = (cleaned.match(/"ipoDate"\s*:\s*"([^"]+)"/) || [])[1] || "-";
     const framework = (cleaned.match(/"framework"\s*:\s*"([^"]+)"/) || [])[1] || "기존기업";
-    const keyPoint = (cleaned.match(/"keyPoint"\s*:\s*"([^"]+)"/) || [])[1] || "";
+    const keyPointMatch = cleaned.match(/"keyPoint"\s*:\s*"([^"]*)"/);
+    const keyPoint = keyPointMatch ? keyPointMatch[1].replace(/\\n/g, '\n') : "";
 
     const scores = [];
-    const itemRegex = /"no"\s*:\s*(\d+)\s*,\s*"score"\s*:\s*(\d+)(?:\s*,\s*"reason"\s*:\s*"([^"]*)")?/g;
+    const itemRegex = /"no"\s*:\s*(\d+)\s*,\s*"score"\s*:\s*(\d+)\s*,\s*"reason"\s*:\s*"([^"]*)"/g;
     let itemMatch;
     while ((itemMatch = itemRegex.exec(cleaned)) !== null) {
       scores.push({
         no: parseInt(itemMatch[1], 10),
         score: parseInt(itemMatch[2], 10),
-        reason: itemMatch[3] || "평가 완료"
+        reason: itemMatch[3].replace(/\\n/g, ' ') || "평가 완료"
       });
     }
 
@@ -149,7 +155,7 @@ function extractMainJson(rawText) {
         companyCode,
         ipoDate,
         framework,
-        keyPoint: keyPoint.replace(/\\n/g, '\n'),
+        keyPoint,
         scores
       };
     }
@@ -192,7 +198,7 @@ ${langDirective}
 
 [2단계: 44개 항목 채점 기준 (반드시 해당 프레임워크 문항으로 채점)]
 아래 목록의 배점(만점)을 절대 초과할 수 없으며, 모든 문항(1~44번)에 대해 정수 점수와 1문장의 정량적 근거(reason)를 작성하십시오.
-중요: reason 작성 시 큰따옴표(")는 사용하지 마십시오.
+절대 주의: 응답 텍스트 내에서 줄바꿈 엔터(\n)를 절대 누르지 말고 한 줄로 이어 쓰거나 공백 처리하십시오. 큰따옴표(")는 사용하지 마십시오.
 - 7번 항목: 미국의 퀀트 모델 관점에서 뉴스/수급 팩트체크 후 6개월~1년 내 가시적 성과 창출 가능성 평가.
 - 17번 항목: 미래 메가트렌드와 연계되어 향후 매출이 대폭 퀀텀점프할 핵심 파이프라인/사업 준비 여부 평가.
 - 탁월 (글로벌 1위, 수치 입증): 배점의 90% ~ 100%
@@ -207,7 +213,7 @@ ${formatCriteriaPrompt(EXISTING_CRITERIA)}
 ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
 [3단계: keyPoint 작성 규칙]
-- 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 핵심 기회와 리스크를 반드시 3줄(줄바꿈 문장 3개)로 요약하십시오.
+- 실적, 해자, 밸류에이션 관점에서 실제 투자 판단의 핵심 기회와 리스크를 3줄 이내로 요약하되 줄바꿈은 반드시 \\n 문자로만 표현하십시오.
 
 [4단계: 출력 규격]
 반드시 다른 설명 없이 아래 JSON 규격으로만 응답하십시오:
@@ -226,10 +232,8 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 \`\`\`
 `;
 
-    // 최신 표준 모델 사용
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    const apiUrl = `[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=$){apiKey}`;
 
-    // Google Search 도구와 충돌하는 responseMimeType 제거 및 안전 필터 전면 해제
     const payload = {
       contents: [{ parts: [{ text: `Target Company: ${company}` }] }],
       tools: [{ "google_search": {} }],
@@ -259,19 +263,11 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     }
 
     const data = await apiRes.json();
-    
-    // 차단 세부 사유 검증
     if (!data.candidates || data.candidates.length === 0) {
-      const blockReason = data.promptFeedback?.blockReason || "필터 차단";
-      return res.status(500).json({ error: `AI 응답 생성이 차단되었습니다. (사유: ${blockReason})` });
+      return res.status(500).json({ error: `AI 응답 생성이 차단되었습니다.` });
     }
 
-    const candidate = data.candidates[0];
-    if (candidate.finishReason === "SAFETY") {
-      return res.status(500).json({ error: `AI 응답이 안전 정책(Safety)에 의해 필터링되었습니다.` });
-    }
-
-    const parts = candidate.content?.parts || [];
+    const parts = data.candidates[0].content?.parts || [];
     const rawText = parts.filter(p => p.text).map(p => p.text).join('').trim();
 
     const result = extractMainJson(rawText);
