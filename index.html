@@ -56,7 +56,7 @@
 
     <div class="app-container w-full max-w-4xl px-3 sm:px-6 py-4 sm:py-10 flex flex-col items-center">
 
-        <!-- Controls -->
+        <!-- 상단 컨트롤 버튼 (다국어 및 관리자 모드) -->
         <div class="w-full flex justify-end items-center gap-2 mb-3">
             <button onclick="toggleLanguage()" id="langToggleBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
@@ -69,7 +69,7 @@
             </button>
         </div>
 
-        <!-- Admin Modal -->
+        <!-- 관리자 인증 모달 -->
         <div id="adminModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl">
                 <h3 id="modalTitle" class="text-sm font-bold text-slate-900 mb-2">관리자 인증</h3>
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <!-- Main Card -->
+        <!-- 메인 카드 -->
         <div class="card-box w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm overflow-hidden">
             
             <div class="text-center mb-6 sm:mb-8">
@@ -94,7 +94,7 @@
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
-            <!-- Search Area -->
+            <!-- 검색 영역 -->
             <div class="mb-6 sm:mb-8 max-w-xl mx-auto w-full">
                 <div class="flex items-center w-full bg-slate-50 border border-slate-300 rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)" 
@@ -107,7 +107,7 @@
                 </div>
             </div>
 
-            <!-- Loading -->
+            <!-- 로딩 상태 -->
             <div id="loadingState" class="hidden flex flex-col items-center justify-center py-10 sm:py-16">
                 <div class="loader mb-4"></div>
                 <p id="loadingTitle" class="text-slate-800 font-semibold text-sm sm:text-base">기업 종합 분석 및 평가 중...</p>
@@ -121,12 +121,12 @@
                 </div>
             </div>
 
-            <!-- Error -->
+            <!-- 에러 메시지 -->
             <div id="errorState" class="hidden py-3 px-4 bg-rose-50 border border-rose-200 rounded-xl text-center mb-6">
                 <p class="text-rose-600 text-xs sm:text-sm font-medium" id="errorMessage"></p>
             </div>
 
-            <!-- Results -->
+            <!-- 결과 영역 -->
             <div id="resultState" class="hidden space-y-5 sm:space-y-7 w-full">
                 <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-6 md:p-8">
                     <div class="summary-flex flex justify-between items-start sm:items-center border-b border-slate-200 pb-4 sm:pb-5">
@@ -136,7 +136,7 @@
                                 <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">종목코드</span>
                                 <span id="resultQualificationBadge" class="text-xs font-black px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full tracking-wider flex items-center gap-1">투자적격</span>
                             </div>
-                            <!-- 상장일 및 분석일자 영역 -->
+                            <!-- 상장일 및 분석일자 -->
                             <div class="text-xs text-slate-500 mt-2 flex items-center gap-2 flex-wrap">
                                 <span class="flex items-center gap-1">
                                     <span id="ipoDateLabel">상장일:</span>
@@ -159,6 +159,7 @@
                         </div>
                     </div>
 
+                    <!-- 4대 카테고리 점수 -->
                     <div class="cat-grid grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 my-4 sm:my-5 text-left">
                         <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
                             <p id="cat1Label" class="text-[11px] font-medium text-slate-500">메가트렌드</p>
@@ -178,6 +179,7 @@
                         </div>
                     </div>
 
+                    <!-- 핵심 투자 포인트 -->
                     <div class="bg-blue-50/70 p-3.5 sm:p-5 rounded-xl border border-blue-100">
                         <p id="keyPointLabel" class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                             <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -187,7 +189,7 @@
                     </div>
                 </div>
 
-                <!-- Validation Table -->
+                <!-- 세부 판정 조건 검증표 -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
                         <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
@@ -222,7 +224,7 @@
                     </div>
                 </div>
 
-                <!-- 44 Detailed Items Table -->
+                <!-- 44개 세부 항목 테이블 (관리자 전용) -->
                 <div id="adminTableSection" class="hidden">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
@@ -298,9 +300,9 @@
                 adminNormal: "일반 모드", adminActive: "관리자 모드 활성", modalTitle: "관리자 인증",
                 modalDesc: "비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.", modalPlaceholder: "비밀번호 입력...",
                 modalCancel: "취소", modalSave: "저장", loadingTitle: "기업 종합 분석 및 평가 중...",
-                loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요<br><span class='text-blue-600 font-medium'>(약 25초~40초 소요)</span>",
+                loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요.<br><span class='text-blue-600 font-medium'>(약 25초~40초 소요)</span>",
                 ipoDateLabel: "상장일:", 
-                analysisDateLabel: "분석일자:", // ★ 추가
+                analysisDateLabel: "분석일자:",
                 totalScoreLabel: "투자 최종 펀더멘탈 점수", cat1Label: "메가트렌드",
                 cat2Label: "해자 및 경쟁력", cat3Label: "재무 및 수익성", cat4Label: "밸류에이션", cat1Max: "/ 122점",
                 cat2Max: "/ 183점", cat3Max: "/ 93점", cat4Max: "/ 69점", keyPointLabel: "투자 핵심 포인트",
@@ -319,7 +321,7 @@
                 modalCancel: "Cancel", modalSave: "Save", loadingTitle: "Analyzing Fundamentals & Scoring...",
                 loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-medium'>(Takes approx. 25-40s)</span>",
                 ipoDateLabel: "IPO Date:", 
-                analysisDateLabel: "Analysis Date:", // ★ 추가
+                analysisDateLabel: "Analysis Date:",
                 totalScoreLabel: "Final Fundamental Score", cat1Label: "Mega Trend",
                 cat2Label: "Moat & Edge", cat3Label: "Financial Health", cat4Label: "Valuation", cat1Max: "/ 122 pts",
                 cat2Max: "/ 183 pts", cat3Max: "/ 93 pts", cat4Max: "/ 69 pts", keyPointLabel: "Key Investment Points",
@@ -375,7 +377,7 @@
             document.getElementById('loadingDesc').innerHTML = t.loadingDesc;
 
             document.getElementById('ipoDateLabel').textContent = t.ipoDateLabel;
-            document.getElementById('analysisDateLabel').textContent = t.analysisDateLabel; // ★ 추가
+            document.getElementById('analysisDateLabel').textContent = t.analysisDateLabel;
             document.getElementById('totalScoreLabel').textContent = t.totalScoreLabel;
             document.getElementById('cat1Label').textContent = t.cat1Label;
             document.getElementById('cat2Label').textContent = t.cat2Label;
@@ -547,7 +549,6 @@
             document.getElementById('resultCompanyName').textContent = data.companyName;
             document.getElementById('resultCompanyCode').textContent = data.companyCode;
             document.getElementById('resultIpoDate').textContent = data.ipoDate;
-            // 분석일자 렌더링
             document.getElementById('resultAnalysisDate').textContent = formatAnalysisDate(data.analysisDate, currentLang);
             document.getElementById('resultKeyPoint').textContent = data.keyPoint;
             document.getElementById('resultScore').textContent = data.totalScore;
