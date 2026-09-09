@@ -2,24 +2,23 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>상장기업 투자 종합 점수</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* 모든 기기에서 가로 스크롤 및 삐져나옴 100% 원천 차단 */
-        *, *:before, *:after {
-            box-sizing: border-box !important;
-        }
+        *, *:before, *:after { box-sizing: border-box !important; }
         html, body {
             overflow-x: hidden !important;
             width: 100% !important;
-            min-height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
         }
         body { 
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; 
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; 
             background-color: #f8fafc;
             -webkit-tap-highlight-color: transparent;
         }
@@ -33,93 +32,39 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* ==========================================================
-           스마트폰 모바일 전용 강제 레이아웃 (화면 폭 640px 이하)
-           ========================================================== */
+        /* 모바일 반응형 보정 */
         @media screen and (max-width: 640px) {
-            .app-wrapper {
-                padding: 12px 10px !important;
-            }
-            .main-card {
-                padding: 20px 14px !important;
-                border-radius: 18px !important;
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-            .search-form-wrap {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 8px !important;
-                width: 100% !important;
-            }
-            .search-input {
-                width: 100% !important;
-                font-size: 14px !important;
-                padding: 12px 14px !important;
-            }
-            .search-button {
-                width: 100% !important;
-                padding: 13px 0 !important;
-                font-size: 15px !important;
-            }
-            .summary-header {
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 12px !important;
-            }
-            .score-box-wrap {
+            .app-container { padding: 12px 10px !important; }
+            .card-box { padding: 20px 14px !important; border-radius: 20px !important; width: 100% !important; }
+            .summary-flex { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+            .score-flex {
                 width: 100% !important;
                 border-left: none !important;
                 border-top: 1px solid #e2e8f0 !important;
                 padding-left: 0 !important;
-                padding-top: 12px !important;
+                padding-top: 10px !important;
                 display: flex !important;
                 justify-content: space-between !important;
                 align-items: center !important;
             }
-            .score-box-wrap > div {
-                margin-top: 0 !important;
-            }
-            .cat-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 8px !important;
-            }
-            .chk-grid {
-                grid-template-columns: 1fr !important;
-            }
-            .table-container {
-                max-width: 100% !important;
-                overflow-x: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
-        }
-
-        /* PC 및 태블릿 가로 레이아웃 (화면 폭 641px 이상) */
-        @media screen and (min-width: 641px) {
-            .search-form-wrap {
-                display: flex !important;
-                flex-direction: row !important;
-                gap: 8px !important;
-            }
-            .search-button {
-                width: auto !important;
-                white-space: nowrap !important;
-            }
+            .score-flex > div { margin-top: 0 !important; }
+            .cat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+            .chk-grid { grid-template-columns: 1fr !important; }
         }
     </style>
 </head>
 <body class="text-slate-800 flex flex-col items-center">
 
-    <div class="app-wrapper w-full max-w-4xl px-3 sm:px-6 py-4 sm:py-10 flex flex-col items-center">
+    <div class="app-container w-full max-w-4xl px-3 sm:px-6 py-4 sm:py-10 flex flex-col items-center">
 
-        <!-- Top Right Controls (언어 전환 & 관리자 버튼) -->
-        <div class="w-full flex justify-end items-center gap-1.5 sm:gap-2 mb-3">
-            <button onclick="toggleLanguage()" id="langToggleBtn" class="flex items-center gap-1 text-[11px] sm:text-xs text-slate-600 hover:text-slate-900 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
+        <!-- Controls -->
+        <div class="w-full flex justify-end items-center gap-2 mb-3">
+            <button onclick="toggleLanguage()" id="langToggleBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
                 <span id="langToggleText">English</span>
             </button>
 
-            <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1 text-[11px] sm:text-xs text-slate-600 hover:text-slate-900 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
+            <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 <span id="adminStatusText">일반 모드</span>
             </button>
@@ -127,21 +72,20 @@
 
         <!-- Admin Modal -->
         <div id="adminModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 max-w-xs w-full shadow-2xl">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl">
                 <h3 id="modalTitle" class="text-sm font-bold text-slate-900 mb-2">관리자 인증</h3>
                 <p id="modalDesc" class="text-xs text-slate-500 mb-4 leading-relaxed">비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.</p>
                 <input type="password" id="adminPwdInput" placeholder="비밀번호 입력..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3">
                 <div class="flex justify-end gap-2">
-                    <button onclick="toggleAdminModal()" id="modalCancelBtn" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">취소</button>
-                    <button onclick="saveAdminPwd()" id="modalSaveBtn" class="px-3.5 py-1.5 bg-blue-600 text-white font-semibold rounded-lg text-xs hover:bg-blue-700 shadow-sm">저장</button>
+                    <button onclick="toggleAdminModal()" id="modalCancelBtn" class="px-3 py-1.5 text-xs text-slate-500">취소</button>
+                    <button onclick="saveAdminPwd()" id="modalSaveBtn" class="px-3.5 py-1.5 bg-blue-600 text-white font-semibold rounded-lg text-xs">저장</button>
                 </div>
             </div>
         </div>
 
         <!-- Main Card -->
-        <div class="main-card w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm">
+        <div class="card-box w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm overflow-hidden">
             
-            <!-- Header -->
             <div class="text-center mb-6 sm:mb-8">
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[11px] sm:text-xs font-semibold mb-2.5">
                     <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
@@ -151,20 +95,20 @@
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
-            <!-- Search Form -->
+            <!-- 모던 일체형 검색창 (버튼이 검색창 안으로 완벽히 수납됨) -->
             <div class="mb-6 sm:mb-8 max-w-xl mx-auto w-full">
-                <div class="search-form-wrap w-full">
+                <div class="flex items-center w-full bg-slate-50 border border-slate-300 rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)" 
-                           class="search-input flex-1 px-4 py-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-sm placeholder-slate-400 transition-all"
+                           class="flex-1 min-w-0 bg-transparent px-3 sm:px-4 py-2 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
                            onkeypress="if(event.key==='Enter') analyzeCompany()">
                     <button onclick="analyzeCompany()" id="analyzeBtn"
-                            class="search-button px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl transition-all text-sm shadow-sm active:scale-[0.98]">
+                            class="shrink-0 px-4 sm:px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl transition-all text-xs sm:text-sm whitespace-nowrap shadow-sm active:scale-95">
                         투자 분석 시작
                     </button>
                 </div>
             </div>
 
-            <!-- Loading State -->
+            <!-- Loading -->
             <div id="loadingState" class="hidden flex flex-col items-center justify-center py-10 sm:py-16">
                 <div class="loader mb-4"></div>
                 <p id="loadingTitle" class="text-slate-800 font-semibold text-sm sm:text-base">기업 종합 분석 및 평가 중...</p>
@@ -178,17 +122,15 @@
                 </div>
             </div>
 
-            <!-- Error State -->
+            <!-- Error -->
             <div id="errorState" class="hidden py-3 px-4 bg-rose-50 border border-rose-200 rounded-xl text-center mb-6">
                 <p class="text-rose-600 text-xs sm:text-sm font-medium" id="errorMessage"></p>
             </div>
 
-            <!-- Result State -->
+            <!-- Results -->
             <div id="resultState" class="hidden space-y-5 sm:space-y-7 w-full">
-                
-                <!-- Result Summary Card -->
                 <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-6 md:p-8">
-                    <div class="summary-header flex justify-between items-start sm:items-center border-b border-slate-200 pb-4 sm:pb-5">
+                    <div class="summary-flex flex justify-between items-start sm:items-center border-b border-slate-200 pb-4 sm:pb-5">
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h2 id="resultCompanyName" class="text-xl sm:text-3xl font-black text-slate-900">기업명</h2>
@@ -201,8 +143,7 @@
                             </p>
                         </div>
 
-                        <!-- Score Display -->
-                        <div class="score-box-wrap sm:text-right sm:border-l sm:border-slate-200 sm:pl-8">
+                        <div class="score-flex sm:text-right sm:border-l sm:border-slate-200 sm:pl-8">
                             <p id="totalScoreLabel" class="text-[11px] font-bold uppercase tracking-wider text-slate-500">투자 최종 펀더멘탈 점수</p>
                             <div class="flex items-baseline gap-1 mt-0.5">
                                 <span id="resultScore" class="text-4xl sm:text-5xl font-black text-blue-600">0</span>
@@ -211,7 +152,6 @@
                         </div>
                     </div>
 
-                    <!-- 4 Category Breakdown -->
                     <div class="cat-grid grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 my-4 sm:my-5 text-left">
                         <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
                             <p id="cat1Label" class="text-[11px] font-medium text-slate-500">메가트렌드</p>
@@ -231,7 +171,6 @@
                         </div>
                     </div>
 
-                    <!-- Key Point -->
                     <div class="bg-blue-50/70 p-3.5 sm:p-5 rounded-xl border border-blue-100">
                         <p id="keyPointLabel" class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                             <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -241,7 +180,7 @@
                     </div>
                 </div>
 
-                <!-- 투자 적격성 세부 조건 검증표 -->
+                <!-- Validation Table -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
                         <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
@@ -258,47 +197,20 @@
 
                     <div class="chk-grid grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                         <div id="chkRowTotal" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
-                            <div>
-                                <p class="font-semibold text-slate-800">1. 최소 점수 기준</p>
-                                <p class="text-[10px] text-slate-500">기준: 245점 이상</p>
-                            </div>
-                            <div class="text-right flex items-center">
-                                <span id="chkValTotal" class="font-bold text-slate-800">0점</span>
-                                <span id="chkBadgeTotal" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">충족</span>
-                            </div>
+                            <div><p class="font-semibold text-slate-800">1. 최소 점수 기준</p><p class="text-[10px] text-slate-500">기준: 245점 이상</p></div>
+                            <div class="text-right flex items-center"><span id="chkValTotal" class="font-bold text-slate-800">0점</span><span id="chkBadgeTotal" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">충족</span></div>
                         </div>
-
                         <div id="chkRow7_17" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
-                            <div>
-                                <p class="font-semibold text-slate-800">2. 타이밍/한방 (7번+17번)</p>
-                                <p class="text-[10px] text-slate-500">기준: 37점 이상 (만점 50)</p>
-                            </div>
-                            <div class="text-right flex items-center">
-                                <span id="chkVal7_17" class="font-bold text-slate-800">0점</span>
-                                <span id="chkBadge7_17" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">충족</span>
-                            </div>
+                            <div><p class="font-semibold text-slate-800">2. 타이밍/한방 (7번+17번)</p><p class="text-[10px] text-slate-500">기준: 37점 이상 (만점 50)</p></div>
+                            <div class="text-right flex items-center"><span id="chkVal7_17" class="font-bold text-slate-800">0점</span><span id="chkBadge7_17" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">충족</span></div>
                         </div>
-
                         <div id="chkRowGe65All" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
-                            <div>
-                                <p class="font-semibold text-slate-800">3. 고득점 트랙 (300점+)</p>
-                                <p class="text-[10px] text-slate-500">기준: 65% 이상 문항 25개 이상</p>
-                            </div>
-                            <div class="text-right flex items-center">
-                                <span id="chkValGe65All" class="font-bold text-slate-800">0개</span>
-                                <span id="chkBadgeGe65All" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">미달</span>
-                            </div>
+                            <div><p class="font-semibold text-slate-800">3. 고득점 트랙 (300점+)</p><p class="text-[10px] text-slate-500">기준: 65% 이상 문항 25개 이상</p></div>
+                            <div class="text-right flex items-center"><span id="chkValGe65All" class="font-bold text-slate-800">0개</span><span id="chkBadgeGe65All" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">미달</span></div>
                         </div>
-
                         <div id="chkRowCore" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
-                            <div>
-                                <p class="font-semibold text-slate-800">4. 핵심역량 트랙 (245~300점)</p>
-                                <p id="chkCoreSubLabel" class="text-[10px] text-slate-500">기준: 100점 이상 & 65% 5개 이상</p>
-                            </div>
-                            <div class="text-right flex items-center">
-                                <span id="chkValCore" class="font-bold text-slate-800">0점 / 0개</span>
-                                <span id="chkBadgeCore" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">미달</span>
-                            </div>
+                            <div><p class="font-semibold text-slate-800">4. 핵심역량 트랙 (245~300점)</p><p id="chkCoreSubLabel" class="text-[10px] text-slate-500">기준: 100점 이상 & 65% 5개 이상</p></div>
+                            <div class="text-right flex items-center"><span id="chkValCore" class="font-bold text-slate-800">0점 / 0개</span><span id="chkBadgeCore" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">미달</span></div>
                         </div>
                     </div>
                 </div>
@@ -312,7 +224,7 @@
                         </h3>
                     </div>
 
-                    <div class="table-container rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm" style="-webkit-overflow-scrolling: touch;">
                         <table class="w-full min-w-[560px] text-left text-xs sm:text-sm text-slate-700">
                             <thead class="bg-slate-100/80 text-slate-600 uppercase text-[11px] border-b border-slate-200">
                                 <tr>
@@ -373,95 +285,42 @@
 
         const i18n = {
             ko: {
-                langToggle: "English",
-                pageTitle: "상장기업 투자 종합 점수",
-                headerBadge: "투자기준 자동 전환",
-                mainTitle: "상장기업 투자 종합 점수",
-                mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
-                companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)",
-                analyzeBtn: "투자 분석 시작",
-                adminNormal: "일반 모드",
-                adminActive: "관리자 모드 활성",
-                modalTitle: "관리자 인증",
-                modalDesc: "비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.",
-                modalPlaceholder: "비밀번호 입력...",
-                modalCancel: "취소",
-                modalSave: "저장",
-                loadingTitle: "기업 종합 분석 및 평가 중...",
+                langToggle: "English", pageTitle: "상장기업 투자 종합 점수", headerBadge: "투자기준 자동 전환",
+                mainTitle: "상장기업 투자 종합 점수", mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
+                companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)", analyzeBtn: "투자 분석 시작",
+                adminNormal: "일반 모드", adminActive: "관리자 모드 활성", modalTitle: "관리자 인증",
+                modalDesc: "비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.", modalPlaceholder: "비밀번호 입력...",
+                modalCancel: "취소", modalSave: "저장", loadingTitle: "기업 종합 분석 및 평가 중...",
                 loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요<br><span class='text-blue-600 font-medium'>(약 25초~40초 소요)</span>",
-                ipoDateLabel: "상장일:",
-                totalScoreLabel: "투자 최종 펀더멘탈 점수",
-                cat1Label: "메가트렌드",
-                cat2Label: "해자 및 경쟁력",
-                cat3Label: "재무 및 수익성",
-                cat4Label: "밸류에이션",
-                cat1Max: "/ 122점",
-                cat2Max: "/ 183점",
-                cat3Max: "/ 93점",
-                cat4Max: "/ 69점",
-                keyPointLabel: "투자 핵심 포인트",
-                tableAdminBadge: "관리자 전용",
-                tableTitle: "44개 평가 항목별 정밀 채점표",
-                thNo: "번호",
-                thCriteria: "평가 기준 항목",
-                thMax: "배점",
-                thScore: "획득",
-                thReason: "AI 평가 및 팩트체크 사유",
-                tdTotalLabel: "합계 총점",
-                tdVerifiedLabel: "정밀 검증 완료",
-                errEmpty: "기업 이름 또는 종목코드를 입력해주세요.",
-                errFailed: "분석 요청에 실패했습니다.",
-                errServer: "서버 통신 중 오류가 발생했습니다.",
+                ipoDateLabel: "상장일:", totalScoreLabel: "투자 최종 펀더멘탈 점수", cat1Label: "메가트렌드",
+                cat2Label: "해자 및 경쟁력", cat3Label: "재무 및 수익성", cat4Label: "밸류에이션", cat1Max: "/ 122점",
+                cat2Max: "/ 183점", cat3Max: "/ 93점", cat4Max: "/ 69점", keyPointLabel: "투자 핵심 포인트",
+                tableAdminBadge: "관리자 전용", tableTitle: "44개 평가 항목별 정밀 채점표", thNo: "번호",
+                thCriteria: "평가 기준 항목", thMax: "배점", thScore: "획득", thReason: "AI 평가 및 팩트체크 사유",
+                tdTotalLabel: "합계 총점", tdVerifiedLabel: "정밀 검증 완료", errEmpty: "기업 이름 또는 종목코드를 입력해주세요.",
+                errFailed: "분석 요청에 실패했습니다.", errServer: "서버 통신 중 오류가 발생했습니다.",
                 checkTitle: "투자 적격성 세부 판정 조건 (임시 검증표)"
             },
             en: {
-                langToggle: "한국어",
-                pageTitle: "Comprehensive Investment Fundamental Score",
-                headerBadge: "Automatic Criteria Selection",
-                mainTitle: "Investment Fundamental Score",
-                mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
-                companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)",
-                analyzeBtn: "Start Analysis",
-                adminNormal: "General Mode",
-                adminActive: "Admin Active",
-                modalTitle: "Admin Authentication",
-                modalDesc: "Enter the master password to unlock the detailed 44-criterion scorecard.",
-                modalPlaceholder: "Enter password...",
-                modalCancel: "Cancel",
-                modalSave: "Save",
-                loadingTitle: "Analyzing Fundamentals & Scoring...",
+                langToggle: "한국어", pageTitle: "Investment Fundamental Score", headerBadge: "Automatic Criteria Selection",
+                mainTitle: "Investment Fundamental Score", mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
+                companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)", analyzeBtn: "Start Analysis",
+                adminNormal: "General Mode", adminActive: "Admin Active", modalTitle: "Admin Authentication",
+                modalDesc: "Enter the master password to unlock the detailed 44-criterion scorecard.", modalPlaceholder: "Enter password...",
+                modalCancel: "Cancel", modalSave: "Save", loadingTitle: "Analyzing Fundamentals & Scoring...",
                 loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-medium'>(Takes approx. 25-40s)</span>",
-                ipoDateLabel: "IPO Date:",
-                totalScoreLabel: "Final Fundamental Score",
-                cat1Label: "Mega Trend",
-                cat2Label: "Moat & Edge",
-                cat3Label: "Financial Health",
-                cat4Label: "Valuation",
-                cat1Max: "/ 122 pts",
-                cat2Max: "/ 183 pts",
-                cat3Max: "/ 93 pts",
-                cat4Max: "/ 69 pts",
-                keyPointLabel: "Key Investment Points",
-                tableAdminBadge: "Admin Only",
-                tableTitle: "Detailed 44-Criterion Evaluation Table",
-                thNo: "No.",
-                thCriteria: "Evaluation Criteria",
-                thMax: "Max",
-                thScore: "Score",
-                thReason: "AI Fact-check & Rationale",
-                tdTotalLabel: "Total Score",
-                tdVerifiedLabel: "Verified & Audited",
-                errEmpty: "Please enter a company name or ticker symbol.",
-                errFailed: "Failed to process investment analysis.",
-                errServer: "A server communication error occurred.",
+                ipoDateLabel: "IPO Date:", totalScoreLabel: "Final Fundamental Score", cat1Label: "Mega Trend",
+                cat2Label: "Moat & Edge", cat3Label: "Financial Health", cat4Label: "Valuation", cat1Max: "/ 122 pts",
+                cat2Max: "/ 183 pts", cat3Max: "/ 93 pts", cat4Max: "/ 69 pts", keyPointLabel: "Key Investment Points",
+                tableAdminBadge: "Admin Only", tableTitle: "Detailed 44-Criterion Evaluation Table", thNo: "No.",
+                thCriteria: "Evaluation Criteria", thMax: "Max", thScore: "Score", thReason: "AI Fact-check & Rationale",
+                tdTotalLabel: "Total Score", tdVerifiedLabel: "Verified & Audited", errEmpty: "Please enter a company name or ticker symbol.",
+                errFailed: "Failed to process investment analysis.", errServer: "A server communication error occurred.",
                 checkTitle: "Investment Qualification Validation (Temporary)"
             }
         };
 
-        window.onload = () => {
-            applyLanguage();
-            updateAdminBtnUI();
-        };
+        window.onload = () => { applyLanguage(); updateAdminBtnUI(); };
 
         function toggleLanguage() {
             currentLang = currentLang === 'ko' ? 'en' : 'ko';
@@ -638,13 +497,10 @@
                 : (currentLang === 'en' ? "Established (> 5 yrs)" : "기존기업 (상장 5년 초과)");
 
             document.getElementById('checkReasonText').textContent = chk.ruleMatched;
-
             document.getElementById('chkValTotal').textContent = `${chk.totalScore.value}점`;
             setCheckBadge(document.getElementById('chkBadgeTotal'), chk.totalScore.pass);
-
             document.getElementById('chkVal7_17').textContent = `${chk.sum7_17.value}점`;
             setCheckBadge(document.getElementById('chkBadge7_17'), chk.sum7_17.pass);
-
             document.getElementById('chkValGe65All').textContent = `${chk.countGe65All.value}개`;
             setCheckBadge(document.getElementById('chkBadgeGe65All'), chk.countGe65All.pass);
 
