@@ -32,7 +32,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 모바일 반응형 보정 */
         @media screen and (max-width: 640px) {
             .app-container { padding: 12px 10px !important; }
             .card-box { padding: 20px 14px !important; border-radius: 20px !important; width: 100% !important; }
@@ -95,7 +94,7 @@
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
-            <!-- 모던 일체형 검색창 (버튼이 검색창 안으로 완벽히 수납됨) -->
+            <!-- Search Area -->
             <div class="mb-6 sm:mb-8 max-w-xl mx-auto w-full">
                 <div class="flex items-center w-full bg-slate-50 border border-slate-300 rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, 알테오젠, AAPL)" 
@@ -137,10 +136,18 @@
                                 <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">종목코드</span>
                                 <span id="resultQualificationBadge" class="text-xs font-black px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full tracking-wider flex items-center gap-1">투자적격</span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
-                                <span id="ipoDateLabel">상장일:</span>
-                                <b id="resultIpoDate" class="text-slate-700 font-semibold">-</b>
-                            </p>
+                            <!-- 상장일 및 분석일자 영역 -->
+                            <div class="text-xs text-slate-500 mt-2 flex items-center gap-2 flex-wrap">
+                                <span class="flex items-center gap-1">
+                                    <span id="ipoDateLabel">상장일:</span>
+                                    <b id="resultIpoDate" class="text-slate-700 font-semibold">-</b>
+                                </span>
+                                <span class="text-slate-300">•</span>
+                                <span class="flex items-center gap-1">
+                                    <span id="analysisDateLabel">분석일자:</span>
+                                    <b id="resultAnalysisDate" class="text-slate-700 font-semibold">-</b>
+                                </span>
+                            </div>
                         </div>
 
                         <div class="score-flex sm:text-right sm:border-l sm:border-slate-200 sm:pl-8">
@@ -292,7 +299,9 @@
                 modalDesc: "비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.", modalPlaceholder: "비밀번호 입력...",
                 modalCancel: "취소", modalSave: "저장", loadingTitle: "기업 종합 분석 및 평가 중...",
                 loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요<br><span class='text-blue-600 font-medium'>(약 25초~40초 소요)</span>",
-                ipoDateLabel: "상장일:", totalScoreLabel: "투자 최종 펀더멘탈 점수", cat1Label: "메가트렌드",
+                ipoDateLabel: "상장일:", 
+                analysisDateLabel: "분석일자:", // ★ 추가
+                totalScoreLabel: "투자 최종 펀더멘탈 점수", cat1Label: "메가트렌드",
                 cat2Label: "해자 및 경쟁력", cat3Label: "재무 및 수익성", cat4Label: "밸류에이션", cat1Max: "/ 122점",
                 cat2Max: "/ 183점", cat3Max: "/ 93점", cat4Max: "/ 69점", keyPointLabel: "투자 핵심 포인트",
                 tableAdminBadge: "관리자 전용", tableTitle: "44개 평가 항목별 정밀 채점표", thNo: "번호",
@@ -309,7 +318,9 @@
                 modalDesc: "Enter the master password to unlock the detailed 44-criterion scorecard.", modalPlaceholder: "Enter password...",
                 modalCancel: "Cancel", modalSave: "Save", loadingTitle: "Analyzing Fundamentals & Scoring...",
                 loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-medium'>(Takes approx. 25-40s)</span>",
-                ipoDateLabel: "IPO Date:", totalScoreLabel: "Final Fundamental Score", cat1Label: "Mega Trend",
+                ipoDateLabel: "IPO Date:", 
+                analysisDateLabel: "Analysis Date:", // ★ 추가
+                totalScoreLabel: "Final Fundamental Score", cat1Label: "Mega Trend",
                 cat2Label: "Moat & Edge", cat3Label: "Financial Health", cat4Label: "Valuation", cat1Max: "/ 122 pts",
                 cat2Max: "/ 183 pts", cat3Max: "/ 93 pts", cat4Max: "/ 69 pts", keyPointLabel: "Key Investment Points",
                 tableAdminBadge: "Admin Only", tableTitle: "Detailed 44-Criterion Evaluation Table", thNo: "No.",
@@ -326,6 +337,22 @@
             currentLang = currentLang === 'ko' ? 'en' : 'ko';
             localStorage.setItem('company_lang', currentLang);
             applyLanguage();
+        }
+
+        function formatAnalysisDate(rawDate, lang) {
+            if (!rawDate || rawDate === '-') {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = String(now.getMonth() + 1).padStart(2, '0');
+                const d = String(now.getDate()).padStart(2, '0');
+                return lang === 'en' ? `${y}-${m}-${d}` : `${y}년 ${m}월 ${d}일`;
+            }
+            const parts = rawDate.split('-');
+            if (parts.length === 3) {
+                const [y, m, d] = parts;
+                return lang === 'en' ? `${y}-${m}-${d}` : `${y}년 ${m}월 ${d}일`;
+            }
+            return rawDate;
         }
 
         function applyLanguage() {
@@ -348,6 +375,7 @@
             document.getElementById('loadingDesc').innerHTML = t.loadingDesc;
 
             document.getElementById('ipoDateLabel').textContent = t.ipoDateLabel;
+            document.getElementById('analysisDateLabel').textContent = t.analysisDateLabel; // ★ 추가
             document.getElementById('totalScoreLabel').textContent = t.totalScoreLabel;
             document.getElementById('cat1Label').textContent = t.cat1Label;
             document.getElementById('cat2Label').textContent = t.cat2Label;
@@ -379,6 +407,7 @@
             if (currentResultData) {
                 renderQualificationBadge(currentResultData.qualification);
                 renderChecklist(currentResultData.checklist);
+                document.getElementById('resultAnalysisDate').textContent = formatAnalysisDate(currentResultData.analysisDate, currentLang);
             }
         }
 
@@ -518,6 +547,8 @@
             document.getElementById('resultCompanyName').textContent = data.companyName;
             document.getElementById('resultCompanyCode').textContent = data.companyCode;
             document.getElementById('resultIpoDate').textContent = data.ipoDate;
+            // 분석일자 렌더링
+            document.getElementById('resultAnalysisDate').textContent = formatAnalysisDate(data.analysisDate, currentLang);
             document.getElementById('resultKeyPoint').textContent = data.keyPoint;
             document.getElementById('resultScore').textContent = data.totalScore;
 
