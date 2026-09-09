@@ -222,8 +222,8 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 }
 `;
 
-    // 최신 표준 Gemini 2.5 Flash 모델 호출 (Google Search Grounding 활성화)
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // 최신 권장 모델 gemini-3.6-flash 사용
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [{ parts: [{ text: `Target Company: ${company}` }] }],
@@ -236,21 +236,11 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       }
     };
 
-    let apiRes = await fetch(apiUrl, {
+    const apiRes = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-
-    // 만약 2.5-flash 미지원 환경일 경우 gemini-2.0-flash로 즉시 재시도
-    if (!apiRes.ok && (apiRes.status === 404 || apiRes.status === 400)) {
-      const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-      apiRes = await fetch(fallbackUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-    }
 
     if (!apiRes.ok) {
       const errText = await apiRes.text();
@@ -306,7 +296,6 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
 
-    // 엑셀 규정에 맞춘 투자 적격성 판정 로직
     const score7 = (scoreMap[7] && scoreMap[7].score) || 0;
     const score17 = (scoreMap[17] && scoreMap[17].score) || 0;
     const sum7_17 = score7 + score17;
