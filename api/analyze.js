@@ -160,8 +160,8 @@ function extractMainJson(rawText) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const masterPassword = (process.env.ADMIN_PASSWORD || "7777").trim();
-  const memberPassword = (process.env.MEMBER_PASSWORD || "1234").trim();
+  const masterPassword = (process.env.ADMIN_PASSWORD || "1020chl!!").trim();
+  const memberPassword = (process.env.MEMBER_PASSWORD || "1020chl").trim();
 
   // 비밀번호 즉시 검증 엔드포인트
   if (req.body && req.body.action === 'verify') {
