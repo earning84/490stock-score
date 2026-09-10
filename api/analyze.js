@@ -169,8 +169,8 @@ export default async function handler(req, res) {
 
   // ★ 비밀번호 및 권한 분기
   const userEnteredPwd = (password || adminPassword || "").trim();
-  const adminMasterPassword = process.env.ADMIN_PASSWORD || "7777";
-  const memberMasterPassword = process.env.MEMBER_PASSWORD || "1234";
+  const adminMasterPassword = process.env.ADMIN_PASSWORD || "1020chl!!";
+  const memberMasterPassword = process.env.MEMBER_PASSWORD || "1020chl";
 
   const isAdmin = (userEnteredPwd === adminMasterPassword);
   const isMember = (userEnteredPwd === memberMasterPassword) || isAdmin;
