@@ -260,12 +260,12 @@
                     </div>
                 </div>
 
-                <!-- [회원 모드 전용] 5대 핵심 영역 심층 분석 리포트 (44개 항목 세부 채점표 대체) -->
+                <!-- [유료 전용] 4대 핵심 영역 분석 리포트 (44개 항목 세부 채점표 대체) -->
                 <div id="memberReportSection" class="hidden space-y-4 sm:space-y-6">
                     <div class="flex justify-between items-center mb-1">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
-                            <span id="memberReportBadge" class="px-2.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full border border-blue-300 font-bold">회원 전용</span>
-                            <span id="memberReportTitle">5대 핵심 영역 심층 분석 리포트</span>
+                            <span id="memberReportBadge" class="px-2.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full border border-blue-300 font-bold">유료 전용</span>
+                            <span id="memberReportTitle">4대 핵심 영역 분석 리포트</span>
                         </h3>
                     </div>
 
@@ -305,11 +305,10 @@
                         <div id="reportCat4Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
                     </div>
 
-                    <!-- 5. 종합 투자 의견 -->
+                    <!-- 종합 투자 의견 (번호 제거) -->
                     <div class="bg-gradient-to-br from-blue-50/60 to-indigo-50/60 border border-blue-200/80 rounded-2xl p-5 sm:p-7 shadow-sm">
                         <div class="flex items-center gap-2 pb-3 mb-4 border-b border-blue-200/60">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold">5</span>
-                            <h4 id="reportCat5Title" class="text-xs sm:text-sm font-bold text-blue-900">종합 투자 의견 및 전략 제언</h4>
+                            <h4 id="reportCat5Title" class="text-xs sm:text-sm font-bold text-blue-900">종합 투자 의견</h4>
                         </div>
                         <div id="reportCat5Text" class="text-xs sm:text-sm text-slate-800 leading-loose whitespace-pre-line font-medium"></div>
                     </div>
@@ -405,13 +404,13 @@
                 errFailed: "분석 요청에 실패했습니다.", errServer: "서버 통신 중 오류가 발생했습니다.",
                 checkTitle: "투자 적격성 세부 판정 조건 (임시 검증표)",
                 pdfBtnText: "PDF 리포트 저장",
-                memberReportBadge: "회원 전용",
-                memberReportTitle: "5대 핵심 영역 심층 분석 리포트",
+                memberReportBadge: "유료 전용",
+                memberReportTitle: "4대 핵심 영역 분석 리포트",
                 reportCat1Title: "메가트렌드 분석",
                 reportCat2Title: "해자 및 경쟁력 분석",
                 reportCat3Title: "재무 및 수익성 분석",
                 reportCat4Title: "밸류에이션 분석",
-                reportCat5Title: "종합 투자 의견 및 전략 제언"
+                reportCat5Title: "종합 투자 의견"
             },
             en: {
                 pageTitle: "Investment Fundamental Score", headerBadge: "Automatic Criteria Selection",
@@ -433,13 +432,13 @@
                 errFailed: "Failed to process investment analysis.", errServer: "A server communication error occurred.",
                 checkTitle: "Investment Qualification Validation (Temporary)",
                 pdfBtnText: "Save PDF Report",
-                memberReportBadge: "Member Only",
-                memberReportTitle: "5-Domain In-Depth Analysis Report",
+                memberReportBadge: "Premium Only",
+                memberReportTitle: "4-Domain Analysis Report",
                 reportCat1Title: "Mega Trend Analysis",
                 reportCat2Title: "Moat & Edge Analysis",
                 reportCat3Title: "Financial Health Analysis",
                 reportCat4Title: "Valuation Analysis",
-                reportCat5Title: "Investment Conclusion & Strategy"
+                reportCat5Title: "Investment Conclusion"
             }
         };
 
@@ -546,7 +545,7 @@
             document.getElementById('checkSectionTitle').textContent = t.checkTitle;
             document.getElementById('pdfBtnText').textContent = t.pdfBtnText;
 
-            // 회원 모드 리포트 다국어 적용
+            // 유료 전용 리포트 다국어 적용
             const mBadge = document.getElementById('memberReportBadge');
             if (mBadge) mBadge.textContent = t.memberReportBadge;
             const mTitle = document.getElementById('memberReportTitle');
@@ -801,7 +800,7 @@
                 adminSection.classList.add('hidden');
             }
 
-            // [회원 모드] 44개 채점표 자리에 5대 영역 심층 분석 리포트 표시
+            // [유료 전용] 4대 핵심 영역 리포트 및 종합 투자 의견 표시
             if (data.isMember && !data.isAdmin && data.memberReport) {
                 if (memberSection) {
                     memberSection.classList.remove('hidden');
