@@ -9,6 +9,7 @@
     <title>490 stock 투자 점수</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Sans Flex 폰트 -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
     <style>
         *, *:before, *:after { box-sizing: border-box !important; }
@@ -118,9 +119,9 @@
         <div class="card-box w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm overflow-hidden">
             
             <div class="text-center mb-6 sm:mb-8">
-                <!-- font-bold에서 font-semibold로 굵기 조절 -->
-                <h1 id="mainTitle" class="font-title text-xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
-                    <span class="text-amber-600">490 stock</span> <span class="text-[0.88em]">투자 점수</span>
+                <!-- '490 stock' 마젠타(#cb418b) 및 '투자 점수' 뉴트럴 그레이(text-neutral-500) 적용 -->
+                <h1 id="mainTitle" class="font-title text-xl sm:text-3xl font-semibold tracking-tight">
+                    <span class="text-[#cb418b]">490 stock</span> <span class="text-[0.88em] text-neutral-500">투자 점수</span>
                 </h1>
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
@@ -335,7 +336,8 @@
         const i18n = {
             ko: {
                 pageTitle: "490 stock 투자 점수", headerBadge: "투자기준 자동 전환",
-                mainTitle: "<span class=\"text-amber-600\">490 stock</span> <span class=\"text-[0.88em]\">투자 점수</span>", mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
+                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.88em] text-neutral-500\">투자 점수</span>",
+                mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
                 companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)", analyzeBtn: "분석 시작",
                 adminNormal: "일반 모드", adminActive: "관리자 모드 활성", modalTitle: "관리자 인증",
                 modalDesc: "비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.", modalPlaceholder: "비밀번호 입력...",
@@ -355,7 +357,8 @@
             },
             en: {
                 pageTitle: "Investment Fundamental Score", headerBadge: "Automatic Criteria Selection",
-                mainTitle: "Investment Fundamental Score", mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
+                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.88em] text-neutral-500\">Fundamental Score</span>",
+                mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
                 companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)", analyzeBtn: "Start Analysis",
                 adminNormal: "General Mode", adminActive: "Admin Active", modalTitle: "Admin Authentication",
                 modalDesc: "Enter the master password to unlock the detailed 44-criterion scorecard.", modalPlaceholder: "Enter password...",
@@ -514,7 +517,6 @@
             }
         }
 
-        // PDF 다운로드 함수 (브라우저 인쇄 엔진 호출)
         function downloadPDF() {
             window.print();
         }
