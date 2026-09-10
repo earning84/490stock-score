@@ -65,17 +65,26 @@
 
     <div class="app-container w-full max-w-4xl px-3 sm:px-6 py-4 sm:py-10 flex flex-col items-center">
 
-        <!-- 상단 컨트롤 버튼 (다국어 및 관리자 모드) -->
-        <div class="no-print w-full flex justify-end items-center gap-2 mb-3">
-            <button onclick="toggleLanguage()" id="langToggleBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
-                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
-                <span id="langToggleText">English</span>
-            </button>
+        <!-- 상단 컨트롤 바 (좌측 배지 + 우측 버튼) -->
+        <div class="no-print w-full flex justify-between items-center gap-2 mb-3">
+            <!-- 좌측 배지 -->
+            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[11px] sm:text-xs font-semibold shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                <span id="headerBadge">투자기준 자동 전환</span>
+            </div>
 
-            <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
-                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                <span id="adminStatusText">일반 모드</span>
-            </button>
+            <!-- 우측 언어 및 관리자 모드 버튼 -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleLanguage()" id="langToggleBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                    <span id="langToggleText">English</span>
+                </button>
+
+                <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <span id="adminStatusText">일반 모드</span>
+                </button>
+            </div>
         </div>
 
         <!-- 관리자 인증 모달 -->
@@ -95,10 +104,6 @@
         <div class="card-box w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm overflow-hidden">
             
             <div class="text-center mb-6 sm:mb-8">
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[11px] sm:text-xs font-semibold mb-2.5">
-                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                    <span id="headerBadge">투자기준 자동 전환</span>
-                </div>
                 <h1 id="mainTitle" class="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">상장기업 투자 종합 점수</h1>
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
@@ -321,7 +326,7 @@
                 loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요.<br><span class='text-blue-600 font-medium'>(약 25초~40초 소요)</span>",
                 ipoDateLabel: "상장일:", 
                 analysisDateLabel: "분석일자:",
-                totalScoreLabel: "투자 최종 펀더멘탈 점수", cat1Label: "메가트렌드",
+                totalScoreLabel: "투자 최종 종합 점수", cat1Label: "메가트렌드",
                 cat2Label: "해자 및 경쟁력", cat3Label: "재무 및 수익성", cat4Label: "밸류에이션", cat1Max: "/ 122점",
                 cat2Max: "/ 183점", cat3Max: "/ 93점", cat4Max: "/ 69점", keyPointLabel: "투자 핵심 포인트",
                 tableAdminBadge: "관리자 전용", tableTitle: "44개 평가 항목별 정밀 채점표", thNo: "번호",
