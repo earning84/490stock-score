@@ -9,6 +9,7 @@
     <title>490 stock 투자 점수</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Sans Flex 폰트 -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
     <style>
         *, *:before, *:after { box-sizing: border-box !important; }
@@ -37,12 +38,13 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* PDF 인쇄 전용 스타일 최적화 */
         @media print {
             body { background-color: #ffffff !important; }
             .no-print { display: none !important; }
             .card-box { border: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
             .app-container { padding: 0 !important; max-width: 100% !important; }
-            #adminTableSection { break-inside: avoid; }
+            #adminTableSection, #memberReportSection { break-inside: avoid; }
         }
 
         @media screen and (max-width: 640px) {
@@ -258,7 +260,62 @@
                     </div>
                 </div>
 
-                <!-- 44개 세부 항목 테이블 (회원 및 관리자 전용) -->
+                <!-- [회원 모드 전용] 5대 핵심 영역 심층 분석 리포트 (44개 항목 세부 채점표 대체) -->
+                <div id="memberReportSection" class="hidden space-y-4 sm:space-y-6">
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+                            <span id="memberReportBadge" class="px-2.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full border border-blue-300 font-bold">회원 전용</span>
+                            <span id="memberReportTitle">5대 핵심 영역 심층 분석 리포트</span>
+                        </h3>
+                    </div>
+
+                    <!-- 1. 메가트렌드 분석 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-sm">
+                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">1</span>
+                            <h4 id="reportCat1Title" class="text-xs sm:text-sm font-bold text-slate-900">메가트렌드 분석</h4>
+                        </div>
+                        <div id="reportCat1Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
+                    </div>
+
+                    <!-- 2. 해자 및 경쟁력 분석 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-sm">
+                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold">2</span>
+                            <h4 id="reportCat2Title" class="text-xs sm:text-sm font-bold text-slate-900">해자 및 경쟁력 분석</h4>
+                        </div>
+                        <div id="reportCat2Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
+                    </div>
+
+                    <!-- 3. 재무 및 수익성 분석 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-sm">
+                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold">3</span>
+                            <h4 id="reportCat3Title" class="text-xs sm:text-sm font-bold text-slate-900">재무 및 수익성 분석</h4>
+                        </div>
+                        <div id="reportCat3Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
+                    </div>
+
+                    <!-- 4. 밸류에이션 분석 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-sm">
+                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-amber-50 text-amber-600 text-xs font-bold">4</span>
+                            <h4 id="reportCat4Title" class="text-xs sm:text-sm font-bold text-slate-900">밸류에이션 분석</h4>
+                        </div>
+                        <div id="reportCat4Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
+                    </div>
+
+                    <!-- 5. 종합 투자 의견 -->
+                    <div class="bg-gradient-to-br from-blue-50/60 to-indigo-50/60 border border-blue-200/80 rounded-2xl p-5 sm:p-7 shadow-sm">
+                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-blue-200/60">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold">5</span>
+                            <h4 id="reportCat5Title" class="text-xs sm:text-sm font-bold text-blue-900">종합 투자 의견 및 전략 제언</h4>
+                        </div>
+                        <div id="reportCat5Text" class="text-xs sm:text-sm text-slate-800 leading-loose whitespace-pre-line font-medium"></div>
+                    </div>
+                </div>
+
+                <!-- [관리자 모드 전용] 44개 세부 항목 테이블 -->
                 <div id="adminTableSection" class="hidden">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
@@ -342,12 +399,19 @@
                 totalScoreLabel: "투자 최종 종합 점수", cat1Label: "메가트렌드",
                 cat2Label: "해자 및 경쟁력", cat3Label: "재무 및 수익성", cat4Label: "밸류에이션", cat1Max: "/ 126점",
                 cat2Max: "/ 193점", cat3Max: "/ 100점", cat4Max: "/ 71점", keyPointLabel: "투자 핵심 포인트",
-                tableMemberBadge: "회원 전용", tableAdminBadge: "관리자 전용", tableTitle: "44개 평가 항목별 정밀 채점표", thNo: "번호",
+                tableAdminBadge: "관리자 전용", tableTitle: "44개 평가 항목별 정밀 채점표", thNo: "번호",
                 thCriteria: "평가 기준 항목", thMax: "배점", thScore: "획득", thReason: "AI 평가 및 팩트체크 사유",
                 tdTotalLabel: "합계 총점", tdVerifiedLabel: "정밀 검증 완료", errEmpty: "기업 이름 또는 종목코드를 입력해주세요.",
                 errFailed: "분석 요청에 실패했습니다.", errServer: "서버 통신 중 오류가 발생했습니다.",
                 checkTitle: "투자 적격성 세부 판정 조건 (임시 검증표)",
-                pdfBtnText: "PDF 리포트 저장"
+                pdfBtnText: "PDF 리포트 저장",
+                memberReportBadge: "회원 전용",
+                memberReportTitle: "5대 핵심 영역 심층 분석 리포트",
+                reportCat1Title: "메가트렌드 분석",
+                reportCat2Title: "해자 및 경쟁력 분석",
+                reportCat3Title: "재무 및 수익성 분석",
+                reportCat4Title: "밸류에이션 분석",
+                reportCat5Title: "종합 투자 의견 및 전략 제언"
             },
             en: {
                 pageTitle: "Investment Fundamental Score", headerBadge: "Automatic Criteria Selection",
@@ -363,12 +427,19 @@
                 totalScoreLabel: "Final Fundamental Score", cat1Label: "Mega Trend",
                 cat2Label: "Moat & Edge", cat3Label: "Financial Health", cat4Label: "Valuation", cat1Max: "/ 126 pts",
                 cat2Max: "/ 193 pts", cat3Max: "/ 100 pts", cat4Max: "/ 71 pts", keyPointLabel: "Key Investment Points",
-                tableMemberBadge: "Member Only", tableAdminBadge: "Admin Only", tableTitle: "Detailed 44-Criterion Evaluation Table", thNo: "No.",
+                tableAdminBadge: "Admin Only", tableTitle: "Detailed 44-Criterion Evaluation Table", thNo: "No.",
                 thCriteria: "Evaluation Criteria", thMax: "Max", thScore: "Score", thReason: "AI Fact-check & Rationale",
                 tdTotalLabel: "Total Score", tdVerifiedLabel: "Verified & Audited", errEmpty: "Please enter a company name or ticker symbol.",
                 errFailed: "Failed to process investment analysis.", errServer: "A server communication error occurred.",
                 checkTitle: "Investment Qualification Validation (Temporary)",
-                pdfBtnText: "Save PDF Report"
+                pdfBtnText: "Save PDF Report",
+                memberReportBadge: "Member Only",
+                memberReportTitle: "5-Domain In-Depth Analysis Report",
+                reportCat1Title: "Mega Trend Analysis",
+                reportCat2Title: "Moat & Edge Analysis",
+                reportCat3Title: "Financial Health Analysis",
+                reportCat4Title: "Valuation Analysis",
+                reportCat5Title: "Investment Conclusion & Strategy"
             }
         };
 
@@ -463,6 +534,7 @@
                 ${t.keyPointLabel}
             `;
 
+            document.getElementById('tableAdminBadge').textContent = t.tableAdminBadge;
             document.getElementById('tableTitle').textContent = t.tableTitle;
             document.getElementById('thNo').textContent = t.thNo;
             document.getElementById('thCriteria').textContent = t.thCriteria;
@@ -473,6 +545,22 @@
             document.getElementById('tdVerifiedLabel').textContent = t.tdVerifiedLabel;
             document.getElementById('checkSectionTitle').textContent = t.checkTitle;
             document.getElementById('pdfBtnText').textContent = t.pdfBtnText;
+
+            // 회원 모드 리포트 다국어 적용
+            const mBadge = document.getElementById('memberReportBadge');
+            if (mBadge) mBadge.textContent = t.memberReportBadge;
+            const mTitle = document.getElementById('memberReportTitle');
+            if (mTitle) mTitle.textContent = t.memberReportTitle;
+            const c1Title = document.getElementById('reportCat1Title');
+            if (c1Title) c1Title.textContent = t.reportCat1Title;
+            const c2Title = document.getElementById('reportCat2Title');
+            if (c2Title) c2Title.textContent = t.reportCat2Title;
+            const c3Title = document.getElementById('reportCat3Title');
+            if (c3Title) c3Title.textContent = t.reportCat3Title;
+            const c4Title = document.getElementById('reportCat4Title');
+            if (c4Title) c4Title.textContent = t.reportCat4Title;
+            const c5Title = document.getElementById('reportCat5Title');
+            if (c5Title) c5Title.textContent = t.reportCat5Title;
 
             updateAdminBtnUI();
 
@@ -491,7 +579,6 @@
             }
         }
 
-        // 비밀번호 입력 즉시 서버 검증 수행
         async function saveAdminPwd() {
             adminPassword = document.getElementById('adminPwdInput').value.trim();
             localStorage.setItem('company_admin_pwd', adminPassword);
@@ -513,7 +600,7 @@
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    currentRole = data.role; // 'admin' | 'member' | 'normal'
+                    currentRole = data.role;
                 } else {
                     currentRole = (adminPassword === "7777") ? "admin" : (adminPassword === "1234" ? "member" : "normal");
                 }
@@ -684,21 +771,14 @@
             document.getElementById('cat4Score').textContent = data.categoryScores.cat4;
 
             const adminSection = document.getElementById('adminTableSection');
-            const badge = document.getElementById('tableAdminBadge');
-            const t = i18n[currentLang];
+            const memberSection = document.getElementById('memberReportSection');
 
-            if ((data.isAdmin || data.isMember) && data.items && data.items.length > 0) {
+            // [관리자 모드] 44개 정밀 채점표 표시
+            if (data.isAdmin && data.items && data.items.length > 0) {
                 adminSection.classList.remove('hidden');
+                if (memberSection) memberSection.classList.add('hidden');
+
                 document.getElementById('tableTotalScore').textContent = data.totalScore;
-
-                if (data.isAdmin) {
-                    badge.textContent = t.tableAdminBadge;
-                    badge.className = "px-2.5 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full border border-amber-300 font-bold";
-                } else {
-                    badge.textContent = t.tableMemberBadge;
-                    badge.className = "px-2.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full border border-blue-300 font-bold";
-                }
-
                 const tbody = document.getElementById('itemsTableBody');
                 tbody.innerHTML = '';
 
@@ -719,6 +799,22 @@
                 });
             } else {
                 adminSection.classList.add('hidden');
+            }
+
+            // [회원 모드] 44개 채점표 자리에 5대 영역 심층 분석 리포트 표시
+            if (data.isMember && !data.isAdmin && data.memberReport) {
+                if (memberSection) {
+                    memberSection.classList.remove('hidden');
+                    document.getElementById('reportCat1Text').textContent = data.memberReport.megaTrend || "-";
+                    document.getElementById('reportCat2Text').textContent = data.memberReport.moat || "-";
+                    document.getElementById('reportCat3Text').textContent = data.memberReport.financial || "-";
+                    document.getElementById('reportCat4Text').textContent = data.memberReport.valuation || "-";
+                    document.getElementById('reportCat5Text').textContent = data.memberReport.investmentOpinion || "-";
+                }
+            } else {
+                if (!data.isAdmin && memberSection) {
+                    memberSection.classList.add('hidden');
+                }
             }
 
             document.getElementById('resultState').classList.remove('hidden');
