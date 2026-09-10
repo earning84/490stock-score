@@ -9,7 +9,8 @@
     <title>490 stock 투자 점수</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Sans Flex 폰트 추가 -->
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
     <style>
         *, *:before, *:after { box-sizing: border-box !important; }
         html, body {
@@ -23,8 +24,9 @@
             background-color: #f8fafc;
             -webkit-tap-highlight-color: transparent;
         }
+        /* 제목 폰트를 Google Sans Flex로 변경 */
         .font-title {
-            font-family: 'Noto Serif KR', serif !important;
+            font-family: 'Google Sans Flex', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif !important;
             letter-spacing: -0.02em;
         }
         .loader {
@@ -118,7 +120,10 @@
         <div class="card-box w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm overflow-hidden">
             
             <div class="text-center mb-6 sm:mb-8">
-                <h1 id="mainTitle" class="font-title text-xl sm:text-3xl font-bold text-slate-900 tracking-tight"><span class="text-amber-600">490 stock</span> 투자 점수</h1>
+                <!-- '투자 점수'의 글자 크기를 text-[0.88em]로 소폭 축소 -->
+                <h1 id="mainTitle" class="font-title text-xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                    <span class="text-amber-600">490 stock</span> <span class="text-[0.88em]">투자 점수</span>
+                </h1>
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
@@ -332,7 +337,7 @@
         const i18n = {
             ko: {
                 pageTitle: "490 stock 투자 점수", headerBadge: "투자기준 자동 전환",
-                mainTitle: "<span class=\"text-amber-600\">490 stock</span> 투자 점수", mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
+                mainTitle: "<span class=\"text-amber-600\">490 stock</span> <span class=\"text-[0.88em]\">투자 점수</span>", mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
                 companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)", analyzeBtn: "분석 시작",
                 adminNormal: "일반 모드", adminActive: "관리자 모드 활성", modalTitle: "관리자 인증",
                 modalDesc: "비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.", modalPlaceholder: "비밀번호 입력...",
