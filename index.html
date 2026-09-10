@@ -9,7 +9,6 @@
     <title>490 stock 투자 점수</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Google Sans Flex 폰트 -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
     <style>
         *, *:before, *:after { box-sizing: border-box !important; }
@@ -38,7 +37,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* PDF 인쇄 전용 스타일 최적화 */
         @media print {
             body { background-color: #ffffff !important; }
             .no-print { display: none !important; }
@@ -75,8 +73,8 @@
         <div class="no-print w-full flex justify-end items-center gap-2 mb-3">
             <span id="headerBadge" class="hidden" aria-hidden="true">투자기준 자동 전환</span>
 
-            <!-- 우측 컨트롤 (언어 드롭다운 + 모드 인증 버튼) -->
             <div class="flex items-center gap-2">
+                <!-- 언어 드롭다운 -->
                 <div class="relative inline-block text-left" id="langDropdownContainer">
                     <button onclick="toggleLangDropdown(event)" id="langDropdownBtn" class="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white px-2.5 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all focus:outline-none active:scale-95">
                         <span id="currentLangText">KOR</span>
@@ -89,7 +87,7 @@
                     </div>
                 </div>
 
-                <!-- 모드 표시 버튼 (일반: 회색 / 회원: 파란색 / 관리자: 주황색) -->
+                <!-- 모드 표시 버튼 -->
                 <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1 text-xs bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
                     <svg id="adminStatusIcon" class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     <span id="adminStatusText" class="text-slate-600">일반 모드</span>
@@ -158,7 +156,6 @@
             <!-- 결과 영역 -->
             <div id="resultState" class="hidden space-y-5 sm:space-y-7 w-full">
                 
-                <!-- PDF 다운로드 버튼 바 -->
                 <div class="no-print flex justify-end mb-2">
                     <button onclick="downloadPDF()" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -265,7 +262,7 @@
                 <div id="adminTableSection" class="hidden">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
-                            <span id="tableAdminBadge" class="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded border border-amber-200 font-semibold">관리자 전용</span>
+                            <span id="tableAdminBadge" class="px-2.5 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full border border-amber-300 font-bold">관리자 전용</span>
                             <span id="tableTitle">44개 평가 항목별 정밀 채점표</span>
                         </h3>
                     </div>
@@ -494,26 +491,40 @@
             }
         }
 
-        function saveAdminPwd() {
+        // 비밀번호 입력 즉시 서버 검증 수행
+        async function saveAdminPwd() {
             adminPassword = document.getElementById('adminPwdInput').value.trim();
             localStorage.setItem('company_admin_pwd', adminPassword);
 
-            // ★ 비밀번호 입력 즉시 정확한 역할(Role) 판별 및 UI 즉시 갱신
             if (!adminPassword) {
                 currentRole = "normal";
-            } else if (adminPassword === "7777") {
-                currentRole = "admin";
-            } else if (adminPassword === "1234") {
-                currentRole = "member";
-            } else {
-                currentRole = "member";
+                localStorage.setItem('company_user_role', 'normal');
+                updateAdminBtnUI();
+                toggleAdminModal();
+                if (currentResultData) displayResult(currentResultData);
+                return;
             }
+
+            try {
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'verify', adminPassword: adminPassword })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    currentRole = data.role; // 'admin' | 'member' | 'normal'
+                } else {
+                    currentRole = (adminPassword === "7777") ? "admin" : (adminPassword === "1234" ? "member" : "normal");
+                }
+            } catch (e) {
+                currentRole = (adminPassword === "7777") ? "admin" : (adminPassword === "1234" ? "member" : "normal");
+            }
+
             localStorage.setItem('company_user_role', currentRole);
-
-            toggleAdminModal();
             updateAdminBtnUI();
+            toggleAdminModal();
 
-            // 이미 분석 데이터가 있으면 권한에 맞춰 새로고침
             if (currentResultData && document.getElementById('companyInput').value.trim()) {
                 analyzeCompany();
             }
@@ -527,15 +538,15 @@
             if (currentRole === 'admin') {
                 btnText.textContent = t.adminActive;
                 btnText.className = "text-amber-600 font-bold";
-                iconEl.className = "w-3.5 h-3.5 text-amber-500";
+                if (iconEl) iconEl.className = "w-3.5 h-3.5 text-amber-500";
             } else if (currentRole === 'member') {
                 btnText.textContent = t.adminMember;
                 btnText.className = "text-blue-600 font-bold";
-                iconEl.className = "w-3.5 h-3.5 text-blue-500";
+                if (iconEl) iconEl.className = "w-3.5 h-3.5 text-blue-500";
             } else {
                 btnText.textContent = t.adminNormal;
                 btnText.className = "text-slate-600 font-medium";
-                iconEl.className = "w-3.5 h-3.5 text-slate-400";
+                if (iconEl) iconEl.className = "w-3.5 h-3.5 text-slate-400";
             }
         }
 
@@ -568,7 +579,6 @@
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || t.errFailed);
 
-                // 서버에서 판정된 권한으로 확정 동기화
                 currentRole = data.role || (data.isAdmin ? 'admin' : (data.isMember ? 'member' : 'normal'));
                 localStorage.setItem('company_user_role', currentRole);
                 updateAdminBtnUI();
@@ -654,6 +664,10 @@
         function displayResult(data) {
             hideLoading();
 
+            currentRole = data.role || (data.isAdmin ? 'admin' : (data.isMember ? 'member' : 'normal'));
+            localStorage.setItem('company_user_role', currentRole);
+            updateAdminBtnUI();
+
             document.getElementById('resultCompanyName').textContent = data.companyName;
             document.getElementById('resultCompanyCode').textContent = data.companyCode;
             document.getElementById('resultIpoDate').textContent = data.ipoDate;
@@ -673,12 +687,10 @@
             const badge = document.getElementById('tableAdminBadge');
             const t = i18n[currentLang];
 
-            // 회원 또는 관리자일 때만 채점표 표시
             if ((data.isAdmin || data.isMember) && data.items && data.items.length > 0) {
                 adminSection.classList.remove('hidden');
                 document.getElementById('tableTotalScore').textContent = data.totalScore;
 
-                // 뱃지 및 색상 분기
                 if (data.isAdmin) {
                     badge.textContent = t.tableAdminBadge;
                     badge.className = "px-2.5 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full border border-amber-300 font-bold";
