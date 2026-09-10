@@ -102,8 +102,7 @@
         <!-- 인증 모달 -->
         <div id="adminModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl">
-                <h3 id="modalTitle" class="text-sm font-bold text-slate-900 mb-2">인증</h3>
-                <p id="modalDesc" class="text-xs text-slate-500 mb-4 leading-relaxed">비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.</p>
+                <h3 id="modalTitle" class="text-sm font-bold text-slate-900 mb-3">회원 / 관리자 인증</h3>
                 <input type="password" id="adminPwdInput" placeholder="비밀번호 입력..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3" onkeypress="if(event.key==='Enter') saveAdminPwd()">
                 <div class="flex justify-end gap-2">
                     <button onclick="toggleAdminModal()" id="modalCancelBtn" class="px-3 py-1.5 text-xs text-slate-500">취소</button>
@@ -341,7 +340,7 @@
                 mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
                 companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)", analyzeBtn: "분석 시작",
                 adminNormal: "일반 모드", adminMember: "회원 모드 활성", adminActive: "관리자 모드 활성", modalTitle: "회원 / 관리자 인증",
-                modalDesc: "비밀번호를 입력하면 44개 항목 세부 채점표를 열람할 수 있습니다.", modalPlaceholder: "비밀번호 입력...",
+                modalPlaceholder: "비밀번호 입력...",
                 modalCancel: "취소", modalSave: "저장", loadingTitle: "기업 종합 분석 및 평가 중...",
                 loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요.<br><span class='text-blue-600 font-medium'>(약 25초~40초 소요)</span>",
                 ipoDateLabel: "상장일:", 
@@ -362,7 +361,7 @@
                 mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
                 companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)", analyzeBtn: "Start Analysis",
                 adminNormal: "General Mode", adminMember: "Member Active", adminActive: "Admin Active", modalTitle: "Member / Admin Authentication",
-                modalDesc: "Enter the password to unlock the detailed 44-criterion scorecard.", modalPlaceholder: "Enter password...",
+                modalPlaceholder: "Enter password...",
                 modalCancel: "Cancel", modalSave: "Save", loadingTitle: "Analyzing Fundamentals & Scoring...",
                 loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-medium'>(Takes approx. 25-40s)</span>",
                 ipoDateLabel: "IPO Date:", 
@@ -452,7 +451,6 @@
             }
 
             document.getElementById('modalTitle').textContent = t.modalTitle;
-            document.getElementById('modalDesc').textContent = t.modalDesc;
             document.getElementById('adminPwdInput').placeholder = t.modalPlaceholder;
             document.getElementById('modalCancelBtn').textContent = t.modalCancel;
             document.getElementById('modalSaveBtn').textContent = t.modalSave;
