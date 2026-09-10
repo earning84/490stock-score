@@ -160,19 +160,27 @@ function extractMainJson(rawText) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
+  const masterPassword = (process.env.ADMIN_PASSWORD || "1020chl!!").trim();
+  const memberPassword = (process.env.MEMBER_PASSWORD || "1020chl").trim();
+
+  // 모달 저장 시 비밀번호 단독 즉시 검증 지원
+  if (req.body && req.body.action === 'verify') {
+    const pwd = (req.body.adminPassword || req.body.password || "").trim();
+    const isAdmin = (pwd !== "" && pwd === masterPassword);
+    const isMember = (pwd !== "" && pwd === memberPassword);
+    const role = isAdmin ? 'admin' : (isMember ? 'member' : 'normal');
+    return res.status(200).json({ role, isAdmin, isMember });
+  }
+
   const { company, adminPassword, lang = 'ko' } = req.body || {};
   if (!company) return res.status(400).json({ error: '기업명을 입력해주세요.' });
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.' });
 
-  // 관리자 및 회원 비밀번호 분기
-  const masterPassword = process.env.ADMIN_PASSWORD || "1020chl!!";
-  const memberPassword = process.env.MEMBER_PASSWORD || "1020chl";
-  
   const enteredPwd = (adminPassword || "").trim();
-  const isAdmin = (enteredPwd === masterPassword);
-  const isMember = (enteredPwd === memberPassword);
+  const isAdmin = (enteredPwd !== "" && enteredPwd === masterPassword);
+  const isMember = (enteredPwd !== "" && enteredPwd === memberPassword);
   const role = isAdmin ? 'admin' : (isMember ? 'member' : 'normal');
 
   try {
@@ -309,26 +317,13 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       else if (c.no <= 37) cat3 += awarded;
       else cat4 += awarded;
 
-      // 권한별 테이블 사유 차등 제공
-      if (isAdmin) {
-        // 관리자: 정밀 팩트체크 및 AI 사유 원문 전체 제공
+      if (isAdmin || isMember) {
         tableData.push({
           no: c.no,
           name: c.text,
           max: c.max,
           score: awarded,
           reason: item.reason
-        });
-      } else if (isMember) {
-        // 회원: 점수표 열람 제공 (상세 AI 사유는 관리자 모드 전용으로 차등화)
-        tableData.push({
-          no: c.no,
-          name: c.text,
-          max: c.max,
-          score: awarded,
-          reason: isEnglish
-            ? "Member access: Verified (Detailed AI rationale available in Admin Mode)"
-            : "회원 모드: 검증 완료 (상세 AI 평가 사유는 관리자 모드 전용)"
         });
       }
     });
