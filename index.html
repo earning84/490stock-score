@@ -119,22 +119,35 @@
         <div class="card-box w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm overflow-hidden">
             
             <div class="text-center mb-6 sm:mb-8">
-                <!-- '490 stock' 마젠타(#cb418b) 및 '투자 점수' 뉴트럴 그레이(text-neutral-500) 적용 -->
                 <h1 id="mainTitle" class="font-title text-xl sm:text-3xl font-semibold tracking-tight">
                     <span class="text-[#cb418b]">490 stock</span> <span class="text-[0.88em] text-neutral-500">투자 점수</span>
                 </h1>
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
-            <!-- 검색 영역 (인쇄 시 자동 숨김) -->
+            <!-- 검색 영역: 둥근 알약형 입력창 + AI 모드 형태의 둥근 버튼 -->
             <div class="no-print mb-6 sm:mb-8 max-w-xl mx-auto w-full">
-                <div class="flex items-center w-full bg-slate-50 border border-slate-300 rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 focus-within:bg-white transition-all shadow-sm">
+                <div class="flex items-center w-full bg-white border border-slate-200 rounded-full px-2.5 sm:px-3 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_3px_12px_rgba(0,0,0,0.09)] focus-within:shadow-[0_4px_16px_rgba(0,0,0,0.1)] focus-within:border-slate-300 transition-all">
+                    <!-- 좌측 '+' 아이콘 (첨부 사진 스타일) -->
+                    <div class="pl-2 pr-1.5 text-slate-500 flex items-center shrink-0">
+                        <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                        </svg>
+                    </div>
+
+                    <!-- 입력창 -->
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)" 
-                           class="flex-1 min-w-0 bg-transparent px-3 sm:px-4 py-2 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
+                           class="flex-1 min-w-0 bg-transparent px-2.5 py-2 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
                            onkeypress="if(event.key==='Enter') analyzeCompany()">
+
+                    <!-- 'AI 모드' 형태의 둥근 알약 버튼 -->
                     <button onclick="analyzeCompany()" id="analyzeBtn"
-                            class="shrink-0 px-4 sm:px-6 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl transition-all text-xs sm:text-sm whitespace-nowrap shadow-sm active:scale-95">
-                        분석 시작
+                            class="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-semibold rounded-full transition-all text-xs sm:text-sm whitespace-nowrap shadow-sm active:scale-95 border border-slate-200/80">
+                        <!-- AI 모드 스파클/돋보기 아이콘 -->
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                        </svg>
+                        <span id="analyzeBtnText">분석 시작</span>
                     </button>
                 </div>
             </div>
@@ -441,7 +454,14 @@
             document.getElementById('mainTitle').innerHTML = t.mainTitle;
             document.getElementById('mainSubtitle').textContent = t.mainSubtitle;
             document.getElementById('companyInput').placeholder = t.companyPlaceholder;
-            document.getElementById('analyzeBtn').textContent = t.analyzeBtn;
+
+            // '분석 시작' 버튼 내부 텍스트만 갱신 (스파클 아이콘 보존)
+            const btnTextEl = document.getElementById('analyzeBtnText');
+            if (btnTextEl) {
+                btnTextEl.textContent = t.analyzeBtn;
+            } else {
+                document.getElementById('analyzeBtn').textContent = t.analyzeBtn;
+            }
 
             document.getElementById('modalTitle').textContent = t.modalTitle;
             document.getElementById('modalDesc').textContent = t.modalDesc;
