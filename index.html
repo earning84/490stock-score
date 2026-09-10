@@ -71,20 +71,17 @@
 
     <div class="app-container w-full max-w-4xl px-3 sm:px-6 py-4 sm:py-10 flex flex-col items-center">
 
-        <!-- 상단 컨트롤 바 (우측 버튼 정렬 및 기능 유지용 숨김 배지) -->
+        <!-- 상단 컨트롤 바 -->
         <div class="no-print w-full flex justify-end items-center gap-2 mb-3">
-            <!-- 화면에는 숨겨지지만 스크립트 및 기능은 유지되는 배지 -->
             <span id="headerBadge" class="hidden" aria-hidden="true">투자기준 자동 전환</span>
 
-            <!-- 우측 컨트롤 (언어 드롭다운 + 모드 버튼) -->
+            <!-- 우측 컨트롤 (언어 드롭다운 + 모드 인증 버튼) -->
             <div class="flex items-center gap-2">
-                <!-- 이미지 스타일 언어 드롭다운 셀렉터 -->
                 <div class="relative inline-block text-left" id="langDropdownContainer">
                     <button onclick="toggleLangDropdown(event)" id="langDropdownBtn" class="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white px-2.5 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all focus:outline-none active:scale-95">
                         <span id="currentLangText">KOR</span>
                         <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <!-- 드롭다운 펼침 메뉴 (둥근 알약 형태) -->
                     <div id="langDropdownMenu" class="hidden absolute right-0 mt-1.5 z-50 bg-white/95 backdrop-blur-sm border border-slate-200 p-1 rounded-2xl shadow-lg flex flex-col items-center">
                         <button onclick="selectLanguage('en')" id="langOptionBtn" class="px-4 py-1 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-full transition-all shadow-inner">
                             EN
@@ -92,9 +89,10 @@
                     </div>
                 </div>
 
-                <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
-                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    <span id="adminStatusText">일반 모드</span>
+                <!-- 모드 표시 버튼 (일반: 회색 / 회원: 파란색 / 관리자: 주황색) -->
+                <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1 text-xs bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
+                    <svg id="adminStatusIcon" class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <span id="adminStatusText" class="text-slate-600">일반 모드</span>
                 </button>
             </div>
         </div>
@@ -121,7 +119,7 @@
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
-            <!-- 검색 영역: 얇은 마젠타 테두리(border-[#cb418b])가 적용된 둥근 알약형 검색창 -->
+            <!-- 검색 영역 -->
             <div class="no-print mb-6 sm:mb-8 max-w-xl mx-auto w-full">
                 <div class="flex items-center w-full bg-white border border-[#cb418b] rounded-full pl-4 pr-1.5 sm:pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_3px_12px_rgba(203,65,139,0.12)] focus-within:shadow-[0_4px_16px_rgba(203,65,139,0.16)] transition-all">
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)" 
@@ -176,7 +174,6 @@
                                 <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">종목코드</span>
                                 <span id="resultQualificationBadge" class="text-xs font-black px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full tracking-wider flex items-center gap-1">투자적격</span>
                             </div>
-                            <!-- 상장일 및 분석일자 -->
                             <div class="text-xs text-slate-500 mt-2 flex items-center gap-2 flex-wrap">
                                 <span class="flex items-center gap-1">
                                     <span id="ipoDateLabel">상장일:</span>
@@ -380,14 +377,11 @@
 
         window.onload = () => { applyLanguage(); updateAdminBtnUI(); };
 
-        // 언어 드롭다운 토글
         function toggleLangDropdown(e) {
             if (e) e.stopPropagation();
-            const menu = document.getElementById('langDropdownMenu');
-            menu.classList.toggle('hidden');
+            document.getElementById('langDropdownMenu').classList.toggle('hidden');
         }
 
-        // 언어 선택 처리
         function selectLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('company_lang', currentLang);
@@ -395,7 +389,6 @@
             applyLanguage();
         }
 
-        // 드롭다운 바깥 클릭 시 닫기
         document.addEventListener('click', (e) => {
             const container = document.getElementById('langDropdownContainer');
             if (container && !container.contains(e.target)) {
@@ -423,7 +416,6 @@
             const t = i18n[currentLang];
             document.title = t.pageTitle;
             
-            // 언어 드롭다운 버튼 텍스트 업데이트 (KOR ↔ EN)
             const curText = currentLang === 'ko' ? 'KOR' : 'ENG';
             const optText = currentLang === 'ko' ? 'EN' : 'KO';
             const nextLang = currentLang === 'ko' ? 'en' : 'ko';
@@ -442,7 +434,6 @@
             document.getElementById('mainSubtitle').textContent = t.mainSubtitle;
             document.getElementById('companyInput').placeholder = t.companyPlaceholder;
 
-            // '분석 시작' 버튼 내부 텍스트만 갱신 (돋보기 아이콘 보존)
             const btnTextEl = document.getElementById('analyzeBtnText');
             if (btnTextEl) {
                 btnTextEl.textContent = t.analyzeBtn;
@@ -506,12 +497,23 @@
         function saveAdminPwd() {
             adminPassword = document.getElementById('adminPwdInput').value.trim();
             localStorage.setItem('company_admin_pwd', adminPassword);
+
+            // ★ 비밀번호 입력 즉시 정확한 역할(Role) 판별 및 UI 즉시 갱신
             if (!adminPassword) {
                 currentRole = "normal";
-                localStorage.removeItem('company_user_role');
+            } else if (adminPassword === "7777") {
+                currentRole = "admin";
+            } else if (adminPassword === "1234") {
+                currentRole = "member";
+            } else {
+                currentRole = "member";
             }
+            localStorage.setItem('company_user_role', currentRole);
+
             toggleAdminModal();
             updateAdminBtnUI();
+
+            // 이미 분석 데이터가 있으면 권한에 맞춰 새로고침
             if (currentResultData && document.getElementById('companyInput').value.trim()) {
                 analyzeCompany();
             }
@@ -519,19 +521,21 @@
 
         function updateAdminBtnUI() {
             const btnText = document.getElementById('adminStatusText');
+            const iconEl = document.getElementById('adminStatusIcon');
             const t = i18n[currentLang];
+
             if (currentRole === 'admin') {
                 btnText.textContent = t.adminActive;
-                btnText.className = "text-amber-600 font-semibold";
+                btnText.className = "text-amber-600 font-bold";
+                iconEl.className = "w-3.5 h-3.5 text-amber-500";
             } else if (currentRole === 'member') {
                 btnText.textContent = t.adminMember;
-                btnText.className = "text-blue-600 font-semibold";
-            } else if (adminPassword) {
-                btnText.textContent = t.adminMember;
-                btnText.className = "text-blue-600 font-semibold";
+                btnText.className = "text-blue-600 font-bold";
+                iconEl.className = "w-3.5 h-3.5 text-blue-500";
             } else {
                 btnText.textContent = t.adminNormal;
-                btnText.className = "text-slate-600";
+                btnText.className = "text-slate-600 font-medium";
+                iconEl.className = "w-3.5 h-3.5 text-slate-400";
             }
         }
 
@@ -563,6 +567,11 @@
 
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || t.errFailed);
+
+                // 서버에서 판정된 권한으로 확정 동기화
+                currentRole = data.role || (data.isAdmin ? 'admin' : (data.isMember ? 'member' : 'normal'));
+                localStorage.setItem('company_user_role', currentRole);
+                updateAdminBtnUI();
 
                 currentResultData = data;
                 displayResult(data);
@@ -645,10 +654,6 @@
         function displayResult(data) {
             hideLoading();
 
-            currentRole = data.isAdmin ? 'admin' : (data.isMember ? 'member' : 'normal');
-            localStorage.setItem('company_user_role', currentRole);
-            updateAdminBtnUI();
-
             document.getElementById('resultCompanyName').textContent = data.companyName;
             document.getElementById('resultCompanyCode').textContent = data.companyCode;
             document.getElementById('resultIpoDate').textContent = data.ipoDate;
@@ -668,16 +673,18 @@
             const badge = document.getElementById('tableAdminBadge');
             const t = i18n[currentLang];
 
+            // 회원 또는 관리자일 때만 채점표 표시
             if ((data.isAdmin || data.isMember) && data.items && data.items.length > 0) {
                 adminSection.classList.remove('hidden');
                 document.getElementById('tableTotalScore').textContent = data.totalScore;
 
+                // 뱃지 및 색상 분기
                 if (data.isAdmin) {
                     badge.textContent = t.tableAdminBadge;
-                    badge.className = "px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded border border-amber-200 font-semibold";
+                    badge.className = "px-2.5 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full border border-amber-300 font-bold";
                 } else {
                     badge.textContent = t.tableMemberBadge;
-                    badge.className = "px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded border border-blue-200 font-semibold";
+                    badge.className = "px-2.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full border border-blue-300 font-bold";
                 }
 
                 const tbody = document.getElementById('itemsTableBody');
