@@ -96,21 +96,17 @@ const NEWBORN_CRITERIA = [
   { no: 44, max: 20, text: "이 기업의 valuation인 DCF와 RIM(Residual Income Model) 값은 각각 얼마인가? 제일 먼저 컨센서스 잠정실적 있으면 있는대로 모두 먼저 필수 적용.(ex. 향후 3년치). 없으면 자체 데이터." }
 ];
 
-// 프롬프트에 주입할 문항 목록 텍스트 생성기
 function formatCriteriaPrompt(criteria) {
   return criteria.map(c => `${c.no}번 (배점 ${c.max}점 만점): ${c.text}`).join('\n');
 }
 
-// 어떤 텍스트가 섞여도 핵심 JSON을 안전하게 추출하는 파서
 function extractMainJson(rawText) {
   if (!rawText) return null;
 
-  // 1. 직접 파싱 시도
   try {
     return JSON.parse(rawText.trim());
   } catch (e) {}
 
-  // 2. 마크다운 코드블록 안쪽 파싱 시도
   const codeBlockMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
   if (codeBlockMatch) {
     try {
@@ -118,7 +114,6 @@ function extractMainJson(rawText) {
     } catch (e) {}
   }
 
-  // 3. 중괄호 깊이 추적으로 가장 온전한 JSON 객체 탐색
   let startIndex = rawText.indexOf('{');
   while (startIndex !== -1) {
     let depth = 0;
@@ -172,10 +167,13 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.' });
 
   // 관리자 및 회원 비밀번호 분기
-  const masterPassword = process.env.ADMIN_PASSWORD || "7777";
-  const memberPassword = process.env.MEMBER_PASSWORD || "1234";
-  const isAdmin = (adminPassword === masterPassword);
-  const isMember = (adminPassword === memberPassword);
+  const masterPassword = process.env.ADMIN_PASSWORD || "1020chl!!";
+  const memberPassword = process.env.MEMBER_PASSWORD || "1020chl";
+  
+  const enteredPwd = (adminPassword || "").trim();
+  const isAdmin = (enteredPwd === masterPassword);
+  const isMember = (enteredPwd === memberPassword);
+  const role = isAdmin ? 'admin' : (isMember ? 'member' : 'normal');
 
   try {
     const todayStr = new Date().toISOString().slice(0, 10);
@@ -248,7 +246,6 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 }
 `;
 
-    // ★ 올바른 모델 및 URL 변수 보간 수정 적용 완료
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const payload = {
@@ -280,7 +277,6 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     const parts = data.candidates[0].content?.parts;
     const rawText = (parts || []).map(p => p.text || '').join('').trim();
 
-    // 견고한 JSON 파서 호출 (위치 68 에러 원천 차단)
     const result = extractMainJson(rawText);
     if (!result) {
       return res.status(500).json({ error: `AI 응답에서 유효한 JSON을 해석하지 못했습니다.` });
@@ -313,8 +309,9 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       else if (c.no <= 37) cat3 += awarded;
       else cat4 += awarded;
 
-      // 관리자 또는 회원일 때 세부 채점표 데이터 포함
-      if (isAdmin || isMember) {
+      // 권한별 테이블 사유 차등 제공
+      if (isAdmin) {
+        // 관리자: 정밀 팩트체크 및 AI 사유 원문 전체 제공
         tableData.push({
           no: c.no,
           name: c.text,
@@ -322,12 +319,22 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
           score: awarded,
           reason: item.reason
         });
+      } else if (isMember) {
+        // 회원: 점수표 열람 제공 (상세 AI 사유는 관리자 모드 전용으로 차등화)
+        tableData.push({
+          no: c.no,
+          name: c.text,
+          max: c.max,
+          score: awarded,
+          reason: isEnglish
+            ? "Member access: Verified (Detailed AI rationale available in Admin Mode)"
+            : "회원 모드: 검증 완료 (상세 AI 평가 사유는 관리자 모드 전용)"
+        });
       }
     });
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
 
-    // 투자적격 세부 판정 및 검증 로직
     const score7 = (scoreMap[7] && scoreMap[7].score) || 0;
     const score17 = (scoreMap[17] && scoreMap[17].score) || 0;
     const sum7_17 = score7 + score17;
@@ -408,13 +415,14 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       companyName: result.companyName || company,
       companyCode: result.companyCode || "-",
       ipoDate: result.ipoDate || "-",
-      analysisDate: todayStr, // ★ 분석 일자 (YYYY-MM-DD) 추가
+      analysisDate: todayStr,
       framework: result.framework || (isNewborn ? "신생기업" : "기존기업"),
       keyPoint: result.keyPoint || (isEnglish ? "Fundamental analysis completed." : "투자 핵심 포인트 분석이 완료되었습니다."),
       totalScore: totalScore,
       qualification: qualification,
       checklist: checklist,
       categoryScores: { cat1, cat2, cat3, cat4 },
+      role: role,
       isAdmin: isAdmin,
       isMember: isMember,
       items: (isAdmin || isMember) ? tableData : null
