@@ -137,6 +137,24 @@
                 </div>
             </div>
 
+            <!-- 글로벌 투자 Guru 명언 영역 (검색창 아래 일체형, 얇은 폰트 및 핑크 따옴표) -->
+            <div id="quoteSection" class="no-print -mt-5 mb-8 sm:-mt-8 sm:mb-12 max-w-xl mx-auto w-full px-4 text-center transition-all">
+                <div class="flex flex-col items-center justify-center gap-1">
+                    <div class="flex items-center justify-center gap-1">
+                        <!-- '490 stock'과 동일한 색상의 얇은 여는 따옴표 -->
+                        <span class="text-[#cb418b] text-xs sm:text-sm font-light select-none leading-none">“</span>
+                        <p id="quoteText" class="font-title font-light text-slate-600 text-[11px] sm:text-xs tracking-tight leading-relaxed">
+                            위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.
+                        </p>
+                        <!-- '490 stock'과 동일한 색상의 얇은 닫는 따옴표 -->
+                        <span class="text-[#cb418b] text-xs sm:text-sm font-light select-none leading-none">”</span>
+                    </div>
+                    <p id="quoteAuthor" class="font-title font-normal text-[10px] sm:text-[11px] text-slate-400">
+                        — 워런 버핏 (Warren Buffett)
+                    </p>
+                </div>
+            </div>
+
             <!-- 로딩 상태 -->
             <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12 sm:py-20">
                 <div class="loader mb-5"></div>
@@ -364,6 +382,83 @@
         let isAnalyzing = false;
         let lastRequestedQuery = "";
 
+        // 글로벌 투자 Guru 명언 데이터셋 (다국어 지원)
+        const GURU_QUOTES = [
+            {
+                ko: "위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.",
+                en: "Risk comes from not knowing what you're doing.",
+                authorKo: "워런 버핏 (Warren Buffett)",
+                authorEn: "Warren Buffett"
+            },
+            {
+                ko: "남들이 탐욕스러울 때 두려워하고, 남들이 두려워할 때 탐욕스러워져라.",
+                en: "Be fearful when others are greedy, and greedy when others are fearful.",
+                authorKo: "워런 버핏 (Warren Buffett)",
+                authorEn: "Warren Buffett"
+            },
+            {
+                ko: "주식 시장은 인내심 없는 사람의 돈을 인내심 있는 사람에게 이동시키는 도구이다.",
+                en: "The stock market is a device to transfer money from the impatient to the patient.",
+                authorKo: "워런 버핏 (Warren Buffett)",
+                authorEn: "Warren Buffett"
+            },
+            {
+                ko: "훌륭한 기업을 적당한 가격에 사는 것이, 평범한 기업을 헐값에 사는 것보다 훨씬 낫다.",
+                en: "It's far better to buy a wonderful company at a fair price than a fair company at a wonderful price.",
+                authorKo: "찰리 멍거 (Charlie Munger)",
+                authorEn: "Charlie Munger"
+            },
+            {
+                ko: "단기적으로 시장은 투표기이지만, 장기적으로는 계량기(저울)이다.",
+                en: "In the short run, the market is a voting machine, but in the long run, it is a weighing machine.",
+                authorKo: "벤저민 그레이엄 (Benjamin Graham)",
+                authorEn: "Benjamin Graham"
+            },
+            {
+                ko: "투자에서 가장 중요한 것은 머리가 아니라 배짱과 감정을 통제하는 기질이다.",
+                en: "The most important quality for an investor is temperament, not intellect.",
+                authorKo: "워런 버핏 (Warren Buffett)",
+                authorEn: "Warren Buffett"
+            },
+            {
+                ko: "당신이 약간의 신경만 쓴다면, 월스트리트 전문가들보다 먼저 훌륭한 기업을 찾을 수 있다.",
+                en: "Know what you own, and know why you own it.",
+                authorKo: "피터 린치 (Peter Lynch)",
+                authorEn: "Peter Lynch"
+            },
+            {
+                ko: "모두가 어떤 자산이 끝났다고 여길 때가 바로 가장 매력적인 기회일 수 있다.",
+                en: "The biggest investing errors come from psychological factors, not analytical ones.",
+                authorKo: "하워드 막스 (Howard Marks)",
+                authorEn: "Howard Marks"
+            }
+        ];
+
+        let selectedQuote = null;
+
+        // 접속 시 랜덤 명언 1회 선정
+        function pickRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * GURU_QUOTES.length);
+            selectedQuote = GURU_QUOTES[randomIndex];
+            renderQuote();
+        }
+
+        // 현재 언어에 맞춰 명언 텍스트 및 저자 반영
+        function renderQuote() {
+            if (!selectedQuote) return;
+            const textEl = document.getElementById('quoteText');
+            const authorEl = document.getElementById('quoteAuthor');
+            if (!textEl || !authorEl) return;
+
+            if (currentLang === 'en') {
+                textEl.textContent = selectedQuote.en;
+                authorEl.textContent = `— ${selectedQuote.authorEn}`;
+            } else {
+                textEl.textContent = selectedQuote.ko;
+                authorEl.textContent = `— ${selectedQuote.authorKo}`;
+            }
+        }
+
         // 무음 오디오 백그라운드 킵어라이브 (모바일 OS의 백그라운드 네트워크 차단 완벽 방지)
         function startKeepAlive() {
             try {
@@ -469,7 +564,11 @@
             }
         };
 
-        window.onload = () => { applyLanguage(); updateAdminBtnUI(); };
+        window.onload = () => { 
+            pickRandomQuote();
+            applyLanguage(); 
+            updateAdminBtnUI(); 
+        };
 
         function toggleLangDropdown(e) {
             if (e) e.stopPropagation();
@@ -587,6 +686,7 @@
             const c5Title = document.getElementById('reportCat5Title');
             if (c5Title) c5Title.textContent = t.reportCat5Title;
 
+            renderQuote();
             updateAdminBtnUI();
 
             if (currentResultData) {
@@ -738,6 +838,8 @@
         }
 
         function showLoading() {
+            // 검색 및 분석 시작 시 글로벌 Guru 명언 즉시 숨김
+            document.getElementById('quoteSection')?.classList.add('hidden');
             document.getElementById('resultState').classList.add('hidden');
             document.getElementById('errorState').classList.add('hidden');
             document.getElementById('loadingState').classList.remove('hidden');
@@ -809,6 +911,9 @@
 
         function displayResult(data) {
             hideLoading();
+
+            // 검색 결과 출력 시 명언 숨김 상태 유지
+            document.getElementById('quoteSection')?.classList.add('hidden');
 
             currentRole = data.role || (data.isAdmin ? 'admin' : (data.isMember ? 'member' : 'normal'));
             localStorage.setItem('company_user_role', currentRole);
