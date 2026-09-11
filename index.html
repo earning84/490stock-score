@@ -21,7 +21,7 @@
         }
         body { 
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; 
-            background-color: #ffffff; /* 구글 메인처럼 깨끗한 화이트 일체형 */
+            background-color: #ffffff;
             -webkit-tap-highlight-color: transparent;
         }
         .font-title {
@@ -44,7 +44,7 @@
             .no-print { display: none !important; }
             .card-box { border: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
             .app-container { padding: 0 !important; max-width: 100% !important; }
-            #adminTableSection, #memberReportSection { break-inside: avoid; }
+            #checklistSection, #adminTableSection, #memberReportSection { break-inside: avoid; }
         }
 
         @media screen and (max-width: 640px) {
@@ -71,7 +71,7 @@
 
     <div class="app-container w-full max-w-4xl px-4 sm:px-8 py-4 sm:py-6 flex flex-col items-center">
 
-        <!-- 상단 컨트롤 바 (구글 헤더 영역처럼 우측 정렬) -->
+        <!-- 상단 컨트롤 바 -->
         <div class="no-print w-full flex justify-end items-center gap-2 mb-8 sm:mb-14">
             <span id="headerBadge" class="hidden" aria-hidden="true">투자기준 자동 전환</span>
 
@@ -109,7 +109,7 @@
             </div>
         </div>
 
-        <!-- 메인 일체형 콘텐츠 영역 (테두리 및 그림자 제거 완료) -->
+        <!-- 메인 일체형 콘텐츠 영역 -->
         <div class="card-box w-full p-0 sm:px-2 overflow-hidden">
             
             <div class="text-center mb-7 sm:mb-9">
@@ -119,7 +119,7 @@
                 <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
-            <!-- 검색 영역 (구글 스타일 알약형 검색바) -->
+            <!-- 검색 영역 -->
             <div class="no-print mb-8 sm:mb-12 max-w-2xl mx-auto w-full">
                 <div class="flex items-center w-full bg-white border border-[#cb418b] rounded-full pl-5 pr-1.5 sm:pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(203,65,139,0.12)] focus-within:shadow-[0_4px_16px_rgba(203,65,139,0.18)] transition-all">
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)" 
@@ -225,8 +225,8 @@
                     </div>
                 </div>
 
-                <!-- 세부 판정 조건 검증표 -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+                <!-- 세부 판정 조건 검증표 (관리자 모드 전용) -->
+                <div id="checklistSection" class="hidden bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
                         <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
@@ -586,7 +586,12 @@
                 localStorage.setItem('company_user_role', 'normal');
                 updateAdminBtnUI();
                 toggleAdminModal();
-                if (currentResultData) displayResult(currentResultData);
+                if (currentResultData) {
+                    currentResultData.isAdmin = false;
+                    currentResultData.isMember = false;
+                    currentResultData.role = 'normal';
+                    displayResult(currentResultData);
+                }
                 return;
             }
 
@@ -761,7 +766,17 @@
             document.getElementById('resultScore').textContent = data.totalScore;
 
             renderQualificationBadge(data.qualification);
-            renderChecklist(data.checklist);
+
+            // [관리자 모드 전용] 세부 판정 조건 검증표 표시 제어
+            const checklistSection = document.getElementById('checklistSection');
+            if (checklistSection) {
+                if (data.isAdmin) {
+                    renderChecklist(data.checklist);
+                    checklistSection.classList.remove('hidden');
+                } else {
+                    checklistSection.classList.add('hidden');
+                }
+            }
 
             document.getElementById('cat1Score').textContent = data.categoryScores.cat1;
             document.getElementById('cat2Score').textContent = data.categoryScores.cat2;
