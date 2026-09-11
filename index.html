@@ -6,7 +6,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>490 stock 투자 점수</title>
+    <title>490 stock</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Google Sans Flex 폰트 -->
@@ -114,8 +114,8 @@
         <div class="card-box w-full p-0 sm:px-2 overflow-hidden">
             
             <div class="text-center mb-8 sm:mb-11">
-                <h1 id="mainTitle" class="font-title text-3xl sm:text-5xl font-normal tracking-tight">
-                    <span class="text-[#cb418b]">490 stock</span> <span class="text-[0.85em] text-neutral-600">투자 점수</span>
+                <h1 id="mainTitle" class="font-title text-4xl sm:text-6xl font-normal tracking-tight text-[#cb418b]">
+                    490 stock
                 </h1>
                 <p id="mainSubtitle" class="text-sm sm:text-lg text-slate-600 font-normal mt-2.5 leading-relaxed">기업을 종합적으로 분석하여 투자 점수를 평가합니다</p>
             </div>
@@ -137,7 +137,7 @@
                 </div>
             </div>
 
-            <!-- 글로벌 투자 Guru 명언 영역 (위치 하향 조정 및 글자/따옴표 크기 확대) -->
+            <!-- 글로벌 투자 Guru 명언 영역 -->
             <div id="quoteSection" class="no-print mt-6 mb-10 sm:mt-9 sm:mb-14 max-w-xl mx-auto w-full px-4 text-center transition-all">
                 <div class="flex flex-col items-center justify-center gap-2">
                     <p id="quoteText" class="font-title font-light text-slate-700 text-base sm:text-lg tracking-tight leading-relaxed max-w-lg">
@@ -178,7 +178,7 @@
                     </button>
                 </div>
 
-                <!-- 기업명 및 투자 최종 종합 점수 요약 카드 (바깥 테두리: border-[#cb418b]) -->
+                <!-- 기업명 및 투자 최종 종합 점수 요약 카드 -->
                 <div class="bg-slate-50/90 border border-[#cb418b] rounded-2xl p-4 sm:p-7 md:p-9 shadow-sm">
                     <div class="summary-flex flex justify-between items-start sm:items-center border-b border-slate-200 pb-5">
                         <div>
@@ -386,7 +386,7 @@
         let isAnalyzing = false;
         let lastRequestedQuery = "";
 
-        // 글로벌 투자 Guru 명언 데이터셋 (다양한 글로벌 대가 풀 확장 구성)
+        // 글로벌 투자 Guru 명언 데이터셋
         const GURU_QUOTES = [
             {
                 ko: "위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.",
@@ -549,7 +549,7 @@
             renderQuote();
         }
 
-        // 현재 언어에 맞춰 따옴표와 명언 텍스트를 인라인으로 결합하여 렌더링 (줄바꿈 시에도 위치 완벽 유지)
+        // 현재 언어에 맞춰 렌더링
         function renderQuote() {
             if (!selectedQuote) return;
             const textEl = document.getElementById('quoteText');
@@ -563,7 +563,7 @@
             authorEl.textContent = `— ${authorContent}`;
         }
 
-        // 무음 오디오 백그라운드 킵어라이브 (모바일 OS의 백그라운드 네트워크 차단 방지)
+        // 무음 오디오 백그라운드 킵어라이브
         function startKeepAlive() {
             try {
                 if (!bgAudio) {
@@ -610,8 +610,8 @@
 
         const i18n = {
             ko: {
-                pageTitle: "490 stock 투자 점수", headerBadge: "투자기준 자동 전환",
-                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.85em] text-neutral-600\">투자 점수</span>",
+                pageTitle: "490 stock", headerBadge: "투자기준 자동 전환",
+                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span>",
                 mainSubtitle: "기업을 종합적으로 분석하여 투자 점수를 평가합니다",
                 companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)", analyzeBtn: "분석 시작",
                 adminNormal: "일반 모드", adminMember: "회원 모드 활성", adminActive: "관리자 모드 활성", modalTitle: "회원 / 관리자 인증",
@@ -640,8 +640,8 @@
                 reportOpinionTitle: "종합 투자 의견"
             },
             en: {
-                pageTitle: "Investment Fundamental Score", headerBadge: "Automatic Criteria Selection",
-                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.85em] text-neutral-600\">Fundamental Score</span>",
+                pageTitle: "490 stock", headerBadge: "Automatic Criteria Selection",
+                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span>",
                 mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
                 companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)", analyzeBtn: "Start Analysis",
                 adminNormal: "General Mode", adminMember: "Member Active", adminActive: "Admin Active", modalTitle: "Member / Admin Authentication",
@@ -883,7 +883,6 @@
             window.print();
         }
 
-        // 네트워크 통신 실행 (백그라운드 복원 재시도 포함)
         async function fetchAnalysisWithRetry(query, attempt = 1) {
             const response = await fetch('/api/analyze', {
                 method: 'POST',
