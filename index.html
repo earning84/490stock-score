@@ -9,7 +9,6 @@
     <title>490 stock</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Google Sans Flex 폰트 -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
     <style>
         *, *:before, *:after { box-sizing: border-box !important; }
@@ -39,7 +38,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* PDF 인쇄 전용 스타일 최적화 */
         @media print {
             body { background-color: #ffffff !important; }
             .no-print { display: none !important; }
@@ -110,7 +108,7 @@
             </div>
         </div>
 
-        <!-- 메인 일체형 콘텐츠 영역 -->
+        <!-- 메인 콘텐츠 영역 -->
         <div class="card-box w-full p-0 sm:px-2 overflow-hidden">
             
             <div class="text-center mb-8 sm:mb-11">
@@ -386,7 +384,7 @@
         let isAnalyzing = false;
         let lastRequestedQuery = "";
 
-        // 글로벌 투자 Guru 명언 데이터셋
+        // 글로벌 투자 Guru 명언 데이터셋 (전설적 투자자 30인, 총 50선)
         const GURU_QUOTES = [
             {
                 ko: "위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.",
@@ -413,6 +411,18 @@
                 authorEn: "Warren Buffett"
             },
             {
+                ko: "가격은 지불하는 것이고, 가치는 얻는 것이다.",
+                en: "Price is what you pay. Value is what you get.",
+                authorKo: "워런 버핏 (Warren Buffett)",
+                authorEn: "Warren Buffett"
+            },
+            {
+                ko: "10년 동안 주식을 보유할 생각이 없다면, 단 10분도 보유할 생각을 하지 마라.",
+                en: "If you aren't willing to own a stock for 10 years, don't even think about owning it for 10 minutes.",
+                authorKo: "워런 버핏 (Warren Buffett)",
+                authorEn: "Warren Buffett"
+            },
+            {
                 ko: "훌륭한 기업을 적당한 가격에 사는 것이, 평범한 기업을 헐값에 사는 것보다 훨씬 낫다.",
                 en: "It's far better to buy a wonderful company at a fair price than a fair company at a wonderful price.",
                 authorKo: "찰리 멍거 (Charlie Munger)",
@@ -421,6 +431,12 @@
             {
                 ko: "큰돈은 사고파는 데 있는 것이 아니라, 우직하게 기다리는 시간 속에 있다.",
                 en: "The big money is not in the buying and the selling, but in the waiting.",
+                authorKo: "찰리 멍거 (Charlie Munger)",
+                authorEn: "Charlie Munger"
+            },
+            {
+                ko: "문제를 해결할 때는 항상 뒤집어 생각하라. 반대로 생각하는 습관을 들여라.",
+                en: "Invert, always invert: Turn a situation or problem upside down.",
                 authorKo: "찰리 멍거 (Charlie Munger)",
                 authorEn: "Charlie Munger"
             },
@@ -437,16 +453,40 @@
                 authorEn: "Benjamin Graham"
             },
             {
+                ko: "안전마진은 언제나 미래의 예측 불가능한 불운을 견뎌낼 수 있는 완충장치다.",
+                en: "The secret to margin of safety is to provide a buffer against unexpected adversity.",
+                authorKo: "벤저민 그레이엄 (Benjamin Graham)",
+                authorEn: "Benjamin Graham"
+            },
+            {
                 ko: "당신이 약간의 신경만 쓴다면, 월스트리트 전문가들보다 먼저 훌륭한 기업을 찾을 수 있다.",
                 en: "Know what you own, and know why you own it.",
                 authorKo: "피터 린치 (Peter Lynch)",
                 authorEn: "Peter Lynch"
             },
             {
-                ko: "수익을 내는 주식을 팔고 손실 난 주식을 붙들고 있는 것은, 꽃을 뽑아내고 잡초에 물을 주는 것과 같다.",
+                ko: "수익 난 주식을 팔고 손실 난 주식을 붙드는 것은, 꽃을 뽑고 잡초에 물을 주는 격이다.",
                 en: "Selling your winners and holding your losers is like cutting the flowers and watering the weeds.",
                 authorKo: "피터 린치 (Peter Lynch)",
                 authorEn: "Peter Lynch"
+            },
+            {
+                ko: "주식 시장의 폭락은 1월의 눈보라처럼 지극히 정상적이고 주기적인 일이다.",
+                en: "A market downturn is as routine as a blizzard in January.",
+                authorKo: "피터 린치 (Peter Lynch)",
+                authorEn: "Peter Lynch"
+            },
+            {
+                ko: "건초더미에서 바늘을 찾으려 애쓰지 마라. 건초더미 전체를 사버려라.",
+                en: "Don't look for the needle in the haystack. Just buy the haystack.",
+                authorKo: "존 보글 (John C. Bogle)",
+                authorEn: "John C. Bogle"
+            },
+            {
+                ko: "시간은 복리를 일구는 당신의 편이지만, 충동적인 감정은 당신의 최대 적이다.",
+                en: "Time is your friend; impulse is your enemy.",
+                authorKo: "존 보글 (John C. Bogle)",
+                authorEn: "John C. Bogle"
             },
             {
                 ko: "남들과 다른 탁월한 결과를 얻으려면, 남들과 다르게 생각해야 하고 그 생각이 옳아야 한다.",
@@ -461,8 +501,20 @@
                 authorEn: "Howard Marks"
             },
             {
+                ko: "시장에서 가장 큰 위험은 모든 사람이 아무런 위험도 없다고 맹신할 때 찾아온다.",
+                en: "The greatest risk is the belief that there is no risk.",
+                authorKo: "하워드 막스 (Howard Marks)",
+                authorEn: "Howard Marks"
+            },
+            {
                 ko: "가장 큰 비관론이 팽배할 때가 역사상 언제나 매수의 최적기였다.",
                 en: "The time of maximum pessimism is the best time to buy.",
+                authorKo: "존 템플턴 (John Templeton)",
+                authorEn: "John Templeton"
+            },
+            {
+                ko: "강세장은 비관 속에서 태어나, 회의 속에서 자라며, 낙관 속에서 성숙해지고, 행복감 속에서 죽는다.",
+                en: "Bull markets are born on pessimism, grow on skepticism, mature on optimism and die on euphoria.",
                 authorKo: "존 템플턴 (John Templeton)",
                 authorEn: "John Templeton"
             },
@@ -473,7 +525,7 @@
                 authorEn: "Ray Dalio"
             },
             {
-                ko: "자신이 무엇을 모르는지 명확히 아는 것이, 자신이 안다고 착각하는 것보다 훨씬 유용하다.",
+                ko: "자신이 무엇을 모르는지 명확히 아는 것이, 안다고 착각하는 것보다 훨씬 유용하다.",
                 en: "Knowing what you don't know is much more useful than being good at what you think you know.",
                 authorKo: "레이 달리오 (Ray Dalio)",
                 authorEn: "Ray Dalio"
@@ -481,6 +533,12 @@
             {
                 ko: "주식 시장은 가격은 모두 꿰뚫고 있으면서도 본질적인 가치는 아무것도 모르는 사람들로 붐빈다.",
                 en: "The stock market is filled with individuals who know the price of everything, but the value of nothing.",
+                authorKo: "필립 피셔 (Philip Fisher)",
+                authorEn: "Philip Fisher"
+            },
+            {
+                ko: "제대로 된 훌륭한 주식을 매수했다면, 그 주식을 매도해야 할 시점은 거의 영원히 오지 않는다.",
+                en: "If the job has been correctly done when a common stock is purchased, the time to sell it is almost never.",
                 authorKo: "필립 피셔 (Philip Fisher)",
                 authorEn: "Philip Fisher"
             },
@@ -497,8 +555,20 @@
                 authorEn: "Stanley Druckenmiller"
             },
             {
+                ko: "좋은 기회가 오면 계란을 한 바구니에 전부 담고, 그 바구니를 극도로 신중하게 지켜보라.",
+                en: "Put all your eggs in one basket and then watch that basket very carefully.",
+                authorKo: "스탠리 드러켄밀러 (Stanley Druckenmiller)",
+                authorEn: "Stanley Druckenmiller"
+            },
+            {
                 ko: "안전마진은 언제나 미래에 닥쳐올 수 있는 예측 불가능한 불운으로부터 투자자를 지켜준다.",
                 en: "A margin of safety is achieved when securities are purchased at prices sufficiently below underlying value.",
+                authorKo: "세스 클라만 (Seth Klarman)",
+                authorEn: "Seth Klarman"
+            },
+            {
+                ko: "투자자의 가장 무서운 적은 시장이나 남들이 아니라 조급함과 탐욕에 흔들리는 자기 자신이다.",
+                en: "The investor's chief problem—and even his worst enemy—is likely to be himself.",
                 authorKo: "세스 클라만 (Seth Klarman)",
                 authorEn: "Seth Klarman"
             },
@@ -537,19 +607,101 @@
                 en: "Whenever you see everybody rushing in one direction, look the other way.",
                 authorKo: "짐 로저스 (Jim Rogers)",
                 authorEn: "Jim Rogers"
+            },
+            {
+                ko: "나는 돈이 길모퉁이에 떨어져 쌓일 때까지 기다렸다가, 유유히 가서 줍기만 한다.",
+                en: "I just wait until there is money lying in the corner, and all I have to do is go over there and pick it up.",
+                authorKo: "짐 로저스 (Jim Rogers)",
+                authorEn: "Jim Rogers"
+            },
+            {
+                ko: "월스트리트에서 일어나는 일은 과거에도 일어났고 앞으로도 영원히 반복될 것이다. 인간의 본성은 변하지 않기 때문이다.",
+                en: "There is nothing new in Wall Street. Whatever happens in the stock market today has happened before and will happen again.",
+                authorKo: "제시 리버모어 (Jesse Livermore)",
+                authorEn: "Jesse Livermore"
+            },
+            {
+                ko: "내게 큰돈을 벌어다 준 것은 결코 현란한 매매 기술이 아니라, 엉덩이로 진득하게 버텨낸 인내였다.",
+                en: "It never was my thinking that made the big money for me. It was always my sitting.",
+                authorKo: "제시 리버모어 (Jesse Livermore)",
+                authorEn: "Jesse Livermore"
+            },
+            {
+                ko: "바람은 촛불을 꺼뜨리지만 장작불은 더욱 거세게 만든다. 불확실성을 연료로 삼는 안티프래질이 되어라.",
+                en: "Wind extinguishes a candle and energizes fire. Be the fire and wish for the wind.",
+                authorKo: "나심 탈레브 (Nassim Nicholas Taleb)",
+                authorEn: "Nassim Nicholas Taleb"
+            },
+            {
+                ko: "어설픈 희망을 품고 손실을 방치하지 마라. 빠르고 엄격한 손절매야말로 자본을 지키는 유일한 방패다.",
+                en: "The whole secret to winning in the stock market is to lose the least amount possible when you're not right.",
+                authorKo: "윌리엄 오닐 (William O'Neil)",
+                authorEn: "William O'Neil"
+            },
+            {
+                ko: "수익을 쫓는 데 눈이 멀지 마라. 항상 잃지 않는 방법과 방어에 집중하라.",
+                en: "Don't focus on making money; focus on protecting what you have.",
+                authorKo: "폴 튜더 존스 (Paul Tudor Jones)",
+                authorEn: "Paul Tudor Jones"
+            },
+            {
+                ko: "복잡하게 생각하지 말고 단순함을 유지하라. 가장 중요한 원칙은 원금을 잃지 않는 것이다.",
+                en: "Keep it simple. Try not to lose money, and stay within your circle of competence.",
+                authorKo: "월터 슐로스 (Walter Schloss)",
+                authorEn: "Walter Schloss"
+            },
+            {
+                ko: "규모의 경제를 스스로 독식하지 않고 고객과 나누며 영구적인 성장 바퀴를 굴리는 기업을 찾아라.",
+                en: "Seek companies that share economies of scale with customers to build an unstoppable flywheel.",
+                authorKo: "닉 슬립 (Nick Sleep)",
+                authorEn: "Nick Sleep"
+            },
+            {
+                ko: "군중의 내러티브와 공포를 걷어내고, 재무제표와 숫자가 말해주는 냉정한 진실에만 집중하라.",
+                en: "Look past the emotional narratives of the crowd and examine the raw math of the fundamentals.",
+                authorKo: "마이클 버리 (Michael Burry)",
+                authorEn: "Michael Burry"
+            },
+            {
+                ko: "단기적인 종목 선별보다, 원칙에 기반한 장기 자산 배분이 포트폴리오 성과의 90%를 좌우한다.",
+                en: "Asset allocation decisions account for more than ninety percent of investment return variability.",
+                authorKo: "데이비드 스웬슨 (David Swensen)",
+                authorEn: "David Swensen"
+            },
+            {
+                ko: "군중을 이기려면 남들이 모르는 것을 알거나, 남들이 잘못 알고 있는 편향을 포착해야 한다.",
+                en: "To beat the crowd, you must know what they don't know, or see where they are mistaken.",
+                authorKo: "켄 피셔 (Ken Fisher)",
+                authorEn: "Ken Fisher"
+            },
+            {
+                ko: "바닥에서 사서 꼭대기에서 팔았다고 말하는 사람은 사기꾼뿐이다.",
+                en: "Don't try to buy at the bottom and sell at the top. It can't be done except by liars.",
+                authorKo: "버나드 바루크 (Bernard Baruch)",
+                authorEn: "Bernard Baruch"
+            },
+            {
+                ko: "시장에서 소외된 저평가 우량주를 묵묵히 모아가는 것이 결국 가장 확실한 승리의 길이다.",
+                en: "Look for good companies with low P/E multiples that the market has unfairly overlooked.",
+                authorKo: "존 네프 (John Neff)",
+                authorEn: "John Neff"
+            },
+            {
+                ko: "경영진의 안주와 비효율 속에 잠들어 있는 기업의 본질적 자산 가치를 깨워라.",
+                en: "In business, you need someone to challenge complacency and unlock hidden value.",
+                authorKo: "칼 아이칸 (Carl Icahn)",
+                authorEn: "Carl Icahn"
             }
         ];
 
         let selectedQuote = null;
 
-        // 접속 시 랜덤 명언 1회 선정
         function pickRandomQuote() {
             const randomIndex = Math.floor(Math.random() * GURU_QUOTES.length);
             selectedQuote = GURU_QUOTES[randomIndex];
             renderQuote();
         }
 
-        // 현재 언어에 맞춰 렌더링
         function renderQuote() {
             if (!selectedQuote) return;
             const textEl = document.getElementById('quoteText');
@@ -563,7 +715,6 @@
             authorEl.textContent = `— ${authorContent}`;
         }
 
-        // 무음 오디오 백그라운드 킵어라이브
         function startKeepAlive() {
             try {
                 if (!bgAudio) {
@@ -1079,7 +1230,6 @@
                 adminSection.classList.add('hidden');
             }
 
-            // [유료 전용] 5대 핵심 영역 리포트 및 종합 투자 의견 표시
             if (data.isMember && !data.isAdmin && data.memberReport) {
                 if (memberSection) {
                     memberSection.classList.remove('hidden');
