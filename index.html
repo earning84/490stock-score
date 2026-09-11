@@ -137,11 +137,11 @@
                 </div>
             </div>
 
-            <!-- 글로벌 투자 Guru 명언 영역 (위치 하향 조정 및 가시성 개선) -->
-            <div id="quoteSection" class="no-print mt-3 mb-8 sm:mt-5 sm:mb-12 max-w-xl mx-auto w-full px-4 text-center transition-all">
-                <div class="flex flex-col items-center justify-center gap-1.5">
-                    <p id="quoteText" class="font-title font-light text-slate-700 text-sm sm:text-base tracking-tight leading-relaxed max-w-lg">
-                        <span class="text-[#cb418b] text-base sm:text-lg font-light select-none mr-0.5">“</span>위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.<span class="text-[#cb418b] text-base sm:text-lg font-light select-none ml-0.5">”</span>
+            <!-- 글로벌 투자 Guru 명언 영역 (위치 하향 조정 및 글자/따옴표 크기 확대) -->
+            <div id="quoteSection" class="no-print mt-6 mb-10 sm:mt-9 sm:mb-14 max-w-xl mx-auto w-full px-4 text-center transition-all">
+                <div class="flex flex-col items-center justify-center gap-2">
+                    <p id="quoteText" class="font-title font-light text-slate-700 text-base sm:text-lg tracking-tight leading-relaxed max-w-lg">
+                        <span class="text-[#cb418b] text-lg sm:text-xl font-light select-none mr-1">“</span>위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.<span class="text-[#cb418b] text-lg sm:text-xl font-light select-none ml-1">”</span>
                     </p>
                     <p id="quoteAuthor" class="font-title font-normal text-xs sm:text-sm text-slate-400">
                         — 워런 버핏 (Warren Buffett)
@@ -376,7 +376,7 @@
         let isAnalyzing = false;
         let lastRequestedQuery = "";
 
-        // 글로벌 투자 Guru 명언 데이터셋 (다국어 지원)
+        // 글로벌 투자 Guru 명언 데이터셋 (다양한 글로벌 대가 풀 확장 구성)
         const GURU_QUOTES = [
             {
                 ko: "위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.",
@@ -397,8 +397,20 @@
                 authorEn: "Warren Buffett"
             },
             {
+                ko: "투자에서 가장 중요한 것은 머리가 아니라 배짱과 감정을 통제하는 기질이다.",
+                en: "The most important quality for an investor is temperament, not intellect.",
+                authorKo: "워런 버핏 (Warren Buffett)",
+                authorEn: "Warren Buffett"
+            },
+            {
                 ko: "훌륭한 기업을 적당한 가격에 사는 것이, 평범한 기업을 헐값에 사는 것보다 훨씬 낫다.",
                 en: "It's far better to buy a wonderful company at a fair price than a fair company at a wonderful price.",
+                authorKo: "찰리 멍거 (Charlie Munger)",
+                authorEn: "Charlie Munger"
+            },
+            {
+                ko: "큰돈은 사고파는 데 있는 것이 아니라, 우직하게 기다리는 시간 속에 있다.",
+                en: "The big money is not in the buying and the selling, but in the waiting.",
                 authorKo: "찰리 멍거 (Charlie Munger)",
                 authorEn: "Charlie Munger"
             },
@@ -409,10 +421,10 @@
                 authorEn: "Benjamin Graham"
             },
             {
-                ko: "투자에서 가장 중요한 것은 머리가 아니라 배짱과 감정을 통제하는 기질이다.",
-                en: "The most important quality for an investor is temperament, not intellect.",
-                authorKo: "워런 버핏 (Warren Buffett)",
-                authorEn: "Warren Buffett"
+                ko: "투자의 핵심은 위험을 완전히 없애는 것이 아니라, 지적으로 관리하는 것이다.",
+                en: "The essence of investment management is the management of risks, not the management of returns.",
+                authorKo: "벤저민 그레이엄 (Benjamin Graham)",
+                authorEn: "Benjamin Graham"
             },
             {
                 ko: "당신이 약간의 신경만 쓴다면, 월스트리트 전문가들보다 먼저 훌륭한 기업을 찾을 수 있다.",
@@ -421,10 +433,100 @@
                 authorEn: "Peter Lynch"
             },
             {
-                ko: "모두가 어떤 자산이 끝났다고 여길 때가 바로 가장 매력적인 기회일 수 있다.",
-                en: "The biggest investing errors come from psychological factors, not analytical ones.",
+                ko: "수익을 내는 주식을 팔고 손실 난 주식을 붙들고 있는 것은, 꽃을 뽑아내고 잡초에 물을 주는 것과 같다.",
+                en: "Selling your winners and holding your losers is like cutting the flowers and watering the weeds.",
+                authorKo: "피터 린치 (Peter Lynch)",
+                authorEn: "Peter Lynch"
+            },
+            {
+                ko: "남들과 다른 탁월한 결과를 얻으려면, 남들과 다르게 생각해야 하고 그 생각이 옳아야 한다.",
+                en: "To achieve superior results, you must think differently from others and be more right.",
                 authorKo: "하워드 막스 (Howard Marks)",
                 authorEn: "Howard Marks"
+            },
+            {
+                ko: "우리가 미래를 정확히 예측할 수는 없지만, 지금 사이클의 어느 지점에 서 있는지는 알 수 있다.",
+                en: "We can't predict the future, but we can prepare by knowing where we stand in the cycle.",
+                authorKo: "하워드 막스 (Howard Marks)",
+                authorEn: "Howard Marks"
+            },
+            {
+                ko: "가장 큰 비관론이 팽배할 때가 역사상 언제나 매수의 최적기였다.",
+                en: "The time of maximum pessimism is the best time to buy.",
+                authorKo: "존 템플턴 (John Templeton)",
+                authorEn: "John Templeton"
+            },
+            {
+                ko: "실수를 겪고 난 후의 깊은 반성이 더해질 때 비로소 진정한 발전이 이루어진다.",
+                en: "Pain plus reflection equals progress.",
+                authorKo: "레이 달리오 (Ray Dalio)",
+                authorEn: "Ray Dalio"
+            },
+            {
+                ko: "자신이 무엇을 모르는지 명확히 아는 것이, 자신이 안다고 착각하는 것보다 훨씬 유용하다.",
+                en: "Knowing what you don't know is much more useful than being good at what you think you know.",
+                authorKo: "레이 달리오 (Ray Dalio)",
+                authorEn: "Ray Dalio"
+            },
+            {
+                ko: "주식 시장은 가격은 모두 꿰뚫고 있으면서도 본질적인 가치는 아무것도 모르는 사람들로 붐빈다.",
+                en: "The stock market is filled with individuals who know the price of everything, but the value of nothing.",
+                authorKo: "필립 피셔 (Philip Fisher)",
+                authorEn: "Philip Fisher"
+            },
+            {
+                ko: "중요한 것은 맞았느냐 틀렸느냐가 아니라, 맞았을 때 얼마를 벌고 틀렸을 때 얼마를 잃느냐이다.",
+                en: "It's not whether you're right or wrong, but how much money you make when you're right and how much you lose when you're wrong.",
+                authorKo: "조지 소로스 (George Soros)",
+                authorEn: "George Soros"
+            },
+            {
+                ko: "자본을 지켜내는 보존력이야말로 장기적으로 막대한 복리 수익을 일구는 가장 강력한 무기이다.",
+                en: "The first thing you have to understand is that capital preservation is everything.",
+                authorKo: "스탠리 드러켄밀러 (Stanley Druckenmiller)",
+                authorEn: "Stanley Druckenmiller"
+            },
+            {
+                ko: "안전마진은 언제나 미래에 닥쳐올 수 있는 예측 불가능한 불운으로부터 투자자를 지켜준다.",
+                en: "A margin of safety is achieved when securities are purchased at prices sufficiently below underlying value.",
+                authorKo: "세스 클라만 (Seth Klarman)",
+                authorEn: "Seth Klarman"
+            },
+            {
+                ko: "본질이 훌륭한 비즈니스를 염가에 매수하는 원리 속에 투자의 모든 성공 비결이 담겨 있다.",
+                en: "Buying good businesses at bargain prices is the secret to making lots of money.",
+                authorKo: "조엘 그린블랫 (Joel Greenblatt)",
+                authorEn: "Joel Greenblatt"
+            },
+            {
+                ko: "단기적인 시장 소음에 흔들리지 않는, 강력한 해자와 예측 가능한 현금흐름을 지닌 기업에 집중하라.",
+                en: "Invest in simple, predictable, free-cash-flow-generative companies with large moats.",
+                authorKo: "빌 애크먼 (Bill Ackman)",
+                authorEn: "Bill Ackman"
+            },
+            {
+                ko: "좋은 기업을 고르고, 과도한 가격을 치르지 말고, 매수한 뒤에는 가만히 기다려라.",
+                en: "Buy good companies, don't overpay, and do nothing.",
+                authorKo: "테리 스미스 (Terry Smith)",
+                authorEn: "Terry Smith"
+            },
+            {
+                ko: "동전 앞면이 나오면 크게 벌고, 뒷면이 나와도 거의 잃지 않는 비대칭적 기회를 찾아라.",
+                en: "Heads, I win; tails, I don't lose much.",
+                authorKo: "모니시 파브라이 (Mohnish Pabrai)",
+                authorEn: "Mohnish Pabrai"
+            },
+            {
+                ko: "시장이 끝없는 공포에 질려 비이성적으로 패닉 셀링을 할 때가 인생 최고의 기회이다.",
+                en: "Those times when the world thinks the world is coming to an end are usually great buying opportunities.",
+                authorKo: "데이비드 테퍼 (David Tepper)",
+                authorEn: "David Tepper"
+            },
+            {
+                ko: "모두가 한 방향으로 우르르 몰려갈 때, 조용히 반대편 창문 너머를 살펴보라.",
+                en: "Whenever you see everybody rushing in one direction, look the other way.",
+                authorKo: "짐 로저스 (Jim Rogers)",
+                authorEn: "Jim Rogers"
             }
         ];
 
@@ -447,7 +549,7 @@
             const quoteContent = currentLang === 'en' ? selectedQuote.en : selectedQuote.ko;
             const authorContent = currentLang === 'en' ? selectedQuote.authorEn : selectedQuote.authorKo;
 
-            textEl.innerHTML = `<span class="text-[#cb418b] text-base sm:text-lg font-light select-none mr-0.5">“</span>${quoteContent}<span class="text-[#cb418b] text-base sm:text-lg font-light select-none ml-0.5">”</span>`;
+            textEl.innerHTML = `<span class="text-[#cb418b] text-lg sm:text-xl font-light select-none mr-1">“</span>${quoteContent}<span class="text-[#cb418b] text-lg sm:text-xl font-light select-none ml-1">”</span>`;
             authorEl.textContent = `— ${authorContent}`;
         }
 
