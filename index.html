@@ -21,7 +21,7 @@
         }
         body { 
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; 
-            background-color: #f8fafc;
+            background-color: #ffffff; /* 구글 메인처럼 깨끗한 화이트 일체형 */
             -webkit-tap-highlight-color: transparent;
         }
         .font-title {
@@ -48,8 +48,8 @@
         }
 
         @media screen and (max-width: 640px) {
-            .app-container { padding: 12px 10px !important; }
-            .card-box { padding: 20px 14px !important; border-radius: 20px !important; width: 100% !important; }
+            .app-container { padding: 12px 14px !important; }
+            .card-box { padding: 10px 0 !important; width: 100% !important; }
             .summary-flex { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
             .score-flex {
                 width: 100% !important;
@@ -67,18 +67,18 @@
         }
     </style>
 </head>
-<body class="text-slate-800 flex flex-col items-center">
+<body class="text-slate-800 flex flex-col items-center min-h-screen">
 
-    <div class="app-container w-full max-w-4xl px-3 sm:px-6 py-4 sm:py-10 flex flex-col items-center">
+    <div class="app-container w-full max-w-4xl px-4 sm:px-8 py-4 sm:py-6 flex flex-col items-center">
 
-        <!-- 상단 컨트롤 바 -->
-        <div class="no-print w-full flex justify-end items-center gap-2 mb-3">
+        <!-- 상단 컨트롤 바 (구글 헤더 영역처럼 우측 정렬) -->
+        <div class="no-print w-full flex justify-end items-center gap-2 mb-8 sm:mb-14">
             <span id="headerBadge" class="hidden" aria-hidden="true">투자기준 자동 전환</span>
 
             <div class="flex items-center gap-2">
                 <!-- 언어 드롭다운 -->
                 <div class="relative inline-block text-left" id="langDropdownContainer">
-                    <button onclick="toggleLangDropdown(event)" id="langDropdownBtn" class="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white px-2.5 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all focus:outline-none active:scale-95">
+                    <button onclick="toggleLangDropdown(event)" id="langDropdownBtn" class="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all focus:outline-none active:scale-95">
                         <span id="currentLangText">KOR</span>
                         <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
@@ -109,25 +109,25 @@
             </div>
         </div>
 
-        <!-- 메인 카드 -->
-        <div class="card-box w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm overflow-hidden">
+        <!-- 메인 일체형 콘텐츠 영역 (테두리 및 그림자 제거 완료) -->
+        <div class="card-box w-full p-0 sm:px-2 overflow-hidden">
             
-            <div class="text-center mb-6 sm:mb-8">
-                <h1 id="mainTitle" class="font-title text-xl sm:text-3xl font-semibold tracking-tight">
-                    <span class="text-[#cb418b]">490 stock</span> <span class="text-[0.88em] text-neutral-500">투자 점수</span>
+            <div class="text-center mb-7 sm:mb-9">
+                <h1 id="mainTitle" class="font-title text-2xl sm:text-4xl font-semibold tracking-tight">
+                    <span class="text-[#cb418b]">490 stock</span> <span class="text-[0.88em] text-neutral-600">투자 점수</span>
                 </h1>
-                <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
+                <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
-            <!-- 검색 영역 -->
-            <div class="no-print mb-6 sm:mb-8 max-w-xl mx-auto w-full">
-                <div class="flex items-center w-full bg-white border border-[#cb418b] rounded-full pl-4 pr-1.5 sm:pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_3px_12px_rgba(203,65,139,0.12)] focus-within:shadow-[0_4px_16px_rgba(203,65,139,0.16)] transition-all">
+            <!-- 검색 영역 (구글 스타일 알약형 검색바) -->
+            <div class="no-print mb-8 sm:mb-12 max-w-2xl mx-auto w-full">
+                <div class="flex items-center w-full bg-white border border-[#cb418b] rounded-full pl-5 pr-1.5 sm:pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(203,65,139,0.12)] focus-within:shadow-[0_4px_16px_rgba(203,65,139,0.18)] transition-all">
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)" 
-                           class="flex-1 min-w-0 bg-transparent py-2 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
+                           class="flex-1 min-w-0 bg-transparent py-2.5 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
                            onkeypress="if(event.key==='Enter') analyzeCompany()">
 
                     <button onclick="analyzeCompany()" id="analyzeBtn"
-                            class="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 hover:text-slate-900 font-semibold rounded-full transition-all text-xs sm:text-sm whitespace-nowrap shadow-sm active:scale-95 border border-slate-200/80">
+                            class="shrink-0 flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 hover:text-slate-900 font-semibold rounded-full transition-all text-xs sm:text-sm whitespace-nowrap shadow-sm active:scale-95 border border-slate-200/80">
                         <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 shrink-0 stroke-[2.3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
@@ -260,7 +260,7 @@
                     </div>
                 </div>
 
-                <!-- [유료 전용] 4대 핵심 영역 분석 리포트 (검색창과 동일한 border border-[#cb418b] 적용) -->
+                <!-- [유료 전용] 4대 핵심 영역 분석 리포트 -->
                 <div id="memberReportSection" class="hidden space-y-4 sm:space-y-6">
                     <div class="flex justify-between items-center mb-1">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
@@ -386,7 +386,7 @@
         const i18n = {
             ko: {
                 pageTitle: "490 stock 투자 점수", headerBadge: "투자기준 자동 전환",
-                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.88em] text-neutral-500\">투자 점수</span>",
+                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.88em] text-neutral-600\">투자 점수</span>",
                 mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
                 companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)", analyzeBtn: "분석 시작",
                 adminNormal: "일반 모드", adminMember: "회원 모드 활성", adminActive: "관리자 모드 활성", modalTitle: "회원 / 관리자 인증",
@@ -414,7 +414,7 @@
             },
             en: {
                 pageTitle: "Investment Fundamental Score", headerBadge: "Automatic Criteria Selection",
-                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.88em] text-neutral-500\">Fundamental Score</span>",
+                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.88em] text-neutral-600\">Fundamental Score</span>",
                 mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
                 companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)", analyzeBtn: "Start Analysis",
                 adminNormal: "General Mode", adminMember: "Member Active", adminActive: "Admin Active", modalTitle: "Member / Admin Authentication",
