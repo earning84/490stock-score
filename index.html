@@ -23,6 +23,7 @@
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; 
             background-color: #ffffff;
             -webkit-tap-highlight-color: transparent;
+            word-break: keep-all; /* 모바일에서 단어 단위로 깔끔하게 줄바꿈 */
         }
         .font-title {
             font-family: 'Google Sans Flex', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -32,8 +33,8 @@
             border: 4px solid #f1f5f9;
             border-top: 4px solid #2563eb;
             border-radius: 50%;
-            width: 42px;
-            height: 42px;
+            width: 46px;
+            height: 46px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -50,19 +51,19 @@
         @media screen and (max-width: 640px) {
             .app-container { padding: 12px 14px !important; }
             .card-box { padding: 10px 0 !important; width: 100% !important; }
-            .summary-flex { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+            .summary-flex { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
             .score-flex {
                 width: 100% !important;
                 border-left: none !important;
                 border-top: 1px solid #e2e8f0 !important;
                 padding-left: 0 !important;
-                padding-top: 10px !important;
+                padding-top: 12px !important;
                 display: flex !important;
                 justify-content: space-between !important;
                 align-items: center !important;
             }
             .score-flex > div { margin-top: 0 !important; }
-            .cat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+            .cat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
             .chk-grid { grid-template-columns: 1fr !important; }
         }
     </style>
@@ -78,20 +79,20 @@
             <div class="flex items-center gap-2">
                 <!-- 언어 드롭다운 -->
                 <div class="relative inline-block text-left" id="langDropdownContainer">
-                    <button onclick="toggleLangDropdown(event)" id="langDropdownBtn" class="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all focus:outline-none active:scale-95">
+                    <button onclick="toggleLangDropdown(event)" id="langDropdownBtn" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-900 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all focus:outline-none active:scale-95">
                         <span id="currentLangText">KOR</span>
-                        <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div id="langDropdownMenu" class="hidden absolute right-0 mt-1.5 z-50 bg-white/95 backdrop-blur-sm border border-slate-200 p-1 rounded-2xl shadow-lg flex flex-col items-center">
-                        <button onclick="selectLanguage('en')" id="langOptionBtn" class="px-4 py-1 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-full transition-all shadow-inner">
+                    <div id="langDropdownMenu" class="hidden absolute right-0 mt-1.5 z-50 bg-white/95 backdrop-blur-sm border border-slate-200 p-1.5 rounded-2xl shadow-lg flex flex-col items-center">
+                        <button onclick="selectLanguage('en')" id="langOptionBtn" class="px-4 py-1.5 text-xs sm:text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-full transition-all shadow-inner">
                             EN
                         </button>
                     </div>
                 </div>
 
                 <!-- 모드 표시 버튼 -->
-                <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1 text-xs bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
-                    <svg id="adminStatusIcon" class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1.5 text-xs sm:text-sm bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
+                    <svg id="adminStatusIcon" class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     <span id="adminStatusText" class="text-slate-600">일반 모드</span>
                 </button>
             </div>
@@ -99,12 +100,12 @@
 
         <!-- 인증 모달 -->
         <div id="adminModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl">
-                <h3 id="modalTitle" class="text-sm font-bold text-slate-900 mb-3">회원 / 관리자 인증</h3>
-                <input type="password" id="adminPwdInput" placeholder="비밀번호 입력..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3" onkeypress="if(event.key==='Enter') saveAdminPwd()">
-                <div class="flex justify-end gap-2">
-                    <button onclick="toggleAdminModal()" id="modalCancelBtn" class="px-3 py-1.5 text-xs text-slate-500">취소</button>
-                    <button onclick="saveAdminPwd()" id="modalSaveBtn" class="px-3.5 py-1.5 bg-blue-600 text-white font-semibold rounded-lg text-xs">저장</button>
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+                <h3 id="modalTitle" class="text-base font-bold text-slate-900 mb-3">회원 / 관리자 인증</h3>
+                <input type="password" id="adminPwdInput" placeholder="비밀번호 입력..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" onkeypress="if(event.key==='Enter') saveAdminPwd()">
+                <div class="flex justify-end gap-2.5">
+                    <button onclick="toggleAdminModal()" id="modalCancelBtn" class="px-3.5 py-2 text-sm text-slate-500 font-medium">취소</button>
+                    <button onclick="saveAdminPwd()" id="modalSaveBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm">저장</button>
                 </div>
             </div>
         </div>
@@ -112,23 +113,23 @@
         <!-- 메인 일체형 콘텐츠 영역 -->
         <div class="card-box w-full p-0 sm:px-2 overflow-hidden">
             
-            <div class="text-center mb-7 sm:mb-9">
-                <h1 id="mainTitle" class="font-title text-2xl sm:text-4xl font-semibold tracking-tight">
-                    <span class="text-[#cb418b]">490 stock</span> <span class="text-[0.88em] text-neutral-600">투자 점수</span>
+            <div class="text-center mb-8 sm:mb-11">
+                <h1 id="mainTitle" class="font-title text-3xl sm:text-5xl font-extrabold tracking-tight">
+                    <span class="text-[#cb418b]">490 stock</span> <span class="text-[0.85em] text-neutral-600">투자 점수</span>
                 </h1>
-                <p id="mainSubtitle" class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
+                <p id="mainSubtitle" class="text-sm sm:text-lg text-slate-600 font-medium mt-2.5 leading-relaxed">기업의 투자 적격성에 대해 종합적으로 평가합니다</p>
             </div>
 
             <!-- 검색 영역 -->
             <div class="no-print mb-8 sm:mb-12 max-w-2xl mx-auto w-full">
-                <div class="flex items-center w-full bg-white border border-[#cb418b] rounded-full pl-5 pr-1.5 sm:pr-2 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_14px_rgba(203,65,139,0.12)] focus-within:shadow-[0_4px_16px_rgba(203,65,139,0.18)] transition-all">
+                <div class="flex items-center w-full bg-white border-2 border-[#cb418b] rounded-full pl-5 pr-2 py-2 shadow-[0_3px_10px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_16px_rgba(203,65,139,0.14)] focus-within:shadow-[0_4px_20px_rgba(203,65,139,0.2)] transition-all">
                     <input type="text" id="companyInput" placeholder="기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)" 
-                           class="flex-1 min-w-0 bg-transparent py-2.5 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none"
+                           class="flex-1 min-w-0 bg-transparent py-2 text-slate-900 text-base sm:text-lg placeholder-slate-400 focus:outline-none font-medium"
                            onkeypress="if(event.key==='Enter') analyzeCompany()">
 
                     <button onclick="analyzeCompany()" id="analyzeBtn"
-                            class="shrink-0 flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 hover:text-slate-900 font-semibold rounded-full transition-all text-xs sm:text-sm whitespace-nowrap shadow-sm active:scale-95 border border-slate-200/80">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 shrink-0 stroke-[2.3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="shrink-0 flex items-center gap-1.5 px-4 sm:px-6 py-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 hover:text-slate-900 font-bold rounded-full transition-all text-sm sm:text-base whitespace-nowrap shadow-sm active:scale-95 border border-slate-200">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 shrink-0 stroke-[2.3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
                         <span id="analyzeBtnText">분석 시작</span>
@@ -137,210 +138,210 @@
             </div>
 
             <!-- 로딩 상태 -->
-            <div id="loadingState" class="hidden flex flex-col items-center justify-center py-10 sm:py-16">
-                <div class="loader mb-4"></div>
-                <p id="loadingTitle" class="text-slate-800 font-semibold text-sm sm:text-base">기업 종합 분석 및 평가 중...</p>
-                <p id="loadingDesc" class="text-xs text-slate-500 mt-2 text-center leading-relaxed px-2">
+            <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12 sm:py-20">
+                <div class="loader mb-5"></div>
+                <p id="loadingTitle" class="text-slate-800 font-bold text-base sm:text-xl">기업 종합 분석 및 평가 중...</p>
+                <p id="loadingDesc" class="text-sm sm:text-base text-slate-600 mt-3 text-center leading-relaxed px-2 font-medium">
                     기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요.<br>
-                    <span id="loadingTime" class="text-blue-600 font-medium">(약 25초~40초 소요)</span>
+                    <span id="loadingTime" class="text-blue-600 font-semibold">(약 25초~40초 소요)</span>
                 </p>
-                <div class="mt-4 flex items-center gap-1.5 text-[11px] text-slate-500 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
-                    <svg class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <div class="mt-5 flex items-center gap-2 text-xs sm:text-sm text-slate-600 bg-slate-50 px-4 py-2 rounded-full border border-slate-200">
+                    <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     <span>분석 중에는 화면이 꺼지지 않도록 보호됩니다</span>
                 </div>
             </div>
 
             <!-- 에러 메시지 -->
-            <div id="errorState" class="hidden py-3 px-4 bg-rose-50 border border-rose-200 rounded-xl text-center mb-6">
-                <p class="text-rose-600 text-xs sm:text-sm font-medium" id="errorMessage"></p>
+            <div id="errorState" class="hidden py-3.5 px-4 bg-rose-50 border border-rose-200 rounded-xl text-center mb-6">
+                <p class="text-rose-600 text-sm sm:text-base font-semibold" id="errorMessage"></p>
             </div>
 
             <!-- 결과 영역 -->
-            <div id="resultState" class="hidden space-y-5 sm:space-y-7 w-full">
+            <div id="resultState" class="hidden space-y-6 sm:space-y-8 w-full">
                 
                 <div class="no-print flex justify-end mb-2">
-                    <button onclick="downloadPDF()" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95">
+                    <button onclick="downloadPDF()" class="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span id="pdfBtnText">PDF 리포트 저장</span>
                     </button>
                 </div>
 
-                <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-6 md:p-8">
-                    <div class="summary-flex flex justify-between items-start sm:items-center border-b border-slate-200 pb-4 sm:pb-5">
+                <div class="bg-slate-50/90 border border-slate-200 rounded-2xl p-4 sm:p-7 md:p-9">
+                    <div class="summary-flex flex justify-between items-start sm:items-center border-b border-slate-200 pb-5">
                         <div>
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <h2 id="resultCompanyName" class="text-xl sm:text-3xl font-black text-slate-900">기업명</h2>
-                                <span id="resultCompanyCode" class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-700">종목코드</span>
-                                <span id="resultQualificationBadge" class="text-xs font-black px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full tracking-wider flex items-center gap-1">투자적격</span>
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h2 id="resultCompanyName" class="text-2xl sm:text-4xl font-extrabold text-slate-900">기업명</h2>
+                                <span id="resultCompanyCode" class="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded bg-slate-200 text-slate-800">종목코드</span>
+                                <span id="resultQualificationBadge" class="text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full tracking-wider flex items-center gap-1">투자적격</span>
                             </div>
-                            <div class="text-xs text-slate-500 mt-2 flex items-center gap-2 flex-wrap">
+                            <div class="text-xs sm:text-sm text-slate-600 mt-2.5 flex items-center gap-2.5 flex-wrap">
                                 <span class="flex items-center gap-1">
                                     <span id="ipoDateLabel">상장일:</span>
-                                    <b id="resultIpoDate" class="text-slate-700 font-semibold">-</b>
+                                    <b id="resultIpoDate" class="text-slate-800 font-bold">-</b>
                                 </span>
                                 <span class="text-slate-300">•</span>
                                 <span class="flex items-center gap-1">
                                     <span id="analysisDateLabel">분석일자:</span>
-                                    <b id="resultAnalysisDate" class="text-slate-700 font-semibold">-</b>
+                                    <b id="resultAnalysisDate" class="text-slate-800 font-bold">-</b>
                                 </span>
                             </div>
                         </div>
 
                         <div class="score-flex sm:text-right sm:border-l sm:border-slate-200 sm:pl-8">
-                            <p id="totalScoreLabel" class="text-[11px] font-bold uppercase tracking-wider text-slate-500">투자 최종 종합 점수</p>
-                            <div class="flex items-baseline gap-1 mt-0.5">
-                                <span id="resultScore" class="text-4xl sm:text-5xl font-black text-blue-600">0</span>
-                                <span class="text-lg sm:text-xl font-bold text-slate-400">/ 490</span>
+                            <p id="totalScoreLabel" class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500">투자 최종 종합 점수</p>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="resultScore" class="text-5xl sm:text-6xl font-black text-blue-600">0</span>
+                                <span class="text-xl sm:text-2xl font-extrabold text-slate-400">/ 490</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- 4대 카테고리 점수 -->
-                    <div class="cat-grid grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 my-4 sm:my-5 text-left">
-                        <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <p id="cat1Label" class="text-[11px] font-medium text-slate-500">메가트렌드</p>
-                            <p class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5"><span id="cat1Score">0</span> <span id="cat1Max" class="text-[10px] text-slate-400 font-normal">/ 126점</span></p>
+                    <div class="cat-grid grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 my-5 text-left">
+                        <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p id="cat1Label" class="text-xs sm:text-sm font-semibold text-slate-500">메가트렌드</p>
+                            <p class="text-base sm:text-lg font-extrabold text-slate-800 mt-1"><span id="cat1Score">0</span> <span id="cat1Max" class="text-xs text-slate-400 font-medium">/ 126점</span></p>
                         </div>
-                        <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <p id="cat2Label" class="text-[11px] font-medium text-slate-500">해자 및 경쟁력</p>
-                            <p class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5"><span id="cat2Score">0</span> <span id="cat2Max" class="text-[10px] text-slate-400 font-normal">/ 193점</span></p>
+                        <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p id="cat2Label" class="text-xs sm:text-sm font-semibold text-slate-500">해자 및 경쟁력</p>
+                            <p class="text-base sm:text-lg font-extrabold text-slate-800 mt-1"><span id="cat2Score">0</span> <span id="cat2Max" class="text-xs text-slate-400 font-medium">/ 193점</span></p>
                         </div>
-                        <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <p id="cat3Label" class="text-[11px] font-medium text-slate-500">재무 및 수익성</p>
-                            <p class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5"><span id="cat3Score">0</span> <span id="cat3Max" class="text-[10px] text-slate-400 font-normal">/ 100점</span></p>
+                        <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p id="cat3Label" class="text-xs sm:text-sm font-semibold text-slate-500">재무 및 수익성</p>
+                            <p class="text-base sm:text-lg font-extrabold text-slate-800 mt-1"><span id="cat3Score">0</span> <span id="cat3Max" class="text-xs text-slate-400 font-medium">/ 100점</span></p>
                         </div>
-                        <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <p id="cat4Label" class="text-[11px] font-medium text-slate-500">밸류에이션</p>
-                            <p class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5"><span id="cat4Score">0</span> <span id="cat4Max" class="text-[10px] text-slate-400 font-normal">/ 71점</span></p>
+                        <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p id="cat4Label" class="text-xs sm:text-sm font-semibold text-slate-500">밸류에이션</p>
+                            <p class="text-base sm:text-lg font-extrabold text-slate-800 mt-1"><span id="cat4Score">0</span> <span id="cat4Max" class="text-xs text-slate-400 font-medium">/ 71점</span></p>
                         </div>
                     </div>
 
                     <!-- 핵심 투자 포인트 -->
-                    <div class="bg-blue-50/70 p-3.5 sm:p-5 rounded-xl border border-blue-100">
-                        <p id="keyPointLabel" class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                    <div class="bg-blue-50/70 p-4 sm:p-6 rounded-xl border border-blue-100">
+                        <p id="keyPointLabel" class="text-sm sm:text-base font-bold text-blue-700 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                             <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             투자 핵심 포인트
                         </p>
-                        <p id="resultKeyPoint" class="text-slate-800 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-medium"></p>
+                        <p id="resultKeyPoint" class="text-slate-800 text-sm sm:text-base leading-relaxed sm:leading-loose whitespace-pre-line font-medium"></p>
                     </div>
                 </div>
 
                 <!-- 세부 판정 조건 검증표 (관리자 모드 전용) -->
-                <div id="checklistSection" class="hidden bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
-                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                <div id="checklistSection" class="hidden bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-sm">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
                             <span id="checkSectionTitle">투자 적격성 세부 판정 조건 (임시 검증표)</span>
                         </h3>
-                        <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium" id="checkFrameworkType">기준: 기존기업</span>
+                        <span class="text-xs sm:text-sm text-slate-500 font-semibold" id="checkFrameworkType">기준: 기존기업</span>
                     </div>
 
-                    <div id="checkReasonBox" class="mb-3 p-2.5 sm:p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-medium text-slate-700 leading-relaxed flex items-start gap-2">
+                    <div id="checkReasonBox" class="mb-4 p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs sm:text-sm font-medium text-slate-700 leading-relaxed flex items-start gap-2.5">
                         <span id="checkReasonIcon" class="mt-0.5 flex-shrink-0">ℹ️</span>
                         <span id="checkReasonText">-</span>
                     </div>
 
-                    <div class="chk-grid grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                        <div id="chkRowTotal" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
-                            <div><p class="font-semibold text-slate-800">1. 최소 점수 기준</p><p class="text-[10px] text-slate-500">기준: 255점 이상</p></div>
-                            <div class="text-right flex items-center"><span id="chkValTotal" class="font-bold text-slate-800">0점</span><span id="chkBadgeTotal" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">충족</span></div>
+                    <div class="chk-grid grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs sm:text-sm">
+                        <div id="chkRowTotal" class="flex items-center justify-between p-3 rounded-xl border bg-slate-50 border-slate-200">
+                            <div><p class="font-bold text-slate-800 text-xs sm:text-sm">1. 최소 점수 기준</p><p class="text-[11px] sm:text-xs text-slate-500">기준: 255점 이상</p></div>
+                            <div class="text-right flex items-center"><span id="chkValTotal" class="font-bold text-slate-800">0점</span><span id="chkBadgeTotal" class="ml-2 px-2.5 py-0.5 rounded text-xs font-bold">충족</span></div>
                         </div>
-                        <div id="chkRow7_17" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
-                            <div><p class="font-semibold text-slate-800">2. 타이밍/한방 (7번+17번)</p><p class="text-[10px] text-slate-500">기준: 37점 이상 (만점 50)</p></div>
-                            <div class="text-right flex items-center"><span id="chkVal7_17" class="font-bold text-slate-800">0점</span><span id="chkBadge7_17" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">충족</span></div>
+                        <div id="chkRow7_17" class="flex items-center justify-between p-3 rounded-xl border bg-slate-50 border-slate-200">
+                            <div><p class="font-bold text-slate-800 text-xs sm:text-sm">2. 타이밍/한방 (7번+17번)</p><p class="text-[11px] sm:text-xs text-slate-500">기준: 37점 이상 (만점 50)</p></div>
+                            <div class="text-right flex items-center"><span id="chkVal7_17" class="font-bold text-slate-800">0점</span><span id="chkBadge7_17" class="ml-2 px-2.5 py-0.5 rounded text-xs font-bold">충족</span></div>
                         </div>
-                        <div id="chkRowGe65All" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
-                            <div><p class="font-semibold text-slate-800">3. 고득점 트랙 (315점+)</p><p class="text-[10px] text-slate-500">기준: 65% 이상 문항 25개 이상</p></div>
-                            <div class="text-right flex items-center"><span id="chkValGe65All" class="font-bold text-slate-800">0개</span><span id="chkBadgeGe65All" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">미달</span></div>
+                        <div id="chkRowGe65All" class="flex items-center justify-between p-3 rounded-xl border bg-slate-50 border-slate-200">
+                            <div><p class="font-bold text-slate-800 text-xs sm:text-sm">3. 고득점 트랙 (315점+)</p><p class="text-[11px] sm:text-xs text-slate-500">기준: 65% 이상 문항 25개 이상</p></div>
+                            <div class="text-right flex items-center"><span id="chkValGe65All" class="font-bold text-slate-800">0개</span><span id="chkBadgeGe65All" class="ml-2 px-2.5 py-0.5 rounded text-xs font-bold">미달</span></div>
                         </div>
-                        <div id="chkRowCore" class="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50 border-slate-200">
-                            <div><p class="font-semibold text-slate-800">4. 핵심역량 트랙 (255~315점)</p><p id="chkCoreSubLabel" class="text-[10px] text-slate-500">기준: 105점 이상 & 65% 5개 이상</p></div>
-                            <div class="text-right flex items-center"><span id="chkValCore" class="font-bold text-slate-800">0점 / 0개</span><span id="chkBadgeCore" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold">미달</span></div>
+                        <div id="chkRowCore" class="flex items-center justify-between p-3 rounded-xl border bg-slate-50 border-slate-200">
+                            <div><p class="font-bold text-slate-800 text-xs sm:text-sm">4. 핵심역량 트랙 (255~315점)</p><p id="chkCoreSubLabel" class="text-[11px] sm:text-xs text-slate-500">기준: 105점 이상 & 65% 5개 이상</p></div>
+                            <div class="text-right flex items-center"><span id="chkValCore" class="font-bold text-slate-800">0점 / 0개</span><span id="chkBadgeCore" class="ml-2 px-2.5 py-0.5 rounded text-xs font-bold">미달</span></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- [유료 전용] 4대 핵심 영역 분석 리포트 -->
-                <div id="memberReportSection" class="hidden space-y-4 sm:space-y-6">
+                <!-- [유료 전용] 4대 핵심 영역 분석 리포트 ('사주아이' 스타일 모바일 폰트 최적화) -->
+                <div id="memberReportSection" class="hidden space-y-5 sm:space-y-7">
                     <div class="flex justify-between items-center mb-1">
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
-                            <span id="memberReportBadge" class="px-2.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full border border-blue-300 font-bold">유료 전용</span>
+                        <h3 class="text-base sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                            <span id="memberReportBadge" class="px-3 py-1 bg-blue-100 text-blue-800 text-xs sm:text-sm rounded-full border border-blue-300 font-bold">유료 전용</span>
                             <span id="memberReportTitle">4대 핵심 영역 분석 리포트</span>
                         </h3>
                     </div>
 
                     <!-- 1. 메가트렌드 분석 -->
-                    <div class="bg-white border border-[#cb418b] rounded-2xl p-5 sm:p-7 shadow-sm">
-                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">1</span>
-                            <h4 id="reportCat1Title" class="text-xs sm:text-sm font-bold text-slate-900">메가트렌드 분석</h4>
+                    <div class="bg-white border-2 border-[#cb418b]/90 rounded-2xl p-5 sm:p-8 shadow-sm">
+                        <div class="flex items-center gap-2.5 pb-3.5 mb-5 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-blue-600 text-sm font-bold">1</span>
+                            <h4 id="reportCat1Title" class="text-base sm:text-lg font-bold text-slate-900">메가트렌드 분석</h4>
                         </div>
-                        <div id="reportCat1Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
+                        <div id="reportCat1Text" class="text-base sm:text-lg text-slate-800 leading-relaxed sm:leading-loose whitespace-pre-line font-normal"></div>
                     </div>
 
                     <!-- 2. 해자 및 경쟁력 분석 -->
-                    <div class="bg-white border border-[#cb418b] rounded-2xl p-5 sm:p-7 shadow-sm">
-                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold">2</span>
-                            <h4 id="reportCat2Title" class="text-xs sm:text-sm font-bold text-slate-900">해자 및 경쟁력 분석</h4>
+                    <div class="bg-white border-2 border-[#cb418b]/90 rounded-2xl p-5 sm:p-8 shadow-sm">
+                        <div class="flex items-center gap-2.5 pb-3.5 mb-5 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 text-sm font-bold">2</span>
+                            <h4 id="reportCat2Title" class="text-base sm:text-lg font-bold text-slate-900">해자 및 경쟁력 분석</h4>
                         </div>
-                        <div id="reportCat2Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
+                        <div id="reportCat2Text" class="text-base sm:text-lg text-slate-800 leading-relaxed sm:leading-loose whitespace-pre-line font-normal"></div>
                     </div>
 
                     <!-- 3. 재무 및 수익성 분석 -->
-                    <div class="bg-white border border-[#cb418b] rounded-2xl p-5 sm:p-7 shadow-sm">
-                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold">3</span>
-                            <h4 id="reportCat3Title" class="text-xs sm:text-sm font-bold text-slate-900">재무 및 수익성 분석</h4>
+                    <div class="bg-white border-2 border-[#cb418b]/90 rounded-2xl p-5 sm:p-8 shadow-sm">
+                        <div class="flex items-center gap-2.5 pb-3.5 mb-5 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 text-sm font-bold">3</span>
+                            <h4 id="reportCat3Title" class="text-base sm:text-lg font-bold text-slate-900">재무 및 수익성 분석</h4>
                         </div>
-                        <div id="reportCat3Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
+                        <div id="reportCat3Text" class="text-base sm:text-lg text-slate-800 leading-relaxed sm:leading-loose whitespace-pre-line font-normal"></div>
                     </div>
 
                     <!-- 4. 밸류에이션 분석 -->
-                    <div class="bg-white border border-[#cb418b] rounded-2xl p-5 sm:p-7 shadow-sm">
-                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-amber-50 text-amber-600 text-xs font-bold">4</span>
-                            <h4 id="reportCat4Title" class="text-xs sm:text-sm font-bold text-slate-900">밸류에이션 분석</h4>
+                    <div class="bg-white border-2 border-[#cb418b]/90 rounded-2xl p-5 sm:p-8 shadow-sm">
+                        <div class="flex items-center gap-2.5 pb-3.5 mb-5 border-b border-slate-100">
+                            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 text-amber-600 text-sm font-bold">4</span>
+                            <h4 id="reportCat4Title" class="text-base sm:text-lg font-bold text-slate-900">밸류에이션 분석</h4>
                         </div>
-                        <div id="reportCat4Text" class="text-xs sm:text-sm text-slate-700 leading-loose whitespace-pre-line font-normal"></div>
+                        <div id="reportCat4Text" class="text-base sm:text-lg text-slate-800 leading-relaxed sm:leading-loose whitespace-pre-line font-normal"></div>
                     </div>
 
                     <!-- 종합 투자 의견 -->
-                    <div class="bg-gradient-to-br from-blue-50/60 to-indigo-50/60 border border-[#cb418b] rounded-2xl p-5 sm:p-7 shadow-sm">
-                        <div class="flex items-center gap-2 pb-3 mb-4 border-b border-blue-200/60">
-                            <h4 id="reportCat5Title" class="text-xs sm:text-sm font-bold text-blue-900">종합 투자 의견</h4>
+                    <div class="bg-gradient-to-br from-blue-50/70 to-indigo-50/70 border-2 border-[#cb418b]/90 rounded-2xl p-5 sm:p-8 shadow-sm">
+                        <div class="flex items-center gap-2.5 pb-3.5 mb-5 border-b border-blue-200/60">
+                            <h4 id="reportCat5Title" class="text-base sm:text-lg font-bold text-blue-900">종합 투자 의견</h4>
                         </div>
-                        <div id="reportCat5Text" class="text-xs sm:text-sm text-slate-800 leading-loose whitespace-pre-line font-medium"></div>
+                        <div id="reportCat5Text" class="text-base sm:text-lg text-slate-900 leading-relaxed sm:leading-loose whitespace-pre-line font-medium"></div>
                     </div>
                 </div>
 
                 <!-- [관리자 모드 전용] 44개 세부 항목 테이블 -->
                 <div id="adminTableSection" class="hidden">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
-                            <span id="tableAdminBadge" class="px-2.5 py-0.5 bg-amber-100 text-amber-800 text-xs rounded-full border border-amber-300 font-bold">관리자 전용</span>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span id="tableAdminBadge" class="px-3 py-1 bg-amber-100 text-amber-800 text-xs sm:text-sm rounded-full border border-amber-300 font-bold">관리자 전용</span>
                             <span id="tableTitle">44개 평가 항목별 정밀 채점표</span>
                         </h3>
                     </div>
 
                     <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm" style="-webkit-overflow-scrolling: touch;">
                         <table class="w-full min-w-[560px] text-left text-xs sm:text-sm text-slate-700">
-                            <thead class="bg-slate-100/80 text-slate-600 uppercase text-[11px] border-b border-slate-200">
+                            <thead class="bg-slate-100/80 text-slate-600 uppercase text-xs sm:text-sm border-b border-slate-200">
                                 <tr>
-                                    <th id="thNo" class="py-2.5 px-2 w-10 text-center">번호</th>
-                                    <th id="thCriteria" class="py-2.5 px-3 w-2/5">평가 기준 항목</th>
-                                    <th id="thMax" class="py-2.5 px-2 w-14 text-center">배점</th>
-                                    <th id="thScore" class="py-2.5 px-2 w-14 text-center">획득</th>
-                                    <th id="thReason" class="py-2.5 px-3">AI 평가 및 팩트체크 사유</th>
+                                    <th id="thNo" class="py-3 px-2 w-10 text-center">번호</th>
+                                    <th id="thCriteria" class="py-3 px-3 w-2/5">평가 기준 항목</th>
+                                    <th id="thMax" class="py-3 px-2 w-14 text-center">배점</th>
+                                    <th id="thScore" class="py-3 px-2 w-14 text-center">획득</th>
+                                    <th id="thReason" class="py-3 px-3">AI 평가 및 팩트체크 사유</th>
                                 </tr>
                             </thead>
                             <tbody id="itemsTableBody" class="divide-y divide-slate-200"></tbody>
                             <tfoot class="bg-slate-50 font-bold text-slate-900 border-t-2 border-slate-300">
                                 <tr>
-                                    <td colspan="2" id="tdTotalLabel" class="py-3 px-3 text-right">합계 총점</td>
-                                    <td class="py-3 px-2 text-center text-slate-500">490</td>
-                                    <td id="tableTotalScore" class="py-3 px-2 text-center text-blue-600 text-sm sm:text-base">0</td>
-                                    <td id="tdVerifiedLabel" class="py-3 px-3 text-slate-500 text-xs font-normal">정밀 검증 완료</td>
+                                    <td colspan="2" id="tdTotalLabel" class="py-3.5 px-3 text-right text-sm sm:text-base">합계 총점</td>
+                                    <td class="py-3.5 px-2 text-center text-slate-500 text-sm sm:text-base">490</td>
+                                    <td id="tableTotalScore" class="py-3.5 px-2 text-center text-blue-600 text-base sm:text-lg font-black">0</td>
+                                    <td id="tdVerifiedLabel" class="py-3.5 px-3 text-slate-500 text-xs sm:text-sm font-medium">정밀 검증 완료</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -386,13 +387,13 @@
         const i18n = {
             ko: {
                 pageTitle: "490 stock 투자 점수", headerBadge: "투자기준 자동 전환",
-                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.88em] text-neutral-600\">투자 점수</span>",
+                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.85em] text-neutral-600\">투자 점수</span>",
                 mainSubtitle: "기업의 투자 적격성에 대해 종합적으로 평가합니다",
                 companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)", analyzeBtn: "분석 시작",
                 adminNormal: "일반 모드", adminMember: "회원 모드 활성", adminActive: "관리자 모드 활성", modalTitle: "회원 / 관리자 인증",
                 modalPlaceholder: "비밀번호 입력...",
                 modalCancel: "취소", modalSave: "저장", loadingTitle: "기업 종합 분석 및 평가 중...",
-                loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요.<br><span class='text-blue-600 font-medium'>(약 25초~40초 소요)</span>",
+                loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요.<br><span class='text-blue-600 font-semibold'>(약 25초~40초 소요)</span>",
                 ipoDateLabel: "상장일:", 
                 analysisDateLabel: "분석일자:",
                 totalScoreLabel: "투자 최종 종합 점수", cat1Label: "메가트렌드",
@@ -414,13 +415,13 @@
             },
             en: {
                 pageTitle: "Investment Fundamental Score", headerBadge: "Automatic Criteria Selection",
-                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.88em] text-neutral-600\">Fundamental Score</span>",
+                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span> <span class=\"text-[0.85em] text-neutral-600\">Fundamental Score</span>",
                 mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
                 companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)", analyzeBtn: "Start Analysis",
                 adminNormal: "General Mode", adminMember: "Member Active", adminActive: "Admin Active", modalTitle: "Member / Admin Authentication",
                 modalPlaceholder: "Enter password...",
                 modalCancel: "Cancel", modalSave: "Save", loadingTitle: "Analyzing Fundamentals & Scoring...",
-                loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-medium'>(Takes approx. 25-40s)</span>",
+                loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-semibold'>(Takes approx. 25-40s)</span>",
                 ipoDateLabel: "IPO Date:", 
                 analysisDateLabel: "Analysis Date:",
                 totalScoreLabel: "Final Fundamental Score", cat1Label: "Mega Trend",
@@ -628,15 +629,15 @@
             if (currentRole === 'admin') {
                 btnText.textContent = t.adminActive;
                 btnText.className = "text-amber-600 font-bold";
-                if (iconEl) iconEl.className = "w-3.5 h-3.5 text-amber-500";
+                if (iconEl) iconEl.className = "w-4 h-4 text-amber-500";
             } else if (currentRole === 'member') {
                 btnText.textContent = t.adminMember;
                 btnText.className = "text-blue-600 font-bold";
-                if (iconEl) iconEl.className = "w-3.5 h-3.5 text-blue-500";
+                if (iconEl) iconEl.className = "w-4 h-4 text-blue-500";
             } else {
                 btnText.textContent = t.adminNormal;
                 btnText.className = "text-slate-600 font-medium";
-                if (iconEl) iconEl.className = "w-3.5 h-3.5 text-slate-400";
+                if (iconEl) iconEl.className = "w-4 h-4 text-slate-400";
             }
         }
 
@@ -709,21 +710,21 @@
 
             if (isEligible) {
                 const text = currentLang === 'en' ? "Investment Grade" : "투자적격";
-                qBadge.className = "text-[11px] sm:text-xs font-black px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-sm flex items-center gap-1";
-                qBadge.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> ${text}`;
+                qBadge.className = "text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-sm flex items-center gap-1.5";
+                qBadge.innerHTML = `<svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> ${text}`;
             } else {
                 const text = currentLang === 'en' ? "Ineligible" : "투자 부적격";
-                qBadge.className = "text-[11px] sm:text-xs font-black px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full tracking-wider bg-rose-50 text-rose-700 border border-rose-300 shadow-sm flex items-center gap-1";
-                qBadge.innerHTML = `<svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> ${text}`;
+                qBadge.className = "text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full tracking-wider bg-rose-50 text-rose-700 border border-rose-300 shadow-sm flex items-center gap-1.5";
+                qBadge.innerHTML = `<svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> ${text}`;
             }
         }
 
         function setCheckBadge(el, pass) {
             if (pass) {
-                el.className = "ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 whitespace-nowrap";
+                el.className = "ml-2 px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 whitespace-nowrap";
                 el.textContent = currentLang === 'en' ? "PASS" : "충족";
             } else {
-                el.className = "ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 whitespace-nowrap";
+                el.className = "ml-2 px-2.5 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200 whitespace-nowrap";
                 el.textContent = currentLang === 'en' ? "FAIL" : "미달";
             }
         }
@@ -802,11 +803,11 @@
                     const scoreColor = ratio >= 0.8 ? "text-emerald-600 font-bold" : (ratio >= 0.5 ? "text-amber-600 font-bold" : "text-rose-600 font-bold");
 
                     tr.innerHTML = `
-                        <td class="py-2.5 px-2 text-center text-slate-400 font-mono">${item.no}</td>
-                        <td class="py-2.5 px-3 font-medium text-slate-800">${item.name}</td>
-                        <td class="py-2.5 px-2 text-center text-slate-500">${item.max}</td>
-                        <td class="py-2.5 px-2 text-center ${scoreColor}">${item.score}</td>
-                        <td class="py-2.5 px-3 text-xs text-slate-600 leading-relaxed">${item.reason}</td>
+                        <td class="py-3 px-2 text-center text-slate-400 font-mono text-xs sm:text-sm">${item.no}</td>
+                        <td class="py-3 px-3 font-semibold text-slate-800 text-xs sm:text-sm">${item.name}</td>
+                        <td class="py-3 px-2 text-center text-slate-500 text-xs sm:text-sm">${item.max}</td>
+                        <td class="py-3 px-2 text-center ${scoreColor} text-xs sm:text-sm">${item.score}</td>
+                        <td class="py-3 px-3 text-xs sm:text-sm text-slate-600 leading-relaxed">${item.reason}</td>
                     `;
                     tbody.appendChild(tr);
                 });
