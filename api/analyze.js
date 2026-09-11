@@ -184,7 +184,8 @@ export default async function handler(req, res) {
   const role = isAdmin ? 'admin' : (isMember ? 'member' : 'normal');
 
   try {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    // 한국 표준시(KST, Asia/Seoul) 기준 YYYY-MM-DD 생성
+    const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
     const isEnglish = (lang === 'en');
 
     const langDirective = isEnglish 
