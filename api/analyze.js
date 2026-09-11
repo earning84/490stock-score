@@ -157,6 +157,10 @@ function extractMainJson(rawText) {
   return null;
 }
 
+// 백엔드 단기 메모리 캐시 및 진행 중인 작업 맵 (백그라운드 통신 순단 시 즉시 복구용)
+const memoryCache = new Map();
+const inFlightJobs = new Map();
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
@@ -183,11 +187,31 @@ export default async function handler(req, res) {
   const isMember = (enteredPwd !== "" && enteredPwd === memberPassword);
   const role = isAdmin ? 'admin' : (isMember ? 'member' : 'normal');
 
-  try {
-    // 한국 표준시(KST, Asia/Seoul) 기준 YYYY-MM-DD 생성
-    const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
-    const isEnglish = (lang === 'en');
+  // 한국 표준시(KST, Asia/Seoul) 기준 YYYY-MM-DD 생성
+  const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
 
+  // 캐시 키: 기업명 + 권한 + 언어 + 오늘날짜
+  const cacheKey = `${company.toLowerCase().trim()}_${role}_${lang}_${todayStr}`;
+
+  // 1) 이미 최근에 완료된 분석 결과가 있으면 0.1초 만에 즉시 반환
+  const cached = memoryCache.get(cacheKey);
+  if (cached && (Date.now() - cached.timestamp < 30 * 60 * 1000)) { // 30분 유효
+    return res.status(200).json(cached.data);
+  }
+
+  // 2) 클라이언트 통신 순단으로 재접속 시, 이미 서버에서 진행 중인 작업이 있다면 그 작업을 공유하여 대기
+  if (inFlightJobs.has(cacheKey)) {
+    try {
+      const existingData = await inFlightJobs.get(cacheKey);
+      return res.status(200).json(existingData);
+    } catch (err) {
+      // 진행 중이던 작업 실패 시 아래에서 재시도 진행
+    }
+  }
+
+  // 3) 새로운 분석 작업 실행 및 inFlight 등록
+  const jobPromise = (async () => {
+    const isEnglish = (lang === 'en');
     const langDirective = isEnglish 
       ? "CRITICAL: You MUST write companyName, keyPoint, memberReport, and all reasons exclusively in English." 
       : "중요: 모든 회사명, keyPoint, memberReport, 평가 사유는 한국어로 작성하십시오.";
@@ -299,12 +323,12 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
     if (!apiRes.ok) {
       const errText = await apiRes.text();
-      return res.status(apiRes.status).json({ error: `API 호출 실패 (${apiRes.status}): ${errText}` });
+      throw new Error(`API 호출 실패 (${apiRes.status}): ${errText}`);
     }
 
     const data = await apiRes.json();
     if (!data.candidates || data.candidates.length === 0) {
-      return res.status(500).json({ error: `AI 응답 생성 차단됨` });
+      throw new Error(`AI 응답 생성 차단됨`);
     }
 
     const parts = data.candidates[0].content?.parts;
@@ -312,11 +336,13 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
 
     const result = extractMainJson(rawText);
     if (!result) {
-      return res.status(500).json({ error: `AI 응답에서 유효한 JSON을 해석하지 못했습니다.` });
+      throw new Error(`AI 응답에서 유효한 JSON을 해석하지 못했습니다.`);
     }
 
     if (result.isPublicCompany === false) {
-      return res.status(400).json({ error: result.errorMsg || "상장된 기업이 아니거나 존재하지 않는 기업입니다." });
+      const err = new Error(result.errorMsg || "상장된 기업이 아니거나 존재하지 않는 기업입니다.");
+      err.statusCode = 400;
+      throw err;
     }
 
     const isNewborn = (result.framework === "신생기업" || result.framework === "Newborn");
@@ -354,7 +380,6 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     });
 
     const totalScore = cat1 + cat2 + cat3 + cat4;
-
     const score7 = (scoreMap[7] && scoreMap[7].score) || 0;
     const score17 = (scoreMap[17] && scoreMap[17].score) || 0;
     const sum7_17 = score7 + score17;
@@ -379,7 +404,6 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     });
 
     const requiredCoreScore = isNewborn ? 97 : 105;
-
     let isEligible = false;
     let ruleMatched = "";
 
@@ -414,12 +438,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       }
     }
 
-    let qualification;
-    if (isEnglish) {
-      qualification = isEligible ? "Investment Grade" : "Ineligible";
-    } else {
-      qualification = isEligible ? "투자적격" : "투자 부적격";
-    }
+    let qualification = isEnglish ? (isEligible ? "Investment Grade" : "Ineligible") : (isEligible ? "투자적격" : "투자 부적격");
 
     const checklist = {
       isNewborn,
@@ -431,7 +450,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       ruleMatched: ruleMatched
     };
 
-    return res.status(200).json({
+    const finalResponseData = {
       companyName: result.companyName || company,
       companyCode: result.companyCode || "-",
       ipoDate: result.ipoDate || "-",
@@ -447,9 +466,22 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       isMember: isMember,
       items: isAdmin ? tableData : null,
       memberReport: isMember ? (result.memberReport || null) : null
-    });
+    };
 
+    // 완료 후 메모리 캐시에 저장 (30분간 유효)
+    memoryCache.set(cacheKey, { data: finalResponseData, timestamp: Date.now() });
+    return finalResponseData;
+  })();
+
+  inFlightJobs.set(cacheKey, jobPromise);
+
+  try {
+    const finalData = await jobPromise;
+    return res.status(200).json(finalData);
   } catch (error) {
-    return res.status(500).json({ error: error.message || '분석 중 내부 오류가 발생했습니다.' });
+    const status = error.statusCode || 500;
+    return res.status(status).json({ error: error.message || '분석 중 내부 오류가 발생했습니다.' });
+  } finally {
+    inFlightJobs.delete(cacheKey);
   }
 }
