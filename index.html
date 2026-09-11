@@ -159,7 +159,7 @@
                 </p>
                 <div class="mt-5 flex items-center gap-2 text-xs sm:text-sm text-slate-600 bg-slate-50 px-4 py-2 rounded-full border border-slate-200">
                     <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    <span>다른 앱을 사용하거나 화면을 전환해도 백그라운드에서 분석이 계속 유지됩니다</span>
+                    <span id="loadingNotice">분석 중 오류가 발생할 수 있으니 다른 앱을 사용하지 마시고 분석이 완료될 때까지 기다려 주세요</span>
                 </div>
             </div>
 
@@ -178,7 +178,8 @@
                     </button>
                 </div>
 
-                <div class="bg-slate-50/90 border border-slate-200 rounded-2xl p-4 sm:p-7 md:p-9 shadow-sm">
+                <!-- 기업명 및 투자 최종 종합 점수 요약 카드 (바깥 테두리: border-[#cb418b]) -->
+                <div class="bg-slate-50/90 border border-[#cb418b] rounded-2xl p-4 sm:p-7 md:p-9 shadow-sm">
                     <div class="summary-flex flex justify-between items-start sm:items-center border-b border-slate-200 pb-5">
                         <div>
                             <div class="flex items-center gap-2.5 flex-wrap">
@@ -553,7 +554,7 @@
             authorEl.textContent = `— ${authorContent}`;
         }
 
-        // 무음 오디오 백그라운드 킵어라이브 (모바일 OS의 백그라운드 네트워크 차단 완벽 방지)
+        // 무음 오디오 백그라운드 킵어라이브 (모바일 OS의 백그라운드 네트워크 차단 방지)
         function startKeepAlive() {
             try {
                 if (!bgAudio) {
@@ -589,7 +590,6 @@
             }
         }
 
-        // 다른 앱에 갔다가 다시 돌아왔을 때 상태 복원 및 연결 유지
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible') {
                 if (isAnalyzing) {
@@ -609,6 +609,7 @@
                 modalPlaceholder: "비밀번호 입력...",
                 modalCancel: "취소", modalSave: "저장", loadingTitle: "기업 종합 분석 및 평가 중...",
                 loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요.<br><span class='text-blue-600 font-semibold'>(약 25초~40초 소요)</span>",
+                loadingNotice: "분석 중 오류가 발생할 수 있으니 다른 앱을 사용하지 마시고 분석이 완료될 때까지 기다려 주세요",
                 ipoDateLabel: "상장일:", 
                 analysisDateLabel: "분석일자:",
                 totalScoreLabel: "투자 최종 종합 점수", cat1Label: "메가트렌드",
@@ -637,6 +638,7 @@
                 modalPlaceholder: "Enter password...",
                 modalCancel: "Cancel", modalSave: "Save", loadingTitle: "Analyzing Fundamentals & Scoring...",
                 loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-semibold'>(Takes approx. 25-40s)</span>",
+                loadingNotice: "To avoid any analysis errors, please do not switch apps and wait until completion.",
                 ipoDateLabel: "IPO Date:", 
                 analysisDateLabel: "Analysis Date:",
                 totalScoreLabel: "Final Fundamental Score", cat1Label: "Mega Trend",
@@ -735,6 +737,9 @@
 
             document.getElementById('loadingTitle').textContent = t.loadingTitle;
             document.getElementById('loadingDesc').innerHTML = t.loadingDesc;
+
+            const lNotice = document.getElementById('loadingNotice');
+            if (lNotice) lNotice.textContent = t.loadingNotice;
 
             document.getElementById('ipoDateLabel').textContent = t.ipoDateLabel;
             document.getElementById('analysisDateLabel').textContent = t.analysisDateLabel;
@@ -879,7 +884,6 @@
 
             const data = await response.json();
             if (!response.ok) {
-                // 비상장기업 등 400에러는 재시도하지 않고 그대로 throw
                 if (response.status === 400) throw new Error(data.error || "상장된 기업이 아닙니다.");
                 throw new Error(data.error || "분석 요청에 실패했습니다.");
             }
@@ -898,7 +902,6 @@
             isAnalyzing = true;
             showLoading();
 
-            // 1) 화면 꺼짐 방지 + 2) 무음 오디오 백그라운드 유지 시작
             await acquireWakeLock();
             startKeepAlive();
 
@@ -907,7 +910,6 @@
                 try {
                     data = await fetchAnalysisWithRetry(query, 1);
                 } catch (networkErr) {
-                    // 백그라운드 전환으로 일시 순단되었을 경우, 사용자가 복귀했을 때 1회 즉시 재확인(서버 캐시/진행작업 회수)
                     if (networkErr.message && !networkErr.message.includes("상장")) {
                         await new Promise(r => setTimeout(r, 1200));
                         data = await fetchAnalysisWithRetry(query, 2);
@@ -932,7 +934,6 @@
         }
 
         function showLoading() {
-            // 검색 및 분석 시작 시 글로벌 Guru 명언 즉시 숨김
             document.getElementById('quoteSection')?.classList.add('hidden');
             document.getElementById('resultState').classList.add('hidden');
             document.getElementById('errorState').classList.add('hidden');
@@ -1006,7 +1007,6 @@
         function displayResult(data) {
             hideLoading();
 
-            // 검색 결과 출력 시 명언 숨김 상태 유지
             document.getElementById('quoteSection')?.classList.add('hidden');
 
             currentRole = data.role || (data.isAdmin ? 'admin' : (data.isMember ? 'member' : 'normal'));
@@ -1022,7 +1022,6 @@
 
             renderQualificationBadge(data.qualification);
 
-            // [관리자 모드 전용] 세부 판정 조건 검증표 표시 제어
             const checklistSection = document.getElementById('checklistSection');
             if (checklistSection) {
                 if (data.isAdmin) {
@@ -1041,7 +1040,6 @@
             const adminSection = document.getElementById('adminTableSection');
             const memberSection = document.getElementById('memberReportSection');
 
-            // [관리자 모드] 44개 정밀 채점표 표시
             if (data.isAdmin && data.items && data.items.length > 0) {
                 adminSection.classList.remove('hidden');
                 if (memberSection) memberSection.classList.add('hidden');
@@ -1069,7 +1067,6 @@
                 adminSection.classList.add('hidden');
             }
 
-            // [유료 전용] 4대 핵심 영역 리포트 및 종합 투자 의견 표시
             if (data.isMember && !data.isAdmin && data.memberReport) {
                 if (memberSection) {
                     memberSection.classList.remove('hidden');
