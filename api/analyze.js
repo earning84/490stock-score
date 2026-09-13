@@ -461,6 +461,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       keyPoint: result.keyPoint || (isEnglish ? "Fundamental analysis completed." : "투자 핵심 포인트 분석이 완료되었습니다."),
       totalScore: totalScore,
       qualification: qualification,
+      qualificationReason: ruleMatched,
       checklist: checklist,
       categoryScores: { cat1, cat2, cat3, cat4 },
       role: role,
