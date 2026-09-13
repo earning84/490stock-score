@@ -39,17 +39,10 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         @media print {
-            @page {
-                size: auto;
-                margin: 10mm 10mm;
-            }
-            html, body { 
+            body { 
                 background-color: #ffffff !important; 
                 height: auto !important;
                 min-height: 0 !important;
-                overflow: visible !important;
-                overflow-x: visible !important;
-                display: block !important;
             }
             .no-print { display: none !important; }
             .card-box { 
@@ -64,42 +57,12 @@
                 padding: 0 !important; 
                 margin: 0 !important;
                 max-width: 100% !important; 
-                display: block !important;
                 height: auto !important;
                 min-height: 0 !important;
             }
-            #resultState {
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-            }
-            #resultState > div {
-                margin-bottom: 20px !important;
-            }
-            #resultState > div:last-child {
-                margin-bottom: 0 !important;
-            }
-            #checklistSection { 
-                break-inside: avoid; 
-                page-break-inside: avoid;
-            }
-            #memberReportSection { 
-                break-inside: auto; 
-                page-break-inside: auto;
-            }
-            #memberReportSection > div { 
-                break-inside: avoid; 
-                page-break-inside: avoid; 
-                margin-bottom: 16px !important;
-            }
-            #adminTableSection { 
-                break-inside: auto; 
-                page-break-inside: auto;
-            }
-            #adminTableSection tr { 
-                break-inside: avoid; 
-                page-break-inside: avoid; 
-            }
+            #checklistSection { break-inside: avoid; page-break-inside: avoid; }
+            #memberReportSection > div { break-inside: avoid; page-break-inside: avoid; }
+            #adminTableSection tr { break-inside: avoid; page-break-inside: avoid; }
         }
 
         @media screen and (max-width: 640px) {
@@ -1168,15 +1131,35 @@
 
         function showLoading() {
             document.getElementById('quoteSection')?.classList.add('hidden');
-            document.getElementById('resultState').classList.add('hidden');
-            document.getElementById('errorState').classList.remove('hidden');
-            document.getElementById('loadingState').classList.remove('hidden');
+            
+            const resState = document.getElementById('resultState');
+            if (resState) {
+                resState.classList.add('hidden');
+                resState.style.display = 'none';
+            }
+            
+            const errState = document.getElementById('errorState');
+            if (errState) {
+                errState.classList.add('hidden');
+                errState.style.display = 'none';
+            }
+            
+            const loadState = document.getElementById('loadingState');
+            if (loadState) {
+                loadState.classList.remove('hidden');
+                loadState.style.display = 'flex';
+            }
+
             document.getElementById('companyInput').disabled = true;
             document.getElementById('analyzeBtn').disabled = true;
         }
 
         function hideLoading() {
-            document.getElementById('loadingState').classList.add('hidden');
+            const loadState = document.getElementById('loadingState');
+            if (loadState) {
+                loadState.classList.add('hidden');
+                loadState.style.display = 'none';
+            }
             document.getElementById('companyInput').disabled = false;
             document.getElementById('analyzeBtn').disabled = false;
             releaseWakeLock();
@@ -1186,7 +1169,11 @@
         function showError(msg) {
             hideLoading();
             document.getElementById('errorMessage').textContent = msg;
-            document.getElementById('errorState').classList.remove('hidden');
+            const errState = document.getElementById('errorState');
+            if (errState) {
+                errState.style.display = '';
+                errState.classList.remove('hidden');
+            }
         }
 
         function renderQualificationBadge(status) {
@@ -1255,7 +1242,7 @@
 
             renderQualificationBadge(data.qualification);
 
-            // 투자적격 / 투자부적격 판정 사유 (1~2줄) 렌더링
+            // 투자적격 / 투자부적격 판정 사유 (핵심 내용 중심 1~2줄 서술)
             const isEligible = (data.qualification === "투자적격" || data.qualification === "Investment Grade");
             const reasonCard = document.getElementById('qualificationReasonCard');
             const reasonBadge = document.getElementById('qualificationReasonBadge');
@@ -1336,7 +1323,11 @@
                 }
             }
 
-            document.getElementById('resultState').classList.remove('hidden');
+            const resState = document.getElementById('resultState');
+            if (resState) {
+                resState.style.display = '';
+                resState.classList.remove('hidden');
+            }
         }
     </script>
 </body>
