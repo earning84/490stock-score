@@ -409,34 +409,42 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     let isEligible = false;
     let ruleMatched = "";
 
+    // 문항 번호와 점수 수치 대신, 각 평가 요건의 본질적 핵심 내용을 1~2줄로 서술
     if (totalScore < 255) {
       isEligible = false;
-      ruleMatched = isEnglish ? "Ineligible: Total fundamental score is below minimum cutoff of 255 pts." : "총점이 최소 기준(255점) 미만으로 탈락되었습니다.";
+      ruleMatched = isEnglish 
+        ? "Ineligible: The company's overall fundamentals (market moat, profitability, and financial stability) do not meet minimum investment standards." 
+        : "산업 내 시장 해자, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준에 미달하여 탈락되었습니다.";
     } else if (sum7_17 < 37) {
       isEligible = false;
-      ruleMatched = isEnglish ? `Ineligible: Key timing/megatrend score (Items #7 + #17) is ${sum7_17}/50 pts, below the 37 pts threshold.` : `핵심 타이밍 및 한방 지표(7번+17번) 합계가 ${sum7_17}점으로 필수 기준(37점)에 미달했습니다.`;
+      ruleMatched = isEnglish 
+        ? "Ineligible: Lacks clear near-term catalysts (visible milestones within 6–12 months) and transformative megatrend drivers for exponential revenue growth." 
+        : "단기 가시적 성과·촉매(투자 타이밍)나 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 투자 시기로 부적합합니다.";
     } else if (totalScore >= 315 && countGe65All >= 25) {
       isEligible = true;
-      ruleMatched = isEnglish ? "Qualified: Met Condition 1 (315+ pts, 25+ criteria scored >= 65%, Items #7+#17 >= 37 pts)." : "조건 1 충족: 315점 이상 고득점 트랙 (65% 이상 문항 25개 이상 및 7+17번 충족)";
+      ruleMatched = isEnglish 
+        ? "Qualified: Satisfies high-conviction criteria with proven megatrend leadership, solid moats, robust financials, and strong near-term execution catalysts." 
+        : "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 단기 가시적 성장 촉매를 두루 갖추어 투자 가치가 탁월합니다.";
     } else if (totalScore >= 255 && totalScore <= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-      const condNum = isNewborn ? "3" : "2";
-      const condName = isNewborn ? "신생기업" : "기존기업";
       ruleMatched = isEnglish 
-        ? `Qualified: Met Condition ${condNum} (${condName} core items score ${coreScore} >= ${requiredCoreScore}, 5+ core items >= 65%, Items #7+#17 >= 37 pts).` 
-        : `조건 ${condNum} 충족: [${condName}] 핵심역량 트랙 (투자점수 255~315점, 핵심문항 점수 ${coreScore}점/${requiredCoreScore}점 이상, 65% 이상 5개 이상, 7+17번 충족)`;
+        ? "Qualified: Satisfies core competency criteria with verified market addressability, technological moats, capable leadership, and validated catalyst timing." 
+        : "유효 시장 규모와 핵심 기술 해자, 경영진 실행력 및 밸류체인 핵심 경쟁력을 확보하고 단기 촉매와 성장 모멘텀을 충족했습니다.";
     } else if (totalScore >= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-      const condName = isNewborn ? "신생기업" : "기존기업";
       ruleMatched = isEnglish 
-        ? `Qualified: Met core items criteria with 315+ total score (${coreScore} >= ${requiredCoreScore}, 5+ core items >= 65%).` 
-        : `조건 충족: [${condName}] 핵심역량 기준을 충족한 315점 이상 기업 (핵심문항 점수 ${coreScore}점/${requiredCoreScore}점 이상 및 5개 이상 충족)`;
+        ? "Qualified: Satisfies core fundamental pillars with high overall score, robust competitive moat, and strong timing catalysts." 
+        : "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 해자, 안정적인 재무 구조 및 단기 성장 촉매 요건을 모두 충족했습니다.";
     } else {
       isEligible = false;
       if (totalScore >= 315) {
-        ruleMatched = isEnglish ? `Ineligible: 315+ total score, but 65%+ items count (${countGe65All}/25) is insufficient.` : `총점은 315점 이상이나, 65% 이상 득점 문항 수(${countGe65All}개/25개)가 부족합니다.`;
+        ruleMatched = isEnglish 
+          ? "Ineligible: While high-level metrics are solid, decisive competitive advantages and pricing moats across broad business criteria lack sufficient evidence." 
+          : "전반적인 재무 기초는 양호하나, 독점적 가격결정권과 시장 지배력 등 각 평가 영역 전반에서 탁월한 경쟁 우위가 충분히 입증되지 못했습니다.";
       } else {
-        ruleMatched = isEnglish ? `Ineligible: Core items score (${coreScore}/${requiredCoreScore} pts) or count (${countGe65Core}/5) is insufficient.` : `핵심문항 점수(${coreScore}점/${requiredCoreScore}점) 또는 65% 이상 핵심문항 수(${countGe65Core}개/5개)가 부족합니다.`;
+        ruleMatched = isEnglish 
+          ? "Ineligible: Addressable market upside, proprietary technological moats, execution leadership, and intrinsic valuation remain insufficient." 
+          : "유효 시장 확장성, 독점적 해자 기술, 경영진 실행력 및 내재가치 평가 등 본질적인 핵심 경쟁 우위 요건이 기준에 미치지 못했습니다.";
       }
     }
 
