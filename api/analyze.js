@@ -414,7 +414,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       isEligible = false;
       ruleMatched = isEnglish 
         ? "Ineligible: The company's overall fundamentals (market moat, profitability, and financial stability) do not meet minimum investment standards." 
-        : "산업 내 시장 해자, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준(255점)에 미달하여 부적격입니다.";
+        : "산업 내 시장 경쟁우위, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준(255점)에 미달하여 부적격입니다.";
     } else if (sum7_17 < 37) {
       isEligible = false;
       if (score7 < 15 && score17 >= 22) {
@@ -439,12 +439,12 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       isEligible = true;
       ruleMatched = isEnglish 
         ? "Qualified: Satisfies core competency criteria with verified market addressability, technological moats, capable leadership, and validated catalyst timing." 
-        : "유효 시장 규모와 핵심 기술 해자, 경영진 실행력 및 밸류체인 핵심 경쟁력을 확보하고 성장 모멘텀을 충족했습니다.";
+        : "유효 시장 규모와 핵심 기술 경쟁우위, 경영진 실행력 및 밸류체인 핵심 경쟁력을 확보하고 성장 모멘텀을 충족했습니다.";
     } else if (totalScore >= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
       ruleMatched = isEnglish 
         ? "Qualified: Satisfies core fundamental pillars with high overall score, robust competitive moat, and strong timing catalysts." 
-        : "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 해자, 안정적인 재무 구조 및 투자 타이밍과 성장 요건을 모두 충족했습니다.";
+        : "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 경쟁우위, 안정적인 재무 구조 및 투자 타이밍과 성장 요건을 모두 충족했습니다.";
     } else {
       isEligible = false;
       if (totalScore >= 315) {
@@ -454,7 +454,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       } else {
         ruleMatched = isEnglish 
           ? "Ineligible: Addressable market upside, proprietary technological moats, execution leadership, and intrinsic valuation remain insufficient." 
-          : "유효 시장 확장성, 독점적 해자 기술, 경영진 실행력 및 내재가치 평가 등 본질적인 핵심 경쟁 우위 요건이 기준에 미치지 못했습니다.";
+          : "유효 시장 확장성, 독점적 경쟁우위 기술, 경영진 실행력 및 내재가치 평가 등 본질적인 핵심 경쟁 우위 요건이 기준에 미치지 못했습니다.";
       }
     }
 
