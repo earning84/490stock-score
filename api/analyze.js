@@ -419,12 +419,12 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       isEligible = false;
       ruleMatched = isEnglish 
         ? "Ineligible: Lacks clear near-term catalysts (visible milestones within 6–12 months) and transformative megatrend drivers for exponential revenue growth." 
-        : "단기 가시적 성과·촉매(투자 타이밍)나 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 투자 시기로 부적합합니다.";
+        : "단기 가시적 성과·투자 타이밍이나 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 투자 시기로 부적합합니다.";
     } else if (totalScore >= 315 && countGe65All >= 25) {
       isEligible = true;
       ruleMatched = isEnglish 
         ? "Qualified: Satisfies high-conviction criteria with proven megatrend leadership, solid moats, robust financials, and strong near-term execution catalysts." 
-        : "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 단기 가시적 성장 촉매를 두루 갖추어 투자 가치가 탁월합니다.";
+        : "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 단기 가시적 성장 촉매를 두루 갖추어 투자 가치가 우수합니다.";
     } else if (totalScore >= 255 && totalScore <= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
       ruleMatched = isEnglish 
