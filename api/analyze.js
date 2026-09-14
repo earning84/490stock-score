@@ -230,7 +230,7 @@ ${langDirective}
 - 만약 비상장 기업, 개인 사업자, 존재하지 않는 회사, 또는 의미 없는 오타/단어일 경우, 분석을 즉시 중단하고 반드시 아래 JSON 규격으로만 응답하십시오:
 {
   "isPublicCompany": false,
-  "errorMsg": "입력하신 검색어는 상장된 기업이 아니거나 존재하지 않는 기업입니다. 정확한 상장 기업명이나 종목코드를 입력해주세요."
+  "errorMsg": "입력하신 검색어는 상장된 기업이 아니거나 존재하지 참조하는 기업입니다. 정확한 상장 기업명이나 종목코드를 입력해주세요."
 }
 
 [1단계: 상장일 팩트체크 및 프레임워크 선택]
@@ -417,9 +417,19 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
         : "산업 내 시장 해자, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준(255점)에 미달하여 부적격입니다.";
     } else if (sum7_17 < 37) {
       isEligible = false;
-      ruleMatched = isEnglish 
-        ? "Ineligible: Lacks clear near-term catalysts (visible milestones within 6–12 months) and transformative megatrend drivers for exponential revenue growth." 
-        : "단기 가시적 성과·투자 타이밍이나 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 현시점 기준으로는 투자 시기로 부적합 합니다.";
+      if (score7 < 15 && score17 >= 22) {
+        ruleMatched = isEnglish 
+          ? "Ineligible: While transformative megatrend drivers exist, clear near-term catalysts and timing (visible milestones within 6–12 months) are lacking." 
+          : "향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력은 양호하나, 6개월~1년 내 단기 가시적 성과 및 투자 타이밍이 부족하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+      } else if (score17 < 22 && score7 >= 15) {
+        ruleMatched = isEnglish 
+          ? "Ineligible: Near-term catalysts are present, but it lacks transformative megatrend drivers for exponential revenue growth." 
+          : "단기 가시적 성과 및 투자 타이밍은 양호하나, 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+      } else {
+        ruleMatched = isEnglish 
+          ? "Ineligible: Lacks both clear near-term catalysts and transformative megatrend drivers for exponential revenue growth." 
+          : "단기 가시적 성과·투자 타이밍과 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 모두 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+      }
     } else if (totalScore >= 315 && countGe65All >= 25) {
       isEligible = true;
       ruleMatched = isEnglish 
