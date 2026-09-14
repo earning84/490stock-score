@@ -8,7 +8,7 @@ const EXISTING_CRITERIA = [
   { no: 4, max: 8, text: "그 사업이 지속 가능한 산업군이냐?" },
   { no: 5, max: 20, text: "해당 산업이 발전하는데 필수적인 핵심 키포인트는 무엇인가? 예로 반도체 산업은  '에너지밴드갭', AI산업은 'Cuda같은 SW기술'등이 산업의 성장 핵심 키포인트잖아. \n어떠한 특성을 기준으로 발전하는가? 해당 기업은 그 핵심 키포인트를 갖췄나?" },
   { no: 6, max: 10, text: "산업 내 투자 수요가 유입되는 가운데, 최근 1~3개월간 스마트 머니(외인·연기금·사모·투신)의 유의미한 순매집(유통시총 1% 이상)이 확인되고 대차·공매도 급증 등 하방 리스크가 배제되어 있는가?" },
-  { no: 7, max: 20, text: "기업의 사업추진상황·산업·경기사이클상 6개월~1년 내 가시적 성과·촉매가 기대되는 투자 적기이며, 차트 일봉상 이동평균선 240일선 또는 120일선 위에 위치해 있는가?(이동평균선 역배열 하락 추세 지속 시 10점 이하로 엄격 감점)" },
+  { no: 7, max: 20, text: "기업의 사업추진상황·산업·경기사이클상 6개월~1년 내 가시적 성과·투자 타이밍이 기대되는 투자 적기이며, 차트 일봉상 이동평균선 240일선 또는 120일선 위에 위치해 있는가?(이동평균선 역배열 하락 추세 지속 시 10점 이하로 엄격 감점)" },
   { no: 8, max: 10, text: "그 산업의 역사는 어떠했나? 과거 역사와 비교했을때 2년내 돈을 벌 산업의 타이밍인가?" },
   { no: 9, max: 10, text: "해당 산업의 비즈니스 구조, 매출 크기, 매출인식 방식등을 고려했을때 그 산업이 본격 성장하고 있거나 곧 성장할 것인가?" },
   { no: 10, max: 20, text: "글로벌 경쟁력(G). 해당 산업 관련 종사자 누구나 알만한 브랜드 파워나 제품 보유하면 더 좋음. 메가히트, 블록버스터, 브랜드 그 자체가 대표인 그런 제품이나 서비스 수, LTV(고객생애가치)/CAC(고객획득비용)비율등도 고려." },
@@ -56,7 +56,7 @@ const NEWBORN_CRITERIA = [
   { no: 4, max: 8, text: "그 사업이 지속 가능한 산업군이냐?" },
   { no: 5, max: 20, text: "해당 산업이 발전하는데 필수적인 핵심 키포인트는 무엇인가? 예로 반도체 산업은  '에너지밴드갭', AI산업은 'Cuda같은 SW기술'등이 산업의 성장 핵심 키포인트잖아. \n어떠한 특성을 기준으로 발전하는가? 해당 기업은 그 핵심 키포인트를 갖췄나?" },
   { no: 6, max: 10, text: "산업 내 투자 수요가 유입되는 가운데, 최근 1~3개월간 스마트 머니(외인·연기금·사모·투신)의 유의미한 순매집(유통시총 1% 이상)이 확인되고 대차·공매도 급증 등 하방 리스크가 배제되어 있는가?" },
-  { no: 7, max: 20, text: "기업의 사업추진상황·산업·경기사이클상 6개월~1년 내 가시적 성과·촉매가 기대되는 투자 적기이며, 차트 일봉상 이동평균선 240일선 또는 120일선 위에 위치해 있는가?(이동평균선 역배열 하락 추세 지속 시 10점 이하로 엄격 감점)" },
+  { no: 7, max: 20, text: "기업의 사업추진상황·산업·경기사이클상 6개월~1년 내 가시적 성과·투자 타이밍이 기대되는 투자 적기이며, 차트 일봉상 이동평균선 240일선 또는 120일선 위에 위치해 있는가?(이동평균선 역배열 하락 추세 지속 시 10점 이하로 엄격 감점)" },
   { no: 8, max: 10, text: "그 산업의 역사는 어떠했나? 과거 역사와 비교했을때 2년내 돈을 벌 산업의 타이밍인가?" },
   { no: 9, max: 10, text: "해당 산업의 비즈니스 구조, 매출 크기, 매출인식 방식등을 고려했을때 그 산업이 본격 성장하고 있거나 곧 성장할 것인가?" },
   { no: 10, max: 20, text: "글로벌 경쟁력(G). 해당 산업 관련 종사자 누구나 알만한 브랜드 파워나 제품 보유하면 더 좋음. 메가히트, 블록버스터, 브랜드 그 자체가 대표인 그런 제품이나 서비스 수, LTV(고객생애가치)/CAC(고객획득비용)비율등도 고려." },
@@ -414,27 +414,27 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       isEligible = false;
       ruleMatched = isEnglish 
         ? "Ineligible: The company's overall fundamentals (market moat, profitability, and financial stability) do not meet minimum investment standards." 
-        : "산업 내 시장 해자, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준에 미달하여 탈락되었습니다.";
+        : "산업 내 시장 해자, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준(255점)에 미달하여 부적격입니다.";
     } else if (sum7_17 < 37) {
       isEligible = false;
       ruleMatched = isEnglish 
         ? "Ineligible: Lacks clear near-term catalysts (visible milestones within 6–12 months) and transformative megatrend drivers for exponential revenue growth." 
-        : "단기 가시적 성과·투자 타이밍이나 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 투자 시기로 부적합합니다.";
+        : "단기 가시적 성과·투자 타이밍이나 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 현시점 기준으로는 투자 시기로 부적합 합니다.";
     } else if (totalScore >= 315 && countGe65All >= 25) {
       isEligible = true;
       ruleMatched = isEnglish 
         ? "Qualified: Satisfies high-conviction criteria with proven megatrend leadership, solid moats, robust financials, and strong near-term execution catalysts." 
-        : "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 단기 가시적 성장 촉매를 두루 갖추어 투자 가치가 우수합니다.";
+        : "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 가시적 성장과 투자 타이밍을 두루 갖추어 투자 가치가 충분합니다.";
     } else if (totalScore >= 255 && totalScore <= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
       ruleMatched = isEnglish 
         ? "Qualified: Satisfies core competency criteria with verified market addressability, technological moats, capable leadership, and validated catalyst timing." 
-        : "유효 시장 규모와 핵심 기술 해자, 경영진 실행력 및 밸류체인 핵심 경쟁력을 확보하고 단기 촉매와 성장 모멘텀을 충족했습니다.";
+        : "유효 시장 규모와 핵심 기술 해자, 경영진 실행력 및 밸류체인 핵심 경쟁력을 확보하고 성장 모멘텀을 충족했습니다.";
     } else if (totalScore >= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
       ruleMatched = isEnglish 
         ? "Qualified: Satisfies core fundamental pillars with high overall score, robust competitive moat, and strong timing catalysts." 
-        : "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 해자, 안정적인 재무 구조 및 단기 성장 촉매 요건을 모두 충족했습니다.";
+        : "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 해자, 안정적인 재무 구조 및 투자 타이밍과 성장 요건을 모두 충족했습니다.";
     } else {
       isEligible = false;
       if (totalScore >= 315) {
