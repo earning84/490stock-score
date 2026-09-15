@@ -118,9 +118,12 @@
         <div class="card-box w-full p-0 sm:px-2 overflow-hidden">
             
             <div class="text-center mb-8 sm:mb-11">
-                <h1 id="mainTitle" class="font-title text-4xl sm:text-6xl font-normal tracking-tight text-[#cb418b]">
-                    490 stock
-                </h1>
+                <!-- 490 stock 클릭/터치 시 사이트 메인 홈으로 재접속 -->
+                <a href="https://490stock-score.vercel.app/" class="inline-block cursor-pointer select-none transition-transform active:scale-95" title="홈으로 이동">
+                    <h1 id="mainTitle" class="font-title text-4xl sm:text-6xl font-normal tracking-tight text-[#cb418b] hover:opacity-90 transition-opacity">
+                        490 stock
+                    </h1>
+                </a>
                 <p id="mainSubtitle" class="text-sm sm:text-lg text-slate-600 font-normal mt-2.5 leading-relaxed">기업을 종합적으로 분석하여 투자 점수를 평가합니다</p>
             </div>
 
@@ -279,7 +282,7 @@
                         </div>
                         <div id="chkRowCore" class="flex items-center justify-between p-3 rounded-xl border bg-slate-50 border-slate-200">
                             <div><p class="font-bold text-slate-800 text-xs sm:text-sm">4. 핵심역량 트랙 (255~315점)</p><p id="chkCoreSubLabel" class="text-[11px] sm:text-xs text-slate-500">기준: 105점 이상 & 65% 5개 이상</p></div>
-                            <div class="text-right flex items-center"><span id="chkValCore" class="font-bold text-slate-800">0점 / 0개</span><span id="chkBadgeCore" class="ml-2 px-2.5 py-0.5 rounded text-xs font-bold">미달</span></div>
+                            <div class="text-right flex items-center"><span id="chkCoreSubLabel" class="font-bold text-slate-800">0점 / 0개</span><span id="chkBadgeCore" class="ml-2 px-2.5 py-0.5 rounded text-xs font-bold">미달</span></div>
                         </div>
                     </div>
                 </div>
