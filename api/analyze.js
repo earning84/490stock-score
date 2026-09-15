@@ -176,7 +176,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ role, isAdmin, isMember });
   }
 
-  const { company, adminPassword, lang = 'ko' } = req.body || {};
+  const { company, adminPassword } = req.body || {};
   if (!company) return res.status(400).json({ error: '기업명을 입력해주세요.' });
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -190,10 +190,10 @@ export default async function handler(req, res) {
   // 한국 표준시(KST, Asia/Seoul) 기준 YYYY-MM-DD 생성
   const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
 
-  // 캐시 키: 기업명 + 권한 + 언어 + 오늘날짜
-  const cacheKey = `${company.toLowerCase().trim()}_${role}_${lang}_${todayStr}`;
+  // 캐시 키: 기업명 + 권한 + 오늘날짜
+  const cacheKey = `${company.toLowerCase().trim()}_${role}_${todayStr}`;
 
-  // 1) 이미 최근에 완료된 분석 결과가 있으면 0.1초 만에 즉시 반환
+  // 1) 이미 최근에 완료된 분석 결과가 있으면 즉시 반환
   const cached = memoryCache.get(cacheKey);
   if (cached && (Date.now() - cached.timestamp < 30 * 60 * 1000)) { // 30분 유효
     return res.status(200).json(cached.data);
@@ -211,11 +211,6 @@ export default async function handler(req, res) {
 
   // 3) 새로운 분석 작업 실행 및 inFlight 등록
   const jobPromise = (async () => {
-    const isEnglish = (lang === 'en');
-    const langDirective = isEnglish 
-      ? "CRITICAL: You MUST write companyName, keyPoint, memberReport, and all reasons exclusively in English." 
-      : "중요: 모든 회사명, keyPoint, memberReport, 평가 사유는 한국어로 작성하십시오.";
-
     const systemPrompt = `
 오늘 날짜를 기준으로 최신 데이터로 분석해 주세요.
 보수적이고 깐깐한 펀드매니저와 회계사의 관점으로 점수를 부여해 주십시오.
@@ -223,14 +218,14 @@ export default async function handler(req, res) {
 오늘 날짜 시점의 미국 기준금리, 채권금리등의 매크로 요소와 국제 정치나 전쟁같은 지정학적 리스크, 해당 산업 컨센서스등의 환경들을 고려하여 각 항목을 채점해 주십시오.
 구글 실시간 검색을 통한 딥 리서치(Deep Research)와 공시 자료, 글로벌 인더스트리 리서치 보고서를 전방위로 수집하여 단계적 상세한 분석과 근거에 기반한 추론에 입각해 정밀 채점을 진행하십시오.
 
-${langDirective}
+중요: 모든 회사명, keyPoint, memberReport, 평가 사유는 한국어로 작성하십시오.
 
 [0단계: 상장 기업 여부 팩트체크 (가장 중요)]
 - 입력된 검색어("${company}")가 국내(KOSPI/KOSDAQ) 또는 글로벌 주요 증권거래소에 실제로 상장된 법인(상장기업)인지 Google 검색을 통해 엄격히 확인하십시오.
 - 만약 비상장 기업, 개인 사업자, 존재하지 않는 회사, 또는 의미 없는 오타/단어일 경우, 분석을 즉시 중단하고 반드시 아래 JSON 규격으로만 응답하십시오:
 {
   "isPublicCompany": false,
-  "errorMsg": "입력하신 검색어는 상장된 기업이 아니거나 존재하지 참조하는 기업입니다. 정확한 상장 기업명이나 종목코드를 입력해주세요."
+  "errorMsg": "입력하신 검색어는 상장된 기업이 아니거나 존재하지 않는 기업입니다. 정확한 상장 기업명이나 종목코드를 입력해주세요."
 }
 
 [1단계: 상장일 팩트체크 및 프레임워크 선택]
@@ -268,9 +263,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     4. valuation: 밸류에이션 분석 (항목 38번부터 44번까지의 내용을 통합 요약)
     5. risk: 리스크 분석 (항목 1번부터 44번까지 분석 내용 중 핵심 리스크 요인을 반드시 1,000자 미만으로 핵심만 날카롭게 서술)
     6. investmentOpinion: 종합 투자 의견 (항목 7번과 17번을 재요약하고, 투자 적격 조건 충족 여부에 따라 실제 투자 결정을 어떻게 바라보아야 할지 매우 '조심스럽게' 최종 제안)
-  * 분량 기준:
-    - 한국어: 1~4번 및 종합의견은 각 1,000자 내외, 5번 리스크 분석은 1,000자 미만으로 정밀하게 서술하십시오.
-    - 영어: 1~4번 및 종합의견은 각 2,000자 내외, 5번 리스크 분석은 1,500자 미만으로 서술하십시오.
+  * 분량 기준: 1~4번 및 종합의견은 각 1,000자 내외, 5번 리스크 분석은 1,000자 미만으로 정밀하게 서술하십시오.
   * 작성 규칙 (절대 엄수):
     1) 어투: 모든 문장은 '~이다' 어투를 엄격하게 유지하십시오.
     2) 금지 표현: '완벽', '절대' 같은 극단적인 표현은 배제하십시오. 주가 상승, 주가 하락, 매수, 매도와 같은 직접적인 투자의견/주가 표현은 배제하십시오.
@@ -412,53 +405,35 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
     // 문항 번호와 점수 수치 대신, 각 평가 요건의 본질적 핵심 내용을 1~2줄로 서술
     if (totalScore < 255) {
       isEligible = false;
-      ruleMatched = isEnglish 
-        ? "Ineligible: The company's overall fundamentals (market moat, profitability, and financial stability) do not meet minimum investment standards." 
-        : "산업 내 시장 경쟁우위, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준(255점)에 미달하여 부적격입니다.";
+      ruleMatched = "산업 내 시장 경쟁우위, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준(255점)에 미달하여 부적격입니다.";
     } else if (sum7_17 < 37) {
       isEligible = false;
       if (score7 < 15 && score17 >= 22) {
-        ruleMatched = isEnglish 
-          ? "Ineligible: While transformative megatrend drivers exist, clear near-term catalysts and timing (visible milestones within 6–12 months) are lacking." 
-          : "향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력은 양호하나, 6개월~1년 내 단기 가시적 성과 및 투자 타이밍이 부족하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+        ruleMatched = "향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력은 양호하나, 6개월~1년 내 단기 가시적 성과 및 투자 타이밍이 부족하여 현시점 기준으로는 투자 시기로 부적합합니다.";
       } else if (score17 < 22 && score7 >= 15) {
-        ruleMatched = isEnglish 
-          ? "Ineligible: Near-term catalysts are present, but it lacks transformative megatrend drivers for exponential revenue growth." 
-          : "단기 가시적 성과 및 투자 타이밍은 양호하나, 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+        ruleMatched = "단기 가시적 성과 및 투자 타이밍은 양호하나, 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
       } else {
-        ruleMatched = isEnglish 
-          ? "Ineligible: Lacks both clear near-term catalysts and transformative megatrend drivers for exponential revenue growth." 
-          : "단기 가시적 성과·투자 타이밍과 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 모두 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+        ruleMatched = "단기 가시적 성과·투자 타이밍과 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 모두 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
       }
     } else if (totalScore >= 315 && countGe65All >= 25) {
       isEligible = true;
-      ruleMatched = isEnglish 
-        ? "Qualified: Satisfies high-conviction criteria with proven megatrend leadership, solid moats, robust financials, and strong near-term execution catalysts." 
-        : "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 가시적 성장과 투자 타이밍을 두루 갖추어 투자 가치가 충분합니다.";
+      ruleMatched = "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 가시적 성장과 투자 타이밍을 두루 갖추어 투자 가치가 충분합니다.";
     } else if (totalScore >= 255 && totalScore <= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-      ruleMatched = isEnglish 
-        ? "Qualified: Satisfies core competency criteria with verified market addressability, technological moats, capable leadership, and validated catalyst timing." 
-        : "유효 시장 규모와 핵심 기술 경쟁우위, 경영진 실행력 및 밸류체인 핵심 경쟁력을 확보하고 성장 모멘텀을 충족했습니다.";
+      ruleMatched = "유효 시장 규모와 핵심 기술 경쟁우위, 경영진 실행력 및 밸류체인 핵심 경쟁력을 확보하고 성장 모멘텀을 충족했습니다.";
     } else if (totalScore >= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-      ruleMatched = isEnglish 
-        ? "Qualified: Satisfies core fundamental pillars with high overall score, robust competitive moat, and strong timing catalysts." 
-        : "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 경쟁우위, 안정적인 재무 구조 및 투자 타이밍과 성장 요건을 모두 충족했습니다.";
+      ruleMatched = "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 경쟁우위, 안정적인 재무 구조 및 투자 타이밍과 성장 요건을 모두 충족했습니다.";
     } else {
       isEligible = false;
       if (totalScore >= 315) {
-        ruleMatched = isEnglish 
-          ? "Ineligible: While high-level metrics are solid, decisive competitive advantages and pricing moats across broad business criteria lack sufficient evidence." 
-          : "전반적인 재무 기초는 양호하나, 독점적 가격결정권과 시장 지배력 등 각 평가 영역 전반에서 탁월한 경쟁 우위가 충분히 입증되지 못했습니다.";
+        ruleMatched = "전반적인 재무 기초는 양호하나, 독점적 가격결정권과 시장 지배력 등 각 평가 영역 전반에서 탁월한 경쟁 우위가 충분히 입증되지 못했습니다.";
       } else {
-        ruleMatched = isEnglish 
-          ? "Ineligible: Addressable market upside, proprietary technological moats, execution leadership, and intrinsic valuation remain insufficient." 
-          : "유효 시장 확장성, 독점적 경쟁우위 기술, 경영진 실행력 및 내재가치 평가 등 본질적인 핵심 경쟁 우위 요건이 기준에 미치지 못했습니다.";
+        ruleMatched = "유효 시장 확장성, 독점적 경쟁우위 기술, 경영진 실행력 및 내재가치 평가 등 본질적인 핵심 경쟁 우위 요건이 기준에 미치지 못했습니다.";
       }
     }
 
-    let qualification = isEnglish ? (isEligible ? "Investment Grade" : "Ineligible") : (isEligible ? "투자적격" : "투자 부적격");
+    const qualification = isEligible ? "투자적격" : "투자 부적격";
 
     const checklist = {
       isNewborn,
@@ -476,7 +451,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA)}
       ipoDate: result.ipoDate || "-",
       analysisDate: todayStr,
       framework: result.framework || (isNewborn ? "신생기업" : "기존기업"),
-      keyPoint: result.keyPoint || (isEnglish ? "Fundamental analysis completed." : "투자 핵심 포인트 분석이 완료되었습니다."),
+      keyPoint: result.keyPoint || "투자 핵심 포인트 분석이 완료되었습니다.",
       totalScore: totalScore,
       qualification: qualification,
       qualificationReason: ruleMatched,
