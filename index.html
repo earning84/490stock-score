@@ -94,19 +94,6 @@
             <span id="headerBadge" class="hidden" aria-hidden="true">투자기준 자동 전환</span>
 
             <div class="flex items-center gap-2">
-                <!-- 언어 드롭다운 -->
-                <div class="relative inline-block text-left" id="langDropdownContainer">
-                    <button onclick="toggleLangDropdown(event)" id="langDropdownBtn" class="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-900 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-sm transition-all focus:outline-none active:scale-95">
-                        <span id="currentLangText">KOR</span>
-                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <div id="langDropdownMenu" class="hidden absolute right-0 mt-1.5 z-50 bg-white/95 backdrop-blur-sm border border-slate-200 p-1.5 rounded-2xl shadow-lg flex flex-col items-center">
-                        <button onclick="selectLanguage('en')" id="langOptionBtn" class="px-4 py-1.5 text-xs sm:text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-full transition-all shadow-inner">
-                            EN
-                        </button>
-                    </div>
-                </div>
-
                 <!-- 모드 표시 버튼 -->
                 <button onclick="toggleAdminModal()" id="adminStatusBtn" class="flex items-center gap-1.5 text-xs sm:text-sm bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-sm font-medium active:scale-95 transition-all">
                     <svg id="adminStatusIcon" class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -400,7 +387,6 @@
     </div>
 
     <script>
-        let currentLang = localStorage.getItem('company_lang') || 'ko';
         let adminPassword = localStorage.getItem('company_admin_pwd') || "";
         let currentRole = localStorage.getItem('company_user_role') || "normal";
         let currentResultData = null;
@@ -411,312 +397,57 @@
 
         // 글로벌 투자 Guru 명언 데이터셋 (전설적 투자자 30인, 총 50선)
         const GURU_QUOTES = [
-            {
-                ko: "위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.",
-                en: "Risk comes from not knowing what you're doing.",
-                authorKo: "워런 버핏 (Warren Buffett)",
-                authorEn: "Warren Buffett"
-            },
-            {
-                ko: "남들이 탐욕스러울 때 두려워하고, 남들이 두려워할 때 탐욕스러워져라.",
-                en: "Be fearful when others are greedy, and greedy when others are fearful.",
-                authorKo: "워런 버핏 (Warren Buffett)",
-                authorEn: "Warren Buffett"
-            },
-            {
-                ko: "주식 시장은 인내심 없는 사람의 돈을 인내심 있는 사람에게 이동시키는 도구이다.",
-                en: "The stock market is a device to transfer money from the impatient to the patient.",
-                authorKo: "워런 버핏 (Warren Buffett)",
-                authorEn: "Warren Buffett"
-            },
-            {
-                ko: "투자에서 가장 중요한 것은 머리가 아니라 배짱과 감정을 통제하는 기질이다.",
-                en: "The most important quality for an investor is temperament, not intellect.",
-                authorKo: "워런 버핏 (Warren Buffett)",
-                authorEn: "Warren Buffett"
-            },
-            {
-                ko: "가격은 지불하는 것이고, 가치는 얻는 것이다.",
-                en: "Price is what you pay. Value is what you get.",
-                authorKo: "워런 버핏 (Warren Buffett)",
-                authorEn: "Warren Buffett"
-            },
-            {
-                ko: "10년 동안 주식을 보유할 생각이 없다면, 단 10분도 보유할 생각을 하지 마라.",
-                en: "If you aren't willing to own a stock for 10 years, don't even think about owning it for 10 minutes.",
-                authorKo: "워런 버핏 (Warren Buffett)",
-                authorEn: "Warren Buffett"
-            },
-            {
-                ko: "훌륭한 기업을 적당한 가격에 사는 것이, 평범한 기업을 헐값에 사는 것보다 훨씬 낫다.",
-                en: "It's far better to buy a wonderful company at a fair price than a fair company at a wonderful price.",
-                authorKo: "찰리 멍거 (Charlie Munger)",
-                authorEn: "Charlie Munger"
-            },
-            {
-                ko: "큰돈은 사고파는 데 있는 것이 아니라, 우직하게 기다리는 시간 속에 있다.",
-                en: "The big money is not in the buying and the selling, but in the waiting.",
-                authorKo: "찰리 멍거 (Charlie Munger)",
-                authorEn: "Charlie Munger"
-            },
-            {
-                ko: "문제를 해결할 때는 항상 뒤집어 생각하라. 반대로 생각하는 습관을 들여라.",
-                en: "Invert, always invert: Turn a situation or problem upside down.",
-                authorKo: "찰리 멍거 (Charlie Munger)",
-                authorEn: "Charlie Munger"
-            },
-            {
-                ko: "단기적으로 시장은 투표기이지만, 장기적으로는 계량기(저울)이다.",
-                en: "In the short run, the market is a voting machine, but in the long run, it is a weighing machine.",
-                authorKo: "벤저민 그레이엄 (Benjamin Graham)",
-                authorEn: "Benjamin Graham"
-            },
-            {
-                ko: "투자의 핵심은 위험을 완전히 없애는 것이 아니라, 지적으로 관리하는 것이다.",
-                en: "The essence of investment management is the management of risks, not the management of returns.",
-                authorKo: "벤저민 그레이엄 (Benjamin Graham)",
-                authorEn: "Benjamin Graham"
-            },
-            {
-                ko: "안전마진은 언제나 미래의 예측 불가능한 불운을 견뎌낼 수 있는 완충장치다.",
-                en: "The secret to margin of safety is to provide a buffer against unexpected adversity.",
-                authorKo: "벤저민 그레이엄 (Benjamin Graham)",
-                authorEn: "Benjamin Graham"
-            },
-            {
-                ko: "당신이 약간의 신경만 쓴다면, 월스트리트 전문가들보다 먼저 훌륭한 기업을 찾을 수 있다.",
-                en: "Know what you own, and know why you own it.",
-                authorKo: "피터 린치 (Peter Lynch)",
-                authorEn: "Peter Lynch"
-            },
-            {
-                ko: "수익 난 주식을 팔고 손실 난 주식을 붙드는 것은, 꽃을 뽑고 잡초에 물을 주는 격이다.",
-                en: "Selling your winners and holding your losers is like cutting the flowers and watering the weeds.",
-                authorKo: "피터 린치 (Peter Lynch)",
-                authorEn: "Peter Lynch"
-            },
-            {
-                ko: "주식 시장의 폭락은 1월의 눈보라처럼 지극히 정상적이고 주기적인 일이다.",
-                en: "A market downturn is as routine as a blizzard in January.",
-                authorKo: "피터 린치 (Peter Lynch)",
-                authorEn: "Peter Lynch"
-            },
-            {
-                ko: "건초더미에서 바늘을 찾으려 애쓰지 마라. 건초더미 전체를 사버려라.",
-                en: "Don't look for the needle in the haystack. Just buy the haystack.",
-                authorKo: "존 보글 (John C. Bogle)",
-                authorEn: "John C. Bogle"
-            },
-            {
-                ko: "시간은 복리를 일구는 당신의 편이지만, 충동적인 감정은 당신의 최대 적이다.",
-                en: "Time is your friend; impulse is your enemy.",
-                authorKo: "존 보글 (John C. Bogle)",
-                authorEn: "John C. Bogle"
-            },
-            {
-                ko: "남들과 다른 탁월한 결과를 얻으려면, 남들과 다르게 생각해야 하고 그 생각이 옳아야 한다.",
-                en: "To achieve superior results, you must think differently from others and be more right.",
-                authorKo: "하워드 막스 (Howard Marks)",
-                authorEn: "Howard Marks"
-            },
-            {
-                ko: "우리가 미래를 정확히 예측할 수는 없지만, 지금 사이클의 어느 지점에 서 있는지는 알 수 있다.",
-                en: "We can't predict the future, but we can prepare by knowing where we stand in the cycle.",
-                authorKo: "하워드 막스 (Howard Marks)",
-                authorEn: "Howard Marks"
-            },
-            {
-                ko: "시장에서 가장 큰 위험은 모든 사람이 아무런 위험도 없다고 맹신할 때 찾아온다.",
-                en: "The greatest risk is the belief that there is no risk.",
-                authorKo: "하워드 막스 (Howard Marks)",
-                authorEn: "Howard Marks"
-            },
-            {
-                ko: "가장 큰 비관론이 팽배할 때가 역사상 언제나 매수의 최적기였다.",
-                en: "The time of maximum pessimism is the best time to buy.",
-                authorKo: "존 템플턴 (John Templeton)",
-                authorEn: "John Templeton"
-            },
-            {
-                ko: "강세장은 비관 속에서 태어나, 회의 속에서 자라며, 낙관 속에서 성숙해지고, 행복감 속에서 죽는다.",
-                en: "Bull markets are born on pessimism, grow on skepticism, mature on optimism and die on euphoria.",
-                authorKo: "존 템플턴 (John Templeton)",
-                authorEn: "John Templeton"
-            },
-            {
-                ko: "실수를 겪고 난 후의 깊은 반성이 더해질 때 비로소 진정한 발전이 이루어진다.",
-                en: "Pain plus reflection equals progress.",
-                authorKo: "레이 달리오 (Ray Dalio)",
-                authorEn: "Ray Dalio"
-            },
-            {
-                ko: "자신이 무엇을 모르는지 명확히 아는 것이, 안다고 착각하는 것보다 훨씬 유용하다.",
-                en: "Knowing what you don't know is much more useful than being good at what you think you know.",
-                authorKo: "레이 달리오 (Ray Dalio)",
-                authorEn: "Ray Dalio"
-            },
-            {
-                ko: "주식 시장은 가격은 모두 꿰뚫고 있으면서도 본질적인 가치는 아무것도 모르는 사람들로 붐빈다.",
-                en: "The stock market is filled with individuals who know the price of everything, but the value of nothing.",
-                authorKo: "필립 피셔 (Philip Fisher)",
-                authorEn: "Philip Fisher"
-            },
-            {
-                ko: "제대로 된 훌륭한 주식을 매수했다면, 그 주식을 매도해야 할 시점은 거의 영원히 오지 않는다.",
-                en: "If the job has been correctly done when a common stock is purchased, the time to sell it is almost never.",
-                authorKo: "필립 피셔 (Philip Fisher)",
-                authorEn: "Philip Fisher"
-            },
-            {
-                ko: "중요한 것은 맞았느냐 틀렸느냐가 아니라, 맞았을 때 얼마를 벌고 틀렸을 때 얼마를 잃느냐이다.",
-                en: "It's not whether you're right or wrong, but how much money you make when you're right and how much you lose when you're wrong.",
-                authorKo: "조지 소로스 (George Soros)",
-                authorEn: "George Soros"
-            },
-            {
-                ko: "자본을 지켜내는 보존력이야말로 장기적으로 막대한 복리 수익을 일구는 가장 강력한 무기이다.",
-                en: "The first thing you have to understand is that capital preservation is everything.",
-                authorKo: "스탠리 드러켄밀러 (Stanley Druckenmiller)",
-                authorEn: "Stanley Druckenmiller"
-            },
-            {
-                ko: "좋은 기회가 오면 계란을 한 바구니에 전부 담고, 그 바구니를 극도로 신중하게 지켜보라.",
-                en: "Put all your eggs in one basket and then watch that basket very carefully.",
-                authorKo: "스탠리 드러켄밀러 (Stanley Druckenmiller)",
-                authorEn: "Stanley Druckenmiller"
-            },
-            {
-                ko: "안전마진은 언제나 미래에 닥쳐올 수 있는 예측 불가능한 불운으로부터 투자자를 지켜준다.",
-                en: "A margin of safety is achieved when securities are purchased at prices sufficiently below underlying value.",
-                authorKo: "세스 클라만 (Seth Klarman)",
-                authorEn: "Seth Klarman"
-            },
-            {
-                ko: "투자자의 가장 무서운 적은 시장이나 남들이 아니라 조급함과 탐욕에 흔들리는 자기 자신이다.",
-                en: "The investor's chief problem—and even his worst enemy—is likely to be himself.",
-                authorKo: "세스 클라만 (Seth Klarman)",
-                authorEn: "Seth Klarman"
-            },
-            {
-                ko: "본질이 훌륭한 비즈니스를 염가에 매수하는 원리 속에 투자의 모든 성공 비결이 담겨 있다.",
-                en: "Buying good businesses at bargain prices is the secret to making lots of money.",
-                authorKo: "조엘 그린블랫 (Joel Greenblatt)",
-                authorEn: "Joel Greenblatt"
-            },
-            {
-                ko: "단기적인 시장 소음에 흔들리지 않는, 강력한 해자와 예측 가능한 현금흐름을 지닌 기업에 집중하라.",
-                en: "Invest in simple, predictable, free-cash-flow-generative companies with large moats.",
-                authorKo: "빌 애크먼 (Bill Ackman)",
-                authorEn: "Bill Ackman"
-            },
-            {
-                ko: "좋은 기업을 고르고, 과도한 가격을 치르지 말고, 매수한 뒤에는 가만히 기다려라.",
-                en: "Buy good companies, don't overpay, and do nothing.",
-                authorKo: "테리 스미스 (Terry Smith)",
-                authorEn: "Terry Smith"
-            },
-            {
-                ko: "동전 앞면이 나오면 크게 벌고, 뒷면이 나와도 거의 잃지 않는 비대칭적 기회를 찾아라.",
-                en: "Heads, I win; tails, I don't lose much.",
-                authorKo: "모니시 파브라이 (Mohnish Pabrai)",
-                authorEn: "Mohnish Pabrai"
-            },
-            {
-                ko: "시장이 끝없는 공포에 질려 비이성적으로 패닉 셀링을 할 때가 인생 최고의 기회이다.",
-                en: "Those times when the world thinks the world is coming to an end are usually great buying opportunities.",
-                authorKo: "데이비드 테퍼 (David Tepper)",
-                authorEn: "David Tepper"
-            },
-            {
-                ko: "모두가 한 방향으로 우르르 몰려갈 때, 조용히 반대편 창문 너머를 살펴보라.",
-                en: "Whenever you see everybody rushing in one direction, look the other way.",
-                authorKo: "짐 로저스 (Jim Rogers)",
-                authorEn: "Jim Rogers"
-            },
-            {
-                ko: "나는 돈이 길모퉁이에 떨어져 쌓일 때까지 기다렸다가, 유유히 가서 줍기만 한다.",
-                en: "I just wait until there is money lying in the corner, and all I have to do is go over there and pick it up.",
-                authorKo: "짐 로저스 (Jim Rogers)",
-                authorEn: "Jim Rogers"
-            },
-            {
-                ko: "월스트리트에서 일어나는 일은 과거에도 일어났고 앞으로도 영원히 반복될 것이다. 인간의 본성은 변하지 않기 때문이다.",
-                en: "There is nothing new in Wall Street. Whatever happens in the stock market today has happened before and will happen again.",
-                authorKo: "제시 리버모어 (Jesse Livermore)",
-                authorEn: "Jesse Livermore"
-            },
-            {
-                ko: "내게 큰돈을 벌어다 준 것은 결코 현란한 매매 기술이 아니라, 엉덩이로 진득하게 버텨낸 인내였다.",
-                en: "It never was my thinking that made the big money for me. It was always my sitting.",
-                authorKo: "제시 리버모어 (Jesse Livermore)",
-                authorEn: "Jesse Livermore"
-            },
-            {
-                ko: "바람은 촛불을 꺼뜨리지만 장작불은 더욱 거세게 만든다. 불확실성을 연료로 삼는 안티프래질이 되어라.",
-                en: "Wind extinguishes a candle and energizes fire. Be the fire and wish for the wind.",
-                authorKo: "나심 탈레브 (Nassim Nicholas Taleb)",
-                authorEn: "Nassim Nicholas Taleb"
-            },
-            {
-                ko: "어설픈 희망을 품고 손실을 방치하지 마라. 빠르고 엄격한 손절매야말로 자본을 지키는 유일한 방패다.",
-                en: "The whole secret to winning in the stock market is to lose the least amount possible when you're not right.",
-                authorKo: "윌리엄 오닐 (William O'Neil)",
-                authorEn: "William O'Neil"
-            },
-            {
-                ko: "수익을 쫓는 데 눈이 멀지 마라. 항상 잃지 않는 방법과 방어에 집중하라.",
-                en: "Don't focus on making money; focus on protecting what you have.",
-                authorKo: "폴 튜더 존스 (Paul Tudor Jones)",
-                authorEn: "Paul Tudor Jones"
-            },
-            {
-                ko: "복잡하게 생각하지 말고 단순함을 유지하라. 가장 중요한 원칙은 원금을 잃지 않는 것이다.",
-                en: "Keep it simple. Try not to lose money, and stay within your circle of competence.",
-                authorKo: "월터 슐로스 (Walter Schloss)",
-                authorEn: "Walter Schloss"
-            },
-            {
-                ko: "규모의 경제를 스스로 독식하지 않고 고객과 나누며 영구적인 성장 바퀴를 굴리는 기업을 찾아라.",
-                en: "Seek companies that share economies of scale with customers to build an unstoppable flywheel.",
-                authorKo: "닉 슬립 (Nick Sleep)",
-                authorEn: "Nick Sleep"
-            },
-            {
-                ko: "군중의 내러티브와 공포를 걷어내고, 재무제표와 숫자가 말해주는 냉정한 진실에만 집중하라.",
-                en: "Look past the emotional narratives of the crowd and examine the raw math of the fundamentals.",
-                authorKo: "마이클 버리 (Michael Burry)",
-                authorEn: "Michael Burry"
-            },
-            {
-                ko: "단기적인 종목 선별보다, 원칙에 기반한 장기 자산 배분이 포트폴리오 성과의 90%를 좌우한다.",
-                en: "Asset allocation decisions account for more than ninety percent of investment return variability.",
-                authorKo: "데이비드 스웬슨 (David Swensen)",
-                authorEn: "David Swensen"
-            },
-            {
-                ko: "군중을 이기려면 남들이 모르는 것을 알거나, 남들이 잘못 알고 있는 편향을 포착해야 한다.",
-                en: "To beat the crowd, you must know what they don't know, or see where they are mistaken.",
-                authorKo: "켄 피셔 (Ken Fisher)",
-                authorEn: "Ken Fisher"
-            },
-            {
-                ko: "바닥에서 사서 꼭대기에서 팔았다고 말하는 사람은 사기꾼뿐이다.",
-                en: "Don't try to buy at the bottom and sell at the top. It can't be done except by liars.",
-                authorKo: "버나드 바루크 (Bernard Baruch)",
-                authorEn: "Bernard Baruch"
-            },
-            {
-                ko: "시장에서 소외된 저평가 우량주를 묵묵히 모아가는 것이 결국 가장 확실한 승리의 길이다.",
-                en: "Look for good companies with low P/E multiples that the market has unfairly overlooked.",
-                authorKo: "존 네프 (John Neff)",
-                authorEn: "John Neff"
-            },
-            {
-                ko: "경영진의 안주와 비효율 속에 잠들어 있는 기업의 본질적 자산 가치를 깨워라.",
-                en: "In business, you need someone to challenge complacency and unlock hidden value.",
-                authorKo: "칼 아이칸 (Carl Icahn)",
-                authorEn: "Carl Icahn"
-            }
+            { text: "위험은 자신이 무엇을 하고 있는지 모르는 데서 온다.", author: "워런 버핏 (Warren Buffett)" },
+            { text: "남들이 탐욕스러울 때 두려워하고, 남들이 두려워할 때 탐욕스러워져라.", author: "워런 버핏 (Warren Buffett)" },
+            { text: "주식 시장은 인내심 없는 사람의 돈을 인내심 있는 사람에게 이동시키는 도구이다.", author: "워런 버핏 (Warren Buffett)" },
+            { text: "투자에서 가장 중요한 것은 머리가 아니라 배짱과 감정을 통제하는 기질이다.", author: "워런 버핏 (Warren Buffett)" },
+            { text: "가격은 지불하는 것이고, 가치는 얻는 것이다.", author: "워런 버핏 (Warren Buffett)" },
+            { text: "10년 동안 주식을 보유할 생각이 없다면, 단 10분도 보유할 생각을 하지 마라.", author: "워런 버핏 (Warren Buffett)" },
+            { text: "훌륭한 기업을 적당한 가격에 사는 것이, 평범한 기업을 헐값에 사는 것보다 훨씬 낫다.", author: "찰리 멍거 (Charlie Munger)" },
+            { text: "큰돈은 사고파는 데 있는 것이 아니라, 우직하게 기다리는 시간 속에 있다.", author: "찰리 멍거 (Charlie Munger)" },
+            { text: "문제를 해결할 때는 항상 뒤집어 생각하라. 반대로 생각하는 습관을 들여라.", author: "찰리 멍거 (Charlie Munger)" },
+            { text: "단기적으로 시장은 투표기이지만, 장기적으로는 계량기(저울)이다.", author: "벤저민 그레이엄 (Benjamin Graham)" },
+            { text: "투자의 핵심은 위험을 완전히 없애는 것이 아니라, 지적으로 관리하는 것이다.", author: "벤저민 그레이엄 (Benjamin Graham)" },
+            { text: "안전마진은 언제나 미래의 예측 불가능한 불운을 견뎌낼 수 있는 완충장치다.", author: "벤저민 그레이엄 (Benjamin Graham)" },
+            { text: "당신이 약간의 신경만 쓴다면, 월스트리트 전문가들보다 먼저 훌륭한 기업을 찾을 수 있다.", author: "피터 린치 (Peter Lynch)" },
+            { text: "수익 난 주식을 팔고 손실 난 주식을 붙드는 것은, 꽃을 뽑고 잡초에 물을 주는 격이다.", author: "피터 린치 (Peter Lynch)" },
+            { text: "주식 시장의 폭락은 1월의 눈보라처럼 지극히 정상적이고 주기적인 일이다.", author: "피터 린치 (Peter Lynch)" },
+            { text: "건초더미에서 바늘을 찾으려 애쓰지 마라. 건초더미 전체를 사버려라.", author: "존 보글 (John C. Bogle)" },
+            { text: "시간은 복리를 일구는 당신의 편이지만, 충동적인 감정은 당신의 최대 적이다.", author: "존 보글 (John C. Bogle)" },
+            { text: "남들과 다른 탁월한 결과를 얻으려면, 남들과 다르게 생각해야 하고 그 생각이 옳아야 한다.", author: "하워드 막스 (Howard Marks)" },
+            { text: "우리가 미래를 정확히 예측할 수는 없지만, 지금 사이클의 어느 지점에 서 있는지는 알 수 있다.", author: "하워드 막스 (Howard Marks)" },
+            { text: "시장에서 가장 큰 위험은 모든 사람이 아무런 위험도 없다고 맹신할 때 찾아온다.", author: "하워드 막스 (Howard Marks)" },
+            { text: "가장 큰 비관론이 팽배할 때가 역사상 언제나 매수의 최적기였다.", author: "존 템플턴 (John Templeton)" },
+            { text: "강세장은 비관 속에서 태어나, 회의 속에서 자라며, 낙관 속에서 성숙해지고, 행복감 속에서 죽는다.", author: "존 템플턴 (John Templeton)" },
+            { text: "실수를 겪고 난 후의 깊은 반성이 더해질 때 비로소 진정한 발전이 이루어진다.", author: "레이 달리오 (Ray Dalio)" },
+            { text: "자신이 무엇을 모르는지 명확히 아는 것이, 안다고 착각하는 것보다 훨씬 유용하다.", author: "레이 달리오 (Ray Dalio)" },
+            { text: "주식 시장은 가격은 모두 꿰뚫고 있으면서도 본질적인 가치는 아무것도 모르는 사람들로 붐빈다.", author: "필립 피셔 (Philip Fisher)" },
+            { text: "제대로 된 훌륭한 주식을 매수했다면, 그 주식을 매도해야 할 시점은 거의 영원히 오지 않는다.", author: "필립 피셔 (Philip Fisher)" },
+            { text: "중요한 것은 맞았느냐 틀렸느냐가 아니라, 맞았을 때 얼마를 벌고 틀렸을 때 얼마를 잃느냐이다.", author: "조지 소로스 (George Soros)" },
+            { text: "자본을 지켜내는 보존력이야말로 장기적으로 막대한 복리 수익을 일구는 가장 강력한 무기이다.", author: "스탠리 드러켄밀러 (Stanley Druckenmiller)" },
+            { text: "좋은 기회가 오면 계란을 한 바구니에 전부 담고, 그 바구니를 극도로 신중하게 지켜보라.", author: "스탠리 드러켄밀러 (Stanley Druckenmiller)" },
+            { text: "안전마진은 언제나 미래에 닥쳐올 수 있는 예측 불가능한 불운으로부터 투자자를 지켜준다.", author: "세스 클라만 (Seth Klarman)" },
+            { text: "투자자의 가장 무서운 적은 시장이나 남들이 아니라 조급함과 탐욕에 흔들리는 자기 자신이다.", author: "세스 클라만 (Seth Klarman)" },
+            { text: "본질이 훌륭한 비즈니스를 염가에 매수하는 원리 속에 투자의 모든 성공 비결이 담겨 있다.", author: "조엘 그린블랫 (Joel Greenblatt)" },
+            { text: "단기적인 시장 소음에 흔들리지 않는, 강력한 해자와 예측 가능한 현금흐름을 지닌 기업에 집중하라.", author: "빌 애크먼 (Bill Ackman)" },
+            { text: "좋은 기업을 고르고, 과도한 가격을 치르지 말고, 매수한 뒤에는 가만히 기다려라.", author: "테리 스미스 (Terry Smith)" },
+            { text: "동전 앞면이 나오면 크게 벌고, 뒷면이 나와도 거의 잃지 않는 비대칭적 기회를 찾아라.", author: "모니시 파브라이 (Mohnish Pabrai)" },
+            { text: "시장이 끝없는 공포에 질려 비이성적으로 패닉 셀링을 할 때가 인생 최고의 기회이다.", author: "데이비드 테퍼 (David Tepper)" },
+            { text: "모두가 한 방향으로 우르르 몰려갈 때, 조용히 반대편 창문 너머를 살펴보라.", author: "짐 로저스 (Jim Rogers)" },
+            { text: "나는 돈이 길모퉁이에 떨어져 쌓일 때까지 기다렸다가, 유유히 가서 줍기만 한다.", author: "짐 로저스 (Jim Rogers)" },
+            { text: "월스트리트에서 일어나는 일은 과거에도 일어났고 앞으로도 영원히 반복될 것이다. 인간의 본성은 변하지 않기 때문이다.", author: "제시 리버모어 (Jesse Livermore)" },
+            { text: "내게 큰돈을 벌어다 준 것은 결코 현란한 매매 기술이 아니라, 엉덩이로 진득하게 버텨낸 인내였다.", author: "제시 리버모어 (Jesse Livermore)" },
+            { text: "바람은 촛불을 꺼뜨리지만 장작불은 더욱 거세게 만든다. 불확실성을 연료로 삼는 안티프래질이 되어라.", author: "나심 탈레브 (Nassim Nicholas Taleb)" },
+            { text: "어설픈 희망을 품고 손실을 방치하지 마라. 빠르고 엄격한 손절매야말로 자본을 지키는 유일한 방패다.", author: "윌리엄 오닐 (William O'Neil)" },
+            { text: "수익을 쫓는 데 눈이 멀지 마라. 항상 잃지 않는 방법과 방어에 집중하라.", author: "폴 튜더 존스 (Paul Tudor Jones)" },
+            { text: "복잡하게 생각하지 말고 단순함을 유지하라. 가장 중요한 원칙은 원금을 잃지 않는 것이다.", author: "월터 슐로스 (Walter Schloss)" },
+            { text: "규모의 경제를 스스로 독식하지 않고 고객과 나누며 영구적인 성장 바퀴를 굴리는 기업을 찾아라.", author: "닉 슬립 (Nick Sleep)" },
+            { text: "군중의 내러티브와 공포를 걷어내고, 재무제표와 숫자가 말해주는 냉정한 진실에만 집중하라.", author: "마이클 버리 (Michael Burry)" },
+            { text: "단기적인 종목 선별보다, 원칙에 기반한 장기 자산 배분이 포트폴리오 성과의 90%를 좌우한다.", author: "데이비드 스웬슨 (David Swensen)" },
+            { text: "군중을 이기려면 남들이 모르는 것을 알거나, 남들이 잘못 알고 있는 편향을 포착해야 한다.", author: "켄 피셔 (Ken Fisher)" },
+            { text: "바닥에서 사서 꼭대기에서 팔았다고 말하는 사람은 사기꾼뿐이다.", author: "버나드 바루크 (Bernard Baruch)" },
+            { text: "시장에서 소외된 저평가 우량주를 묵묵히 모아가는 것이 결국 가장 확실한 승리의 길이다.", author: "존 네프 (John Neff)" },
+            { text: "경영진의 안주와 비효율 속에 잠들어 있는 기업의 본질적 자산 가치를 깨워라.", author: "칼 아이칸 (Carl Icahn)" }
         ];
 
         let selectedQuote = null;
@@ -733,11 +464,8 @@
             const authorEl = document.getElementById('quoteAuthor');
             if (!textEl || !authorEl) return;
 
-            const quoteContent = currentLang === 'en' ? selectedQuote.en : selectedQuote.ko;
-            const authorContent = currentLang === 'en' ? selectedQuote.authorEn : selectedQuote.authorKo;
-
-            textEl.innerHTML = `<span class="text-[#cb418b] text-lg sm:text-xl font-light select-none mr-1">“</span>${quoteContent}<span class="text-[#cb418b] text-lg sm:text-xl font-light select-none ml-1">”</span>`;
-            authorEl.textContent = `— ${authorContent}`;
+            textEl.innerHTML = `<span class="text-[#cb418b] text-lg sm:text-xl font-light select-none mr-1">“</span>${selectedQuote.text}<span class="text-[#cb418b] text-lg sm:text-xl font-light select-none ml-1">”</span>`;
+            authorEl.textContent = `— ${selectedQuote.author}`;
         }
 
         function startKeepAlive() {
@@ -784,212 +512,25 @@
             }
         });
 
-        const i18n = {
-            ko: {
-                pageTitle: "490 stock", headerBadge: "투자기준 자동 전환",
-                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span>",
-                mainSubtitle: "기업을 종합적으로 분석하여 투자 점수를 평가합니다",
-                companyPlaceholder: "기업명 또는 종목코드 (예: 삼성전자, NVDA, 000660)", analyzeBtn: "분석 시작",
-                adminNormal: "일반 모드", adminMember: "회원 모드 활성", adminActive: "관리자 모드 활성", modalTitle: "회원 / 관리자 인증",
-                modalPlaceholder: "비밀번호 입력...",
-                modalCancel: "취소", modalSave: "저장", loadingTitle: "기업 종합 분석 및 평가 중...",
-                loadingDesc: "기업의 펀더멘탈과 각종 데이터를 바탕으로 투자 적격성을 분석 중입니다. 잠시만 기다려 주세요.<br><span class='text-blue-600 font-semibold'>(약 1분 소요)</span>",
-                loadingNotice: "분석 중 오류가 발생할 수 있으니 다른 앱을 사용하지 마시고 분석이 완료될 때까지 기다려 주세요",
-                ipoDateLabel: "상장일:", 
-                analysisDateLabel: "분석일자:",
-                totalScoreLabel: "투자 최종 종합 점수", cat1Label: "메가트렌드",
-                cat2Label: "기업 경쟁력", cat3Label: "재무 및 수익성", cat4Label: "밸류에이션", cat1Max: "/ 126점",
-                cat2Max: "/ 193점", cat3Max: "/ 100점", cat4Max: "/ 71점", keyPointLabel: "투자 핵심 포인트",
-                tableAdminBadge: "관리자 전용", tableTitle: "44개 평가 항목별 정밀 채점표", thNo: "번호",
-                thCriteria: "평가 기준 항목", thMax: "배점", thScore: "획득", thReason: "AI 평가 및 팩트체크 사유",
-                tdTotalLabel: "합계 총점", tdVerifiedLabel: "정밀 검증 완료", errEmpty: "기업 이름 또는 종목코드를 입력해주세요.",
-                errFailed: "분석 요청에 실패했습니다.", errServer: "서버 통신 중 오류가 발생했습니다.",
-                checkTitle: "투자 적격성 세부 판정 조건 (임시 검증표)",
-                pdfBtnText: "PDF 리포트 저장",
-                memberReportBadge: "유료 전용",
-                memberReportTitle: "5대 핵심 영역 분석 리포트",
-                reportCat1Title: "메가트렌드 분석",
-                reportCat2Title: "기업 경쟁력 분석",
-                reportCat3Title: "재무 및 수익성 분석",
-                reportCat4Title: "밸류에이션 분석",
-                reportCat5Title: "리스크 분석",
-                reportOpinionTitle: "종합 투자 의견"
-            },
-            en: {
-                pageTitle: "490 stock", headerBadge: "Automatic Criteria Selection",
-                mainTitle: "<span class=\"text-[#cb418b]\">490 stock</span>",
-                mainSubtitle: "Comprehensively evaluating company fundamentals for investment qualification.",
-                companyPlaceholder: "Company name or ticker (e.g., Apple, AAPL, Samsung)", analyzeBtn: "Start Analysis",
-                adminNormal: "General Mode", adminMember: "Member Active", adminActive: "Admin Active", modalTitle: "Member / Admin Authentication",
-                modalPlaceholder: "Enter password...",
-                modalCancel: "Cancel", modalSave: "Save", loadingTitle: "Analyzing Fundamentals & Scoring...",
-                loadingDesc: "Evaluating investment qualification based on fundamentals and real-time filings. Please wait a moment.<br><span class='text-blue-600 font-semibold'>(Takes approx. 25-40s)</span>",
-                loadingNotice: "To avoid any analysis errors, please do not switch apps and wait until completion.",
-                ipoDateLabel: "IPO Date:", 
-                analysisDateLabel: "Analysis Date:",
-                totalScoreLabel: "Final Fundamental Score", cat1Label: "Mega Trend",
-                cat2Label: "Moat & Edge", cat3Label: "Financial Health", cat4Label: "Valuation", cat1Max: "/ 126 pts",
-                cat2Max: "/ 193 pts", cat3Max: "/ 100 pts", cat4Max: "/ 71 pts", keyPointLabel: "Key Investment Points",
-                tableAdminBadge: "Admin Only", tableTitle: "Detailed 44-Criterion Evaluation Table", thNo: "No.",
-                thCriteria: "Evaluation Criteria", thMax: "Max", thScore: "Score", thReason: "AI Fact-check & Rationale",
-                tdTotalLabel: "Total Score", tdVerifiedLabel: "Verified & Audited", errEmpty: "Please enter a company name or ticker symbol.",
-                errFailed: "Failed to process investment analysis.", errServer: "A server communication error occurred.",
-                checkTitle: "Investment Qualification Validation (Temporary)",
-                pdfBtnText: "Save PDF Report",
-                memberReportBadge: "Premium Only",
-                memberReportTitle: "5-Domain Analysis Report",
-                reportCat1Title: "Mega Trend Analysis",
-                reportCat2Title: "Company Competitiveness Analysis",
-                reportCat3Title: "Financial Health Analysis",
-                reportCat4Title: "Valuation Analysis",
-                reportCat5Title: "Risk Analysis",
-                reportOpinionTitle: "Investment Conclusion"
-            }
-        };
-
         window.onload = () => { 
             pickRandomQuote();
-            applyLanguage(); 
             updateAdminBtnUI(); 
         };
 
-        function toggleLangDropdown(event) {
-            if (event) event.stopPropagation();
-            document.getElementById('langDropdownMenu').classList.toggle('hidden');
-        }
-
-        function selectLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('company_lang', currentLang);
-            document.getElementById('langDropdownMenu').classList.add('hidden');
-            applyLanguage();
-        }
-
-        document.addEventListener('click', (event) => {
-            const container = document.getElementById('langDropdownContainer');
-            if (container && !container.contains(event.target)) {
-                document.getElementById('langDropdownMenu')?.classList.add('hidden');
-            }
-        });
-
-        function formatAnalysisDate(rawDate, lang) {
+        function formatAnalysisDate(rawDate) {
             if (!rawDate || rawDate === '-') {
                 const now = new Date();
                 const y = now.getFullYear();
                 const m = String(now.getMonth() + 1).padStart(2, '0');
                 const d = String(now.getDate()).padStart(2, '0');
-                return lang === 'en' ? `${y}-${m}-${d}` : `${y}년 ${m}월 ${d}일`;
+                return `${y}년 ${m}월 ${d}일`;
             }
             const parts = rawDate.split('-');
             if (parts.length === 3) {
                 const [y, m, d] = parts;
-                return lang === 'en' ? `${y}-${m}-${d}` : `${y}년 ${m}월 ${d}일`;
+                return `${y}년 ${m}월 ${d}일`;
             }
             return rawDate;
-        }
-
-        function applyLanguage() {
-            const t = i18n[currentLang];
-            document.title = t.pageTitle;
-            
-            const curText = currentLang === 'ko' ? 'KOR' : 'ENG';
-            const optText = currentLang === 'ko' ? 'EN' : 'KO';
-            const nextLang = currentLang === 'ko' ? 'en' : 'ko';
-
-            const curLangEl = document.getElementById('currentLangText');
-            if (curLangEl) curLangEl.textContent = curText;
-
-            const optBtn = document.getElementById('langOptionBtn');
-            if (optBtn) {
-                optBtn.textContent = optText;
-                optBtn.setAttribute('onclick', `selectLanguage('${nextLang}')`);
-            }
-
-            document.getElementById('headerBadge').textContent = t.headerBadge;
-            document.getElementById('mainTitle').innerHTML = t.mainTitle;
-            document.getElementById('mainSubtitle').textContent = t.mainSubtitle;
-            document.getElementById('companyInput').placeholder = t.companyPlaceholder;
-
-            const btnTextEl = document.getElementById('analyzeBtnText');
-            if (btnTextEl) {
-                btnTextEl.textContent = t.analyzeBtn;
-            } else {
-                document.getElementById('analyzeBtn').textContent = t.analyzeBtn;
-            }
-
-            document.getElementById('modalTitle').textContent = t.modalTitle;
-            document.getElementById('adminPwdInput').placeholder = t.modalPlaceholder;
-            document.getElementById('modalCancelBtn').textContent = t.modalCancel;
-            document.getElementById('modalSaveBtn').textContent = t.modalSave;
-
-            document.getElementById('loadingTitle').textContent = t.loadingTitle;
-            document.getElementById('loadingDesc').innerHTML = t.loadingDesc;
-
-            const lNotice = document.getElementById('loadingNotice');
-            if (lNotice) lNotice.textContent = t.loadingNotice;
-
-            document.getElementById('ipoDateLabel').textContent = t.ipoDateLabel;
-            document.getElementById('analysisDateLabel').textContent = t.analysisDateLabel;
-            document.getElementById('totalScoreLabel').textContent = t.totalScoreLabel;
-            document.getElementById('cat1Label').textContent = t.cat1Label;
-            document.getElementById('cat2Label').textContent = t.cat2Label;
-            document.getElementById('cat3Label').textContent = t.cat3Label;
-            document.getElementById('cat4Label').textContent = t.cat4Label;
-            document.getElementById('cat1Max').textContent = t.cat1Max;
-            document.getElementById('cat2Max').textContent = t.cat2Max;
-            document.getElementById('cat3Max').textContent = t.cat3Max;
-            document.getElementById('cat4Max').textContent = t.cat4Max;
-
-            document.getElementById('keyPointLabel').innerHTML = `
-                <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                ${t.keyPointLabel}
-            `;
-
-            document.getElementById('tableAdminBadge').textContent = t.tableAdminBadge;
-            document.getElementById('tableTitle').textContent = t.tableTitle;
-            document.getElementById('thNo').textContent = t.thNo;
-            document.getElementById('thCriteria').textContent = t.thCriteria;
-            document.getElementById('thMax').textContent = t.thMax;
-            document.getElementById('thScore').textContent = t.thScore;
-            document.getElementById('thReason').textContent = t.thReason;
-            document.getElementById('tdTotalLabel').textContent = t.tdTotalLabel;
-            document.getElementById('tdVerifiedLabel').textContent = t.tdVerifiedLabel;
-            document.getElementById('checkSectionTitle').textContent = t.checkTitle;
-            document.getElementById('pdfBtnText').textContent = t.pdfBtnText;
-
-            const mBadge = document.getElementById('memberReportBadge');
-            if (mBadge) mBadge.textContent = t.memberReportBadge;
-            const mTitle = document.getElementById('memberReportTitle');
-            if (mTitle) mTitle.textContent = t.memberReportTitle;
-            const c1Title = document.getElementById('reportCat1Title');
-            if (c1Title) c1Title.textContent = t.reportCat1Title;
-            const c2Title = document.getElementById('reportCat2Title');
-            if (c2Title) c2Title.textContent = t.reportCat2Title;
-            const c3Title = document.getElementById('reportCat3Title');
-            if (c3Title) c3Title.textContent = t.reportCat3Title;
-            const c4Title = document.getElementById('reportCat4Title');
-            if (c4Title) c4Title.textContent = t.reportCat4Title;
-            const c5Title = document.getElementById('reportCat5Title');
-            if (c5Title) c5Title.textContent = t.reportCat5Title;
-            const opTitle = document.getElementById('reportOpinionTitle');
-            if (opTitle) opTitle.textContent = t.reportOpinionTitle;
-
-            renderQuote();
-            updateAdminBtnUI();
-
-            if (currentResultData) {
-                renderQualificationBadge(currentResultData.qualification);
-                renderChecklist(currentResultData.checklist);
-                document.getElementById('resultAnalysisDate').textContent = formatAnalysisDate(currentResultData.analysisDate, currentLang);
-
-                const isElig = (currentResultData.qualification === "투자적격" || currentResultData.qualification === "Investment Grade");
-                const rBadge = document.getElementById('qualificationReasonBadge');
-                if (rBadge) {
-                    rBadge.textContent = isElig 
-                        ? (currentLang === 'en' ? "Qualification Rationale" : "투자적격 사유")
-                        : (currentLang === 'en' ? "Disqualification Rationale" : "투자부적격 사유");
-                }
-            }
         }
 
         function toggleAdminModal() {
@@ -1046,18 +587,17 @@
         function updateAdminBtnUI() {
             const btnText = document.getElementById('adminStatusText');
             const iconEl = document.getElementById('adminStatusIcon');
-            const t = i18n[currentLang];
 
             if (currentRole === 'admin') {
-                btnText.textContent = t.adminActive;
+                btnText.textContent = "관리자 모드 활성";
                 btnText.className = "text-amber-600 font-bold";
                 if (iconEl) iconEl.className = "w-4 h-4 text-amber-500";
             } else if (currentRole === 'member') {
-                btnText.textContent = t.adminMember;
+                btnText.textContent = "회원 모드 활성";
                 btnText.className = "text-blue-600 font-bold";
                 if (iconEl) iconEl.className = "w-4 h-4 text-blue-500";
             } else {
-                btnText.textContent = t.adminNormal;
+                btnText.textContent = "일반 모드";
                 btnText.className = "text-slate-600 font-medium";
                 if (iconEl) iconEl.className = "w-4 h-4 text-slate-400";
             }
@@ -1073,8 +613,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     company: query,
-                    adminPassword: adminPassword,
-                    lang: currentLang
+                    adminPassword: adminPassword
                 })
             });
 
@@ -1088,9 +627,8 @@
 
         async function analyzeCompany() {
             const query = document.getElementById('companyInput').value.trim();
-            const t = i18n[currentLang];
             if (!query) {
-                showError(t.errEmpty);
+                showError("기업 이름 또는 종목코드를 입력해주세요.");
                 return;
             }
 
@@ -1121,7 +659,7 @@
                 currentResultData = data;
                 displayResult(data);
             } catch (err) {
-                showError(err.message || t.errServer);
+                showError(err.message || "서버 통신 중 오류가 발생했습니다.");
             } finally {
                 isAnalyzing = false;
                 releaseWakeLock();
@@ -1178,26 +716,24 @@
 
         function renderQualificationBadge(status) {
             const qBadge = document.getElementById('resultQualificationBadge');
-            const isEligible = (status === "투자적격" || status === "Investment Grade");
+            const isEligible = (status === "투자적격");
 
             if (isEligible) {
-                const text = currentLang === 'en' ? "Investment Grade" : "투자적격";
                 qBadge.className = "text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-sm flex items-center gap-1.5";
-                qBadge.innerHTML = `<svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> ${text}`;
+                qBadge.innerHTML = `<svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> 투자적격`;
             } else {
-                const text = currentLang === 'en' ? "Ineligible" : "투자 부적격";
                 qBadge.className = "text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full tracking-wider bg-rose-50 text-rose-700 border border-rose-300 shadow-sm flex items-center gap-1.5";
-                qBadge.innerHTML = `<svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> ${text}`;
+                qBadge.innerHTML = `<svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> 투자 부적격`;
             }
         }
 
         function setCheckBadge(el, pass) {
             if (pass) {
                 el.className = "ml-2 px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 whitespace-nowrap";
-                el.textContent = currentLang === 'en' ? "PASS" : "충족";
+                el.textContent = "충족";
             } else {
                 el.className = "ml-2 px-2.5 py-0.5 rounded text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200 whitespace-nowrap";
-                el.textContent = currentLang === 'en' ? "FAIL" : "미달";
+                el.textContent = "미달";
             }
         }
 
@@ -1205,8 +741,8 @@
             if (!chk) return;
 
             document.getElementById('checkFrameworkType').textContent = chk.isNewborn 
-                ? (currentLang === 'en' ? "Newborn (< 5 yrs)" : "신생기업 (상장 5년 이하)")
-                : (currentLang === 'en' ? "Established (> 5 yrs)" : "기존기업 (상장 5년 초과)");
+                ? "신생기업 (상장 5년 이하)"
+                : "기존기업 (상장 5년 초과)";
 
             document.getElementById('checkReasonText').textContent = chk.ruleMatched;
             document.getElementById('chkValTotal').textContent = `${chk.totalScore.value}점`;
@@ -1217,9 +753,7 @@
             setCheckBadge(document.getElementById('chkBadgeGe65All'), chk.countGe65All.pass);
 
             const coreThreshold = chk.isNewborn ? 97 : 105;
-            document.getElementById('chkCoreSubLabel').textContent = currentLang === 'en'
-                ? `Threshold: >= ${coreThreshold} pts & >= 5 items`
-                : `기준: ${coreThreshold}점 이상 & 65% 이상 5개 이상`;
+            document.getElementById('chkCoreSubLabel').textContent = `기준: ${coreThreshold}점 이상 & 65% 이상 5개 이상`;
             document.getElementById('chkValCore').textContent = `${chk.coreScore.value}점 / ${chk.countGe65Core.value}개`;
             setCheckBadge(document.getElementById('chkBadgeCore'), chk.coreScore.pass && chk.countGe65Core.pass);
         }
@@ -1236,14 +770,14 @@
             document.getElementById('resultCompanyName').textContent = data.companyName;
             document.getElementById('resultCompanyCode').textContent = data.companyCode;
             document.getElementById('resultIpoDate').textContent = data.ipoDate;
-            document.getElementById('resultAnalysisDate').textContent = formatAnalysisDate(data.analysisDate, currentLang);
+            document.getElementById('resultAnalysisDate').textContent = formatAnalysisDate(data.analysisDate);
             document.getElementById('resultKeyPoint').textContent = data.keyPoint;
             document.getElementById('resultScore').textContent = data.totalScore;
 
             renderQualificationBadge(data.qualification);
 
             // 투자적격 / 투자부적격 판정 사유 (핵심 내용 중심 1~2줄 서술)
-            const isEligible = (data.qualification === "투자적격" || data.qualification === "Investment Grade");
+            const isEligible = (data.qualification === "투자적격");
             const reasonCard = document.getElementById('qualificationReasonCard');
             const reasonBadge = document.getElementById('qualificationReasonBadge');
             const reasonText = document.getElementById('resultQualificationReason');
@@ -1254,11 +788,11 @@
                 if (isEligible) {
                     reasonCard.className = "mt-3.5 p-3.5 sm:p-4 rounded-xl border border-emerald-200 bg-emerald-50/90 flex items-start gap-2.5 text-xs sm:text-sm text-emerald-900 shadow-sm";
                     reasonBadge.className = "px-2.5 py-0.5 rounded-full font-bold shrink-0 text-xs sm:text-sm bg-emerald-100 text-emerald-800 border border-emerald-300";
-                    reasonBadge.textContent = currentLang === 'en' ? "Qualification Rationale" : "투자적격 사유";
+                    reasonBadge.textContent = "투자적격 사유";
                 } else {
                     reasonCard.className = "mt-3.5 p-3.5 sm:p-4 rounded-xl border border-rose-200 bg-rose-50/90 flex items-start gap-2.5 text-xs sm:text-sm text-rose-900 shadow-sm";
                     reasonBadge.className = "px-2.5 py-0.5 rounded-full font-bold shrink-0 text-xs sm:text-sm bg-rose-100 text-rose-800 border border-rose-300";
-                    reasonBadge.textContent = currentLang === 'en' ? "Disqualification Rationale" : "투자부적격 사유";
+                    reasonBadge.textContent = "투자부적격 사유";
                 }
             }
 
