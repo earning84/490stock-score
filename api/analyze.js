@@ -404,34 +404,48 @@ ${isMember ? `[4단계: 5대 핵심 영역 리포트 및 종합 투자 의견(me
     let isEligible = false;
     let ruleMatched = "";
 
-    // 문항 번호와 점수 수치 대신, 각 평가 요건의 본질적 핵심 내용을 1~2줄로 서술
+    // 1단계: 최소 점수 기준 미달 필터 (절대 컷트라인)
     if (totalScore < 255) {
       isEligible = false;
       ruleMatched = "산업 내 시장 경쟁우위, 수익성 및 재무 안정성 등 기업 전반의 기초 체력(펀더멘탈)이 최소 투자 기준(255점)에 미달하여 부적격입니다.";
-    } else if (sum7_17 < 37) {
-      isEligible = false;
-      if (score7 < 15 && score17 >= 22) {
-        ruleMatched = "향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력은 양호하나, 6개월~1년 내 단기 가시적 성과 및 투자 타이밍이 부족하여 현시점 기준으로는 투자 시기로 부적합합니다.";
-      } else if (score17 < 22 && score7 >= 15) {
-        ruleMatched = "단기 가시적 성과 및 투자 타이밍은 양호하나, 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
-      } else {
-        ruleMatched = "단기 가시적 성과·투자 타이밍과 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 모두 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
-      }
+    // 적격 트랙 판정 (트랙 1: 고득점 트랙)
     } else if (totalScore >= 315 && countGe65All >= 25) {
       isEligible = true;
       ruleMatched = "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 가시적 성장과 투자 타이밍을 두루 갖추어 투자 가치가 충분합니다.";
+    // 적격 트랙 판정 (트랙 2: 핵심역량 트랙)
     } else if (totalScore >= 255 && totalScore <= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
       ruleMatched = "유효 시장 규모와 핵심 기술 경쟁우위, 경영진 실행력 및 밸류체인 핵심 경쟁력을 확보하고 성장 모멘텀을 충족했습니다.";
+    // 적격 트랙 판정 (트랙 3: 고득점 보완 트랙)
     } else if (totalScore >= 315 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
       ruleMatched = "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 경쟁우위, 안정적인 재무 구조 및 투자 타이밍과 성장 요건을 모두 충족했습니다.";
+    // 적격 트랙 요건 미충족 시 부적격 처리
     } else {
       isEligible = false;
       if (totalScore >= 315) {
         ruleMatched = "전반적인 재무 기초는 양호하나, 독점적 가격결정권과 시장 지배력 등 각 평가 영역 전반에서 탁월한 경쟁 우위가 충분히 입증되지 못했습니다.";
       } else {
         ruleMatched = "유효 시장 확장성, 독점적 경쟁우위 기술, 경영진 실행력 및 내재가치 평가 등 본질적인 핵심 경쟁 우위 요건이 기준에 미치지 못했습니다.";
+      }
+    }
+
+    // 제일 마지막 필터: 최종 타이밍/한방(7번+17번) 검증 및 사유 병합
+    if (sum7_17 < 37) {
+      let timingReason = "";
+      if (score7 < 15 && score17 >= 22) {
+        timingReason = "향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력은 양호하나, 6개월~1년 내 단기 가시적 성과 및 투자 타이밍이 부족하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+      } else if (score17 < 22 && score7 >= 15) {
+        timingReason = "단기 가시적 성과 및 투자 타이밍은 양호하나, 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+      } else {
+        timingReason = "단기 가시적 성과·투자 타이밍과 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 모두 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
+      }
+
+      if (isEligible) {
+        isEligible = false;
+        ruleMatched = `${ruleMatched} 다만, ${timingReason}`;
+      } else {
+        ruleMatched = `${ruleMatched} 아울러 ${timingReason}`;
       }
     }
 
