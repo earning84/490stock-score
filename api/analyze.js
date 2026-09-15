@@ -495,7 +495,7 @@ ${formatCriteriaPrompt(NEWBORN_CRITERIA, false)}
 어떠한 마크다운 코드블록이나 서론 없이 순수한 단일 JSON 텍스트만 출력하십시오.
 `;
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [{ parts: [{ text: `Target Company: ${company}` }] }],
