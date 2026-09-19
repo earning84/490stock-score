@@ -432,7 +432,24 @@ ${isMember ? `[4단계: 5대 핵심 영역 리포트 및 종합 투자 의견(me
     }
 
     // 제일 마지막 필터: 최종 타이밍/한방(7번+17번) 검증 및 사유 병합
-    if (sum7_17 < 37) {
+    if (sum7_17 < 37 && score42 >= 8) {
+      let timingReason = "";
+      if (score7 < 15 && score17 >= 22) {
+          timingReason = "향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력은 양호하나, 6개월~1년 내 상승할 수 있는 단기 가시적 성과 및 투자 타이밍이 부족하여 현시점 기준으로는 투자 시기로 부적합 합니다.";
+        }
+      } else if (score17 < 22 && score7 >= 15) {
+        timingReason = "단기 가시적 성과 및 투자 타이밍은 양호하나, 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 불충분하여 현시점 기준으로는 투자 시기로 부적합 합니다.";
+      } else {
+        timingReason = "단기 가시적 성과·투자 타이밍과 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 모두 불충분하여 현시점 기준으로는 투자 시기로 부적합 합니다.";
+      }
+
+      if (isEligible) {
+        isEligible = false;
+        ruleMatched = `${ruleMatched} 다만, ${timingReason}`;
+      } else {
+        ruleMatched = `${ruleMatched} 아울러 ${timingReason}`;
+      }
+    } else if (sum7_17 < 37 && score42 < 8) {
       let timingReason = "";
       if (score7 < 15 && score17 >= 22) {
         if (score42 < 8) {
@@ -452,6 +469,8 @@ ${isMember ? `[4단계: 5대 핵심 영역 리포트 및 종합 투자 의견(me
       } else {
         ruleMatched = `${ruleMatched} 아울러 ${timingReason}`;
       }
+    }
+
     }
 
     const qualification = isEligible ? "투자적격" : "투자 부적격";
