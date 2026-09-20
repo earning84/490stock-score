@@ -445,17 +445,17 @@ ${isMember ? `[4단계: 5대 핵심 영역 리포트 및 종합 투자 의견(me
       } else {
         timingReason = "단기 가시적 성과·투자 타이밍과 향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력이 모두 불충분하여 현시점 기준으로는 투자 시기로 부적합합니다.";
       }
+      if (isEligible) {
+        isEligible = false;
+        ruleMatched = `${ruleMatched} 다만, ${timingReason}`;
+      } else {
+        ruleMatched = `${ruleMatched} 아울러 ${timingReason}`;
+      }
     } else if (score42 < 8){
-      timingReason = "향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력은 양호하나 시가총액이 수배로 증가하기는 부족 합니다.";
+      timingReason = "향후 폭발적 매출 성장을 견인할 메가트렌드 대형 성장동력은 양호하나, 현재의 시가총액이 수배로 증가하기는 부족 합니다.";
+      ruleMatched = `${ruleMatched} 다만, ${timingReason}`;
     }
     
-    if (isEligible) {
-      isEligible = false;
-      ruleMatched = `${ruleMatched} 다만, ${timingReason}`;
-    } else {
-      ruleMatched = `${ruleMatched} 아울러 ${timingReason}`;
-    }
-
     const qualification = isEligible ? "투자적격" : "투자 부적격";
 
     const checklist = {
