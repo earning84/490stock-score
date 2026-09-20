@@ -412,7 +412,7 @@ ${isMember ? `[4단계: 5대 핵심 영역 리포트 및 종합 투자 의견(me
     // 적격 트랙 판정 (트랙 1: 고득점 트랙: 315 -> 630)
     } else if (totalScore >= 630 && countGe65All >= 25) {
       isEligible = true;
-      ruleMatched = "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 가시적 성장과 투자 타이밍을 두루 갖추어 투자 가치가 충분합니다.";
+      ruleMatched = "메가트렌드 선점, 독점적 시장 지배력, 견고한 재무 구조 및 가시적 성장과 중장기적 투자매력을 두루 갖추어 투자 가치가 충분합니다.";
     // 적격 트랙 판정 (트랙 2: 핵심역량 트랙: 255~315 -> 510~630, 105/97 -> 210/194)
     } else if (totalScore >= 510 && totalScore <= 630 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
@@ -420,7 +420,7 @@ ${isMember ? `[4단계: 5대 핵심 영역 리포트 및 종합 투자 의견(me
     // 적격 트랙 판정 (트랙 3: 고득점 보완 트랙)
     } else if (totalScore >= 630 && coreScore >= requiredCoreScore && countGe65Core >= 5) {
       isEligible = true;
-      ruleMatched = "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 경쟁우위, 안정적인 재무 구조 및 투자 타이밍과 성장 요건을 모두 충족했습니다.";
+      ruleMatched = "우수한 펀더멘탈 점수와 함께 산업 내 핵심 기술 경쟁우위, 안정적인 재무 구조 및 중장기적 투자매력과 성장 요건을 모두 충족했습니다.";
     // 적격 트랙 요건 미충족 시 부적격 처리
     } else {
       isEligible = false;
